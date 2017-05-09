@@ -1,1 +1,7 @@
 __pycache__
+.idea/
+.DS_Store
+**.ipynb_checkpoints/
+
+demos/rossmann/data/
+demos/house_prices/data/
