@@ -1,4 +1,5 @@
 from ..preprocessing.base_step import BaseStep
 
 class LinearModel(BaseStep):
-    pass
+    def execute(self, input, metadata):
+        return None, None

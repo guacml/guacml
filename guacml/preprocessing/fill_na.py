@@ -2,11 +2,12 @@ from .base_step import BaseStep
 
 class FillNa(BaseStep):
 
-    def __init__(self, column_info):
-        self.column_info = column_info
-
-    def execute(self, input):
+    def execute(self, input, metadata):
         df = input.copy()
-        info = self.column_info
-        col_to_fill = info[info.n_na > 0].col_name
-        return df[col_to_fill].fillna(inplace=True)
+        meta = metadata.copy()
+
+        col_to_fill = metadata[metadata.n_na > 0].col_name
+        # ToDo: Better fill method
+        df[col_to_fill] = df[col_to_fill].fillna(df[col_to_fill].mean())
+        meta.loc[meta.col_name.isin(col_to_fill), 'n_na'] = 0
+        return df, meta

@@ -1,3 +1,3 @@
 class BaseStep:
-    def execute(self, input):
+    def execute(self, input, metadata):
         raise NotImplementedError()

@@ -8,17 +8,17 @@ from ..models.linear_model import LinearModel
 
 class TreeBuilder:
     def __init__(self, column_info, target):
-        self.column_info = column_info
+        self.metdata = column_info[['col_name', 'type']]
         self.target = target
 
     def build(self):
         step_tree = StepTree()
-        step_tree.add_step('encode_labels', None, LabelEncoder(self.column_info))
+        step_tree.add_step('encode_labels', None, LabelEncoder())
         step_tree.add_step('xg_boost', 'encode_labels', XgBoost())
 
-        step_tree.add_step('fill_na', 'encode_labels', FillNa(self.column_info))
+        step_tree.add_step('fill_na', 'encode_labels', FillNa())
         step_tree.add_step('random_forest', 'fill_na', RandomForest(self.target))
 
-        step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder(self.column_info))
+        step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder())
         step_tree.add_step('linear_model', 'one_hot_encode', LinearModel())
         return step_tree

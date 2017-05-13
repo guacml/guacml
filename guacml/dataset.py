@@ -15,13 +15,12 @@ class Dataset:
         self.target = target
         print('analyzing columns..')
         col_analyzer = ColumnAnalyzer()
-        self.column_info = col_analyzer.analyze(self.df)
+        self.column_info, self.metadata = col_analyzer.analyze(self.df)
         clear_output()
 
-
     def run(self):
-        tree_builder = TreeBuilder(self.column_info, self.target)
+        tree_builder = TreeBuilder(self.metadata, self.target)
         tree = tree_builder.build()
 
         runner = TreeRunner(tree)
-        return runner.run(self.df)
+        return runner.run(self.df, self.metadata)

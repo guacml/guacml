@@ -4,18 +4,15 @@ from sklearn.preprocessing import LabelEncoder as LE
 
 class LabelEncoder(BaseStep):
 
-    def __init__(self, column_info):
-        self.column_info = column_info
-
-    def execute(self, input):
+    def execute(self, input, metadata):
         df = input.copy()
+        meta = metadata.copy()
+
         enc = LE()
-        info = self.column_info
-        to_encode = info[info.type == ColType.CATEGORICAL].col_name
-        for col in to_encode:
-            try:
-                df[col] = enc.fit_transform(df[col])
-            except Exception as e:
-                print(col)
-                raise e
-        return df
+        cols_to_encode = metadata[metadata.type == ColType.CATEGORICAL].col_name
+        for col in cols_to_encode:
+            df.loc[df[col].notnull(), col] = enc.fit_transform(df.loc[df[col].notnull(), col])
+
+            meta.loc[meta.col_name == col, 'type'] = ColType.INT_ENCODING
+            meta.loc[meta.col_name == col, 'derived_from'] = col
+        return df, meta
