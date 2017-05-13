@@ -18,4 +18,4 @@ class TestDataset(unittest.TestCase):
 
         result = ds.run()
 
-        self.assertEquals(len(result), 3)
+        self.assertEquals(3, len(result))

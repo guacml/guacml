@@ -11,7 +11,11 @@ class LabelEncoder(BaseStep):
         df = input.copy()
         enc = LE()
         info = self.column_info
-        to_encode = info[info.type == ColType.CATEGROICAL].col_name
+        to_encode = info[info.type == ColType.CATEGORICAL].col_name
         for col in to_encode:
-            df[col] = enc.fit_transform(df[col])
+            try:
+                df[col] = enc.fit_transform(df[col])
+            except Exception as e:
+                print(col)
+                raise e
         return df

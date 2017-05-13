@@ -20,7 +20,7 @@ class Dataset:
 
 
     def run(self):
-        tree_builder = TreeBuilder(self.column_info)
+        tree_builder = TreeBuilder(self.column_info, self.target)
         tree = tree_builder.build()
 
         runner = TreeRunner(tree)
