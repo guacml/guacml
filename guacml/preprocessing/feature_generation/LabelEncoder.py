@@ -1,7 +1,7 @@
-from .base_feature_generator import BaseFeatureGenerator
-from sklearn.preprocessing import LabelEncoder
+from ..base_step import BaseStep
+from sklearn.preprocessing import LabelEncoder as LE
 
-class LabelEncoder(BaseFeatureGenerator):
-    def generate(self, input):
-        enc = LabelEncoder()
+class LabelEncoder(BaseStep):
+    def execute(self, input):
+        enc = LE()
         return enc.fit_transform(input)

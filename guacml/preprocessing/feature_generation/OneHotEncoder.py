@@ -1,7 +1,7 @@
-from .base_feature_generator import BaseFeatureGenerator
-from sklearn.preprocessing import OneHotEncoder
+from ..base_step import BaseStep
+from sklearn.preprocessing import OneHotEncoder as OHE
 
-class LabelEncoder(BaseFeatureGenerator):
-    def generate(self, input):
-        enc = OneHotEncoder()
+class LabelEncoder(BaseStep):
+    def execute(self, input):
+        enc = OHE()
         return enc.fit_transform(input)
