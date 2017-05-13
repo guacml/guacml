@@ -17,9 +17,11 @@ class TestDataset(unittest.TestCase):
     def test_run(self):
         ds = self.load_dataset()
 
-        result = ds.run()
+        ds.run()
+        result = ds.model_results
+
+        print(result)
 
         self.assertEquals(3, len(result))
-        self.assertIsInstance(result['random_forest'].adapter.classifier, RandomForestClassifier)
         self.assertTrue(0 < result['random_forest'].training_error < 1)
         self.assertTrue(0 < result['random_forest'].cv_error < 10)

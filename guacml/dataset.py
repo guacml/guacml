@@ -28,4 +28,14 @@ class Dataset:
         tree = tree_builder.build()
 
         runner = TreeRunner(self, tree)
-        return runner.run()
+        self.model_results = runner.run()
+
+    def model_overview(self):
+        rows = []
+        for name, res in self._model_results.items():
+            res_dict = res.to_display_dict()
+            res_dict['model name'] = name
+            rows.append(res_dict)
+        result = pd.DataFrame(rows, columns=['model name', 'cv error', 'training error'])
+        return result.sort_values('cv error')
+
