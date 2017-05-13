@@ -1,10 +1,12 @@
 from .base_step import BaseStep
 from collections import defaultdict
+from ..model_runner import ModelRunner
 
 class StepTree:
-    def __init__(self):
+    def __init__(self, target):
         self.steps = {}
         self.children = defaultdict(list)
+        self.target = target
 
     def add_step(self, step_name, parent_name, step):
         if parent_name is None:
@@ -21,6 +23,9 @@ class StepTree:
         self.steps[step_name] = step
         if not parent_name is None:
             self.children[parent_name].append(step_name)
+
+    def add_model(self, step_name, parent_name, model):
+        self.add_step(step_name, parent_name, ModelRunner(model, self.target))
 
     def get_step(self, name):
         return self.steps[name]

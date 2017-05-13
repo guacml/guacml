@@ -17,8 +17,9 @@ class TreeRunner:
 
         if not children:
             # Poor man's way to distinguish models from transformations - models are always leafs
-            model_runner = ModelRunner(step, self.dataset.splitter)
-            accumulator[step_name] = model_runner.run(input, metadata)
+            # `step` is an instance of ModelRunner here - need to fix that abstraction leak
+            step.splitter = self.dataset.splitter
+            accumulator[step_name] = step.execute(input, metadata)
         else:
             output, metadata = step.execute(input, metadata)
 

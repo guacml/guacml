@@ -20,4 +20,6 @@ class TestDataset(unittest.TestCase):
         result = ds.run()
 
         self.assertEquals(3, len(result))
-        self.assertIsInstance(result['random_forest'], RandomForestClassifier)
+        self.assertIsInstance(result['random_forest'].adapter.classifier, RandomForestClassifier)
+        self.assertTrue(0 < result['random_forest'].training_error < 1)
+        self.assertTrue(0 < result['random_forest'].cv_error < 10)

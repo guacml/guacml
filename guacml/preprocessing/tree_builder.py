@@ -12,13 +12,13 @@ class TreeBuilder:
         self.target = target
 
     def build(self):
-        step_tree = StepTree()
+        step_tree = StepTree(self.target)
         step_tree.add_step('encode_labels', None, LabelEncoder())
-        step_tree.add_step('xg_boost', 'encode_labels', XgBoost())
+        step_tree.add_model('xg_boost', 'encode_labels', XgBoost())
 
         step_tree.add_step('fill_na', 'encode_labels', FillNa())
-        step_tree.add_step('random_forest', 'fill_na', RandomForest(self.target))
+        step_tree.add_model('random_forest', 'fill_na', RandomForest())
 
         step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder())
-        step_tree.add_step('linear_model', 'one_hot_encode', LinearModel())
+        step_tree.add_model('linear_model', 'one_hot_encode', LinearModel())
         return step_tree

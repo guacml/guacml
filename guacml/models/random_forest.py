@@ -1,17 +1,20 @@
 from guacml.preprocessing.column_analyzer import ColType
-from ..preprocessing.base_step import BaseStep
 from sklearn.ensemble import RandomForestClassifier
 
-class RandomForest(BaseStep):
-    def __init__(self, target):
-        self.target = target
-
-    def execute(self, input, metadata):
-        classifier = RandomForestClassifier()
+# TODO base model class
+class RandomForest:
+    def select_features(self, metadata):
         valid_types = [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
-        valid_cols = metadata[(metadata.type.isin(valid_types)) &
-                              (metadata.col_name != self.target)].col_name
 
-        classifier.fit(input[valid_cols], input[self.target])
+        return metadata[metadata.type.isin(valid_types)].col_name
 
-        return classifier
+    def get_adapter(self):
+        return Adapter()
+
+class Adapter:
+    def train(self, x, y):
+        self.classifier = RandomForestClassifier()
+        self.classifier.fit(x, y)
+
+    def predict(self, x):
+        return self.classifier.predict(x)
