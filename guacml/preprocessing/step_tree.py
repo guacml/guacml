@@ -13,10 +13,10 @@ class StepTree:
             raise Exception('Parent can only be empty for the first node added.')
         if step_name in self.steps:
             raise ValueError('Step {0} alrady present.'.format(step_name))
-        if parent_name not in self.steps:
+        if parent_name is not None and parent_name not in self.steps:
             raise ValueError('Parent {0} not present.'.format(parent_name))
         if not isinstance(step, BaseStep):
-            raise ValueError('Argument step needs to be derived from BaseFeatureGenerator.')
+            raise ValueError('Argument step needs to be derived from BaseStep.')
 
         self.steps[step_name] = step
         self.parents[step_name] = parent_name

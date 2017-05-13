@@ -24,4 +24,4 @@ class Dataset:
         tree = tree_builder.build()
 
         runner = TreeRunner(tree)
-        runner.run(self.df)
+        return runner.run(self.df)

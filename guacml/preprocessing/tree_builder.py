@@ -1,5 +1,10 @@
 from .step_tree import StepTree
-from .feature_generation import LabelEncoder, OneHotEncoder
+from .feature_generation.label_encoder import LabelEncoder
+from .feature_generation.one_hot_encoder import OneHotEncoder
+from .fill_na import FillNa
+from ..models.xgboost import XgBoost
+from ..models.random_forest import RandomForest
+from ..models.linear_model import LinearModel
 
 class TreeBuilder:
     def __init__(self, column_info):
