@@ -3,7 +3,7 @@ import pandas as pd
 from enum import Enum
 
 
-ColType = Enum('ColType', 'BINARY NUMERIC ORDINAL INT_ENCODING\
+ColType = Enum('ColType', 'BINARY NUMERIC ORDINAL INT_ENCODING ONE_HOT_ENCODING\
                            ID CATEGORICAL DATETIME TEXT WORDS LIST UNKNOWN')
 
 

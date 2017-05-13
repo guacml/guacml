@@ -2,6 +2,7 @@ from ..base_step import BaseStep
 from ..column_analyzer import ColType
 from sklearn.preprocessing import LabelEncoder as LE
 
+
 class LabelEncoder(BaseStep):
 
     def execute(self, input, metadata):
