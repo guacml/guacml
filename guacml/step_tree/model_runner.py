@@ -1,5 +1,6 @@
 from sklearn.metrics import log_loss
-from .preprocessing.base_step import BaseStep
+from .base_step import BaseStep
+
 
 class ModelRunner(BaseStep):
     def __init__(self, model, target):

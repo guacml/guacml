@@ -1,5 +1,3 @@
-from ..model_runner import ModelRunner
-
 class TreeRunner:
     def __init__(self, dataset, tree):
         self.dataset = dataset

@@ -1,11 +1,15 @@
 import pandas as pd
+
+from guacml.step_tree.random_splitter import RandomSplitter
+from guacml.step_tree.tree_builder import TreeBuilder
+from guacml.step_tree.tree_runner import TreeRunner
 from .preprocessing.column_analyzer import ColumnAnalyzer
 from IPython.display import clear_output
-from .preprocessing.tree_builder import TreeBuilder
-from .preprocessing.tree_runner import TreeRunner
-from .random_splitter import RandomSplitter
+
+
 
 class Dataset:
+
     def __init__(self, path, target, **kwds):
         print('loading data..')
         self.df = pd.read_csv(path, **kwds)

@@ -1,4 +1,5 @@
-from .base_step import BaseStep
+from guacml.step_tree.base_step import BaseStep
+
 
 class FillNa(BaseStep):
 

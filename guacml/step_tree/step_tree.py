@@ -1,6 +1,6 @@
 from .base_step import BaseStep
 from collections import defaultdict
-from ..model_runner import ModelRunner
+from .model_runner import ModelRunner
 
 class StepTree:
     def __init__(self, target):
