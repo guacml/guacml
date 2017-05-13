@@ -3,7 +3,8 @@ import pandas as pd
 from enum import Enum
 
 
-ColType = Enum('ColType', 'ID BINARY CATEGORICAL NUMERIC ORDINAL DATETIME TEXT WORDS LIST UNKNOWN')
+ColType = Enum('ColType', 'NUM_ID BINARY NUMERIC ORDINAL '
+                          'ID CATEGORICAL DATETIME TEXT WORDS LIST UNKNOWN')
 
 class ColumnAnalyzer:
     def analyze(self, df):
@@ -12,20 +13,23 @@ class ColumnAnalyzer:
             ci = self.analyze_col(df[col], col)
             col_infos.append(ci)
         col_infos = pd.DataFrame(col_infos,
-                            columns=['col_name', 'type', 'n_unique', 'n_unique_%',
-                                     'n_na_%', 'n_blank_%', 'example'])
+                            columns=['col_name', 'type', 'n_unique', 'n_na', 'n_unique_%',
+                                     'n_na_%', 'n_blank', 'n_blank_%', 'example'])
         return col_infos
 
     def analyze_col(self, col, col_name):
         n_unique = col.nunique()
         n_unique_pct = n_unique * 100 / len(col)
         not_null = col[col.notnull()]
+        n_not_null = col.isnull().sum()
 
         col_info = {
             'col_name': col_name,
             'n_unique': n_unique,
-            'n_unique_%': round(n_unique_pct),
-            'n_na_%': round(col.isnull().sum() * 100 / len(col)),
+            'n_unique_%': n_unique_pct,
+            'n_na': n_not_null,
+            'n_na_%': n_not_null * 100 / len(col),
+            'n_blank': 0,
             'n_blank_%': 0,
             'example': not_null.iloc[0]
         }
@@ -38,7 +42,7 @@ class ColumnAnalyzer:
             # all values from 0/1 until n_unique are present -> IDs or encoded categories
             if (col.min() == 0 or col.min() == 1) and (col.max() - col.min() == n_unique - 1):
                 if n_unique_pct == 100:
-                    col_info['type'] = ColType.ID
+                    col_info['type'] = ColType.NUM_ID
                     return col_info
                 else:
                     col_info['type'] = ColType.CATEGORICAL
@@ -58,7 +62,9 @@ class ColumnAnalyzer:
             is_str = (not_null.values.dtype == np.str) or \
                      (type(not_null.iloc[0]) is str and type(not_null.iloc[-1]) is str)
             if is_str:
-                col_info['n_blanks_%'] = round((not_null == '').sum() * 100 / len(col))
+                n_blank = (not_null == '').sum()
+                col_info['n_blank'] = n_blank
+                col_info['n_blank_%'] = n_blank * 100 / len(col)
                 word_counts = not_null.str.count('[ ,;]')
                 mean_words = word_counts.mean()
                 if mean_words >= 5:
