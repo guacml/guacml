@@ -2,6 +2,7 @@ import guacml as guac
 import os
 import pandas as pd
 import unittest
+from sklearn.ensemble import RandomForestClassifier
 
 class TestDataset(unittest.TestCase):
     def load_dataset(self):
@@ -19,3 +20,4 @@ class TestDataset(unittest.TestCase):
         result = ds.run()
 
         self.assertEquals(3, len(result))
+        self.assertIsInstance(result['random_forest'], RandomForestClassifier)

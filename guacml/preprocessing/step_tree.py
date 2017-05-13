@@ -1,7 +1,6 @@
 from .base_step import BaseStep
 from collections import defaultdict
 
-
 class StepTree:
     def __init__(self):
         self.steps = {}

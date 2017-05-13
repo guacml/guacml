@@ -13,4 +13,5 @@ class RandomForest(BaseStep):
                               (metadata.col_name != self.target)].col_name
 
         classifier.fit(input[valid_cols], input[self.target])
-        return None, None
+
+        return classifier

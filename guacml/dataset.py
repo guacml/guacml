@@ -3,9 +3,9 @@ from .preprocessing.column_analyzer import ColumnAnalyzer
 from IPython.display import clear_output
 from .preprocessing.tree_builder import TreeBuilder
 from .preprocessing.tree_runner import TreeRunner
+from .random_splitter import RandomSplitter
 
 class Dataset:
-
     def __init__(self, path, target, **kwds):
         print('loading data..')
         self.df = pd.read_csv(path, **kwds)
@@ -17,10 +17,11 @@ class Dataset:
         col_analyzer = ColumnAnalyzer()
         self.column_info, self.metadata = col_analyzer.analyze(self.df)
         clear_output()
+        self.splitter = RandomSplitter(.7)
 
     def run(self):
         tree_builder = TreeBuilder(self.metadata, self.target)
         tree = tree_builder.build()
 
-        runner = TreeRunner(tree)
-        return runner.run(self.df, self.metadata)
+        runner = TreeRunner(self, tree)
+        return runner.run()
