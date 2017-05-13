@@ -1,6 +1,6 @@
-# GuacML aka "Rails for ML"
+# Guacamole - ML without the boilerplate
 
-Automate typical DS/ML workflow, hide the boilerplate, use sensible defaults, but expose ways to customize them ("convention over configuration").
+Automate typical DS/ML workflow, get rid of the boilerplate, use sensible defaults, but expose ways to customize them ("convention over configuration").
 
 1. Load data
   - CSV
