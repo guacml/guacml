@@ -2,6 +2,8 @@
 
 Automate typical DS/ML workflow, get rid of the boilerplate, use sensible defaults, but expose ways to customize them ("convention over configuration").
 
+We start with a focus on tabular data like typical business spreadsheets.
+
 1. Load data
   - CSV
   - ... (later versions)
@@ -14,3 +16,10 @@ Automate typical DS/ML workflow, get rid of the boilerplate, use sensible defaul
 7. Deploy
 
 Ideally, steps 2-3 should be semi-automated (part of 4 as well).
+
+
+### ToDos:
+
+* classification and regression
+* auto hyper parameter tuning
+* handle imbalanced data sets

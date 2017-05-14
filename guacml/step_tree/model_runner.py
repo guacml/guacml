@@ -16,7 +16,8 @@ class ModelRunner(BaseStep):
         adapter = self.model.get_adapter()
 
         model = adapter.train(train[features], train[self.target])
-        training_error = log_loss(adapter.predict(train[features]), train[self.target])
+        train_predictions = adapter.predict(train[features])
+        training_error = log_loss(train[self.target], train_predictions)
         cv_predictions = adapter.predict(cv[features])
         cv_error = log_loss(cv[self.target], cv_predictions)
 

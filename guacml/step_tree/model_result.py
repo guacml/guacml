@@ -8,6 +8,6 @@ class ModelResult:
 
     def to_display_dict(self):
         return {
-            'cv error': self.cv_error,
-            'training error': self.training_error,
+            'cv error': '{:.4g}'.format(self.cv_error),
+            'training error': '{:.4g}'.format(self.training_error)
         }

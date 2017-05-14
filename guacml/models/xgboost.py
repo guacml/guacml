@@ -1,14 +1,29 @@
-# TODO implement xgb, base model class
-class XgBoost:
-    def select_features(self, metadata):
-        return metadata.col_name
+# ToDo: Deprecation warning because sgboost import cross_validation
+import xgboost as xgb
+import numpy as np
+from guacml.models.base_model import BaseModel, BaseAdapter
+from guacml.preprocessing.column_analyzer import ColType
+
+
+class XgBoost(BaseModel):
+    def get_valid_types(self):
+        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
     def get_adapter(self):
         return Adapter()
 
-class Adapter:
+
+class Adapter(BaseAdapter):
     def train(self, x, y):
-        pass
+        dtrain = xgb.DMatrix(x, y, missing=np.nan)
+        params = {
+            "objective": "reg:logistic",
+            "booster" : "gbtree",
+            "eta": 0.2,
+            "max_depth": 5
+        }
+        self.xgb_model = xgb.train(params, dtrain, 50)
 
     def predict(self, x):
-        return [0] * (x.shape[0] - 1) + [1]
+        dfeatures = xgb.DMatrix(x, missing=np.nan)
+        return self.xgb_model.predict(dfeatures)

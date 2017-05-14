@@ -13,7 +13,7 @@ class LabelEncoder(BaseStep):
         cols_to_encode = metadata[metadata.type == ColType.CATEGORICAL].col_name
         for col in cols_to_encode:
             df.loc[df[col].notnull(), col] = enc.fit_transform(df.loc[df[col].notnull(), col])
-
+            df[col] = df[col].astype(float)
             meta.loc[meta.col_name == col, 'type'] = ColType.INT_ENCODING
             meta.loc[meta.col_name == col, 'derived_from'] = col
         return df, meta

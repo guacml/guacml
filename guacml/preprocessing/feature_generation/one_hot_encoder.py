@@ -26,7 +26,7 @@ class OneHotEncoder(BaseStep):
             n_new = len(new_col_names)
             to_append = pd.DataFrame({
                 'col_name': new_col_names,
-                'type': [ColType.ONE_HOT_ENCODING] * n_new,
+                'type': [ColType.BINARY] * n_new,
                 'derived_from': [col] * n_new,
                 'n_unique': [2] * n_new,
                 'n_na': [0] * n_new,

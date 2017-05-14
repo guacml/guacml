@@ -26,4 +26,4 @@ class TestOneHotEncoder(unittest.TestCase):
 
         self.assertEquals(meta_out.shape[0], 4)
         self.assertEquals(meta_out['col_name'].iloc[1], 'a_one_hot_1')
-        self.assertEquals(meta_out['type'].iloc[1], ColType.ONE_HOT_ENCODING)
+        self.assertEquals(meta_out['type'].iloc[1], ColType.BINARY)

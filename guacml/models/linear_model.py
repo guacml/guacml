@@ -1,14 +1,21 @@
-# TODO implement linear, base model class
-class LinearModel:
-    def select_features(self, metadata):
-        return metadata.col_name
+from sklearn.linear_model import LogisticRegression
+
+from guacml.models.base_model import BaseModel, BaseAdapter
+from guacml.preprocessing.column_analyzer import ColType
+
+
+class LinearModel(BaseModel):
+    def get_valid_types(self):
+        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL]
 
     def get_adapter(self):
         return Adapter()
 
-class Adapter:
+
+class Adapter(BaseAdapter):
     def train(self, x, y):
-        pass
+        self.classifier = LogisticRegression()
+        self.classifier.fit(x, y)
 
     def predict(self, x):
-        return [0] * (x.shape[0] - 1) + [1]
+        return self.classifier.predict(x)
