@@ -13,12 +13,11 @@ class ModelRunner(BaseStep):
         train, cv = self.splitter.split(input)
         features = self.model.select_features(metadata)
         features = features[features != self.target]
-        adapter = self.model.get_adapter()
 
-        model = adapter.train(train[features], train[self.target])
-        train_predictions = adapter.predict(train[features])
+        model = self.model.train(train[features], train[self.target])
+        train_predictions = self.model.predict(train[features])
         training_error = log_loss(train[self.target], train_predictions)
-        cv_predictions = adapter.predict(cv[features])
+        cv_predictions = self.model.predict(cv[features])
         cv_error = log_loss(cv[self.target], cv_predictions)
 
         return ModelResult(model, training_error, cv_error, cv_predictions)

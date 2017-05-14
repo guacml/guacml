@@ -7,11 +7,3 @@ class BaseModel:
 
     def get_adapter(self):
         raise NotImplementedError()
-
-
-class BaseAdapter:
-    def train(self, x, y):
-        raise NotImplementedError()
-
-    def predict(self, x):
-        raise NotImplementedError()

@@ -1,7 +1,7 @@
 # ToDo: Deprecation warning because sgboost import cross_validation
 import xgboost as xgb
 import numpy as np
-from guacml.models.base_model import BaseModel, BaseAdapter
+from guacml.models.base_model import BaseModel
 from guacml.preprocessing.column_analyzer import ColType
 
 
@@ -9,11 +9,6 @@ class XgBoost(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
-    def get_adapter(self):
-        return Adapter()
-
-
-class Adapter(BaseAdapter):
     def train(self, x, y):
         dtrain = xgb.DMatrix(x, y, missing=np.nan)
         params = {

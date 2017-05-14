@@ -32,7 +32,7 @@ class Dataset:
 
     def model_overview(self):
         rows = []
-        for name, res in self._model_results.items():
+        for name, res in self.model_results.items():
             res_dict = res.to_display_dict()
             res_dict['model name'] = name
             rows.append(res_dict)

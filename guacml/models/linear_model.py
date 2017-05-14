@@ -1,6 +1,6 @@
 from sklearn.linear_model import LogisticRegression
 
-from guacml.models.base_model import BaseModel, BaseAdapter
+from guacml.models.base_model import BaseModel
 from guacml.preprocessing.column_analyzer import ColType
 
 
@@ -11,11 +11,11 @@ class LinearModel(BaseModel):
     def get_adapter(self):
         return Adapter()
 
-
-class Adapter(BaseAdapter):
     def train(self, x, y):
         self.classifier = LogisticRegression()
         self.classifier.fit(x, y)
 
     def predict(self, x):
         return self.classifier.predict(x)
+
+
