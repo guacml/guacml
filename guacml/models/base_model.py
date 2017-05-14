@@ -5,5 +5,12 @@ class BaseModel:
     def get_valid_types(self):
         raise NotImplementedError()
 
-    def get_adapter(self):
+    @staticmethod
+    def hyper_parameter_info():
+        raise NotImplementedError()
+
+    def train(self, x, y, **kwargs):
+        raise NotImplementedError()
+
+    def predict(self, x):
         raise NotImplementedError()

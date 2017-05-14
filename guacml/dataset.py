@@ -21,11 +21,11 @@ class Dataset:
         col_analyzer = ColumnAnalyzer()
         self.column_info, self.metadata = col_analyzer.analyze(self.df)
         clear_output()
-        self.splitter = RandomSplitter(.7)
+        self.splitter = RandomSplitter(.8)
 
-    def run(self):
+    def run(self, hyper_param_iterations):
         tree_builder = TreeBuilder(self.metadata, self.target)
-        tree = tree_builder.build()
+        tree = tree_builder.build(hyper_param_iterations)
 
         runner = TreeRunner(self, tree)
         self.model_results = runner.run()
@@ -36,6 +36,11 @@ class Dataset:
             res_dict = res.to_display_dict()
             res_dict['model name'] = name
             rows.append(res_dict)
-        result = pd.DataFrame(rows, columns=['model name', 'cv error', 'training error'])
+        result = pd.DataFrame(rows, columns=['model name', 'holdout error', 'cv error', 'training error'])
         return result.sort_values('cv error')
 
+    def hyper_param_runs(self, model_name):
+        if model_name in self.model_results:
+            return self.model_results[model_name].all_hyper_param_runs
+        else:
+            raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))

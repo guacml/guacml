@@ -13,8 +13,8 @@ class TreeBuilder:
         self.metdata = column_info[['col_name', 'type']]
         self.target = target
 
-    def build(self):
-        step_tree = StepTree(self.target)
+    def build(self, hyper_param_iterations):
+        step_tree = StepTree(self.target, hyper_param_iterations)
         step_tree.add_step('clean_columns', None, ColumnCleaner())
         step_tree.add_step('encode_labels', 'clean_columns', LabelEncoder())
         step_tree.add_model('xg_boost', 'encode_labels', XgBoost())
