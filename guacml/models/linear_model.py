@@ -14,7 +14,7 @@ class LinearModel(BaseModel):
     @staticmethod
     def hyper_parameter_info():
         return {
-            'C': HyperParameterInfo(C_DEFAULT, [10-6, 10])
+            'C': HyperParameterInfo(C_DEFAULT, [10e-6, 10], [10e-6, 10e-3, 1])
         }
 
     def train(self, x, y, C=C_DEFAULT):
@@ -22,6 +22,6 @@ class LinearModel(BaseModel):
         self.lin_model.fit(x, y)
 
     def predict(self, x):
-        return self.lin_model.predict(x)
+        return self.lin_model.predict_proba(x)
 
 

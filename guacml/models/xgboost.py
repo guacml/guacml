@@ -16,8 +16,12 @@ class XgBoost(BaseModel):
     @staticmethod
     def hyper_parameter_info():
         return {
-            'n_rounds': HyperParameterInfo(N_ROUNDS_DEFAULT, [10, 500]),
-            'max_depth': HyperParameterInfo(MAX_DEPTH_DEFAULT, [3, 10])
+            'n_rounds': HyperParameterInfo(N_ROUNDS_DEFAULT,
+                                           [10, 1000],
+                                           [10, 100, 500]),
+            'max_depth': HyperParameterInfo(MAX_DEPTH_DEFAULT,
+                                            [3, 10],
+                                            [7, 5, 3])
         }
 
     def train(self, x, y, n_rounds=N_ROUNDS_DEFAULT, max_depth=MAX_DEPTH_DEFAULT):

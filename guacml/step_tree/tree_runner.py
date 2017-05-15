@@ -10,6 +10,7 @@ class TreeRunner:
         return result
 
     def run_step(self, step_name, input, metadata, accumulator):
+        print('Running step ' + step_name)
         children = self.tree.get_children(step_name)
         step = self.tree.get_step(step_name)
 

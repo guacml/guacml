@@ -21,5 +21,5 @@ class TestDataset(unittest.TestCase):
         result = ds.model_results
 
         self.assertEquals(3, len(result))
-        self.assertTrue(0 < result['random_forest'].training_error < 100)
-        self.assertTrue(0 < result['random_forest'].cv_error < 100)
+        self.assertTrue(0 < result['random_forest'].training_error < 1)
+        self.assertTrue(0 < result['random_forest'].cv_error < 1)
