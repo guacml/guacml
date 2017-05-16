@@ -1,6 +1,7 @@
 import pandas as pd
+from hyperopt import Trials
 from sklearn.metrics import log_loss
-from bayes_opt import BayesianOptimization
+from hyperopt import fmin, tpe
 
 
 class HyperParameterOptimizer:
@@ -15,30 +16,45 @@ class HyperParameterOptimizer:
 
     def optimize(self, hyper_param_iterations):
         hp_info = self.model.hyper_parameter_info()
-        hp_ranges = {param: info.range for param, info in hp_info.items()}
 
-        first_item = next(iter(hp_info.items()))
-        n_init_points = len(first_item[1].init_points)
-        if n_init_points <= hyper_param_iterations:
-            init_points = {hp: info.init_points for hp, info in hp_info.items()}
-        else:
-            init_points = {hp: info.init_points[:hyper_param_iterations] for hp, info in hp_info.items()}
-        n_iter = max(hyper_param_iterations - n_init_points, 1)
+        # first_item = next(iter(hp_info.items()))
+        # n_init_points = len(first_item[1].init_points)
+        # if n_init_points <= hyper_param_iterations:
+        #     init_points = {hp: info.init_points for hp, info in hp_info.items()}
+        # else:
+        #     init_points = {hp: info.init_points[:hyper_param_iterations] for hp, info in hp_info.items()}
+        # n_iter = max(hyper_param_iterations - n_init_points, 1)
 
-        bayes_opt = BayesianOptimization(self.to_maximize, hp_ranges, verbose=0)
-        bayes_opt.explore(init_points)
-        bayes_opt.maximize(init_points=0, n_iter=n_iter)
+        trials = Trials()
+        fmin(self.to_minimize,
+             hp_info.search_space,
+             algo=tpe.suggest,
+             max_evals=hyper_param_iterations,
+             trials=trials)
 
-        all_runs = pd.DataFrame(bayes_opt.res['all']['params'])
-        all_runs['cv error'] = bayes_opt.res['all']['values']
+        all_trials = []
+        for trial in trials.trials:
+            unpacked = {
+                'cv error': trial['result']['loss'],
+                'status': trial['result']['status'],
+                'run': trial['misc']['tid']
+            }
 
-        max_cv_err = -bayes_opt.res['max']['max_val']
-        max_params = bayes_opt.res['max']['max_params']
+            param_vals = trial['misc']['vals']
+            for key in param_vals:
+                value_list = param_vals[key]
+                if len(value_list) == 1:
+                    unpacked[key] = value_list[0]
+                elif len(value_list) == 0:
+                    unpacked[key] = None
+                else:
+                    raise Exception('Unexpected number of hyper parameter results.')
+            all_trials.append(unpacked)
 
-        return max_params, max_cv_err, all_runs
+        return pd.DataFrame(all_trials)
 
-    def to_maximize(self, **kwargs):
-        self.model.train(self.X_train, self.y_train, **kwargs)
+    def to_minimize(self, args):
+        self.model.train(self.X_train, self.y_train, **args)
         cv_predictions = self.model.predict(self.X_cv)
         cv_error = log_loss(self.y_cv, cv_predictions)
-        return -cv_error
+        return cv_error

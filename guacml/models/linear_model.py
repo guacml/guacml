@@ -1,10 +1,9 @@
 from sklearn.linear_model import LogisticRegression
+from hyperopt import hp
 
 from guacml.models.base_model import BaseModel
 from guacml.models.hyper_param_info import HyperParameterInfo
 from guacml.preprocessing.column_analyzer import ColType
-
-C_DEFAULT = 1
 
 
 class LinearModel(BaseModel):
@@ -13,11 +12,11 @@ class LinearModel(BaseModel):
 
     @staticmethod
     def hyper_parameter_info():
-        return {
-            'C': HyperParameterInfo(C_DEFAULT, [10e-6, 10], [10e-6, 10e-3, 1])
-        }
+        return HyperParameterInfo({
+            'C': hp.loguniform('C', -12, 3)
+        })
 
-    def train(self, x, y, C=C_DEFAULT):
+    def train(self, x, y, C=1):
         self.lin_model = LogisticRegression(C=C)
         self.lin_model.fit(x, y)
 

@@ -4,9 +4,7 @@ import numpy as np
 from guacml.models.base_model import BaseModel
 from guacml.models.hyper_param_info import HyperParameterInfo
 from guacml.preprocessing.column_analyzer import ColType
-
-N_ROUNDS_DEFAULT = 50
-MAX_DEPTH_DEFAULT = 4
+from hyperopt import hp
 
 
 class XgBoost(BaseModel):
@@ -15,16 +13,14 @@ class XgBoost(BaseModel):
 
     @staticmethod
     def hyper_parameter_info():
-        return {
-            'n_rounds': HyperParameterInfo(N_ROUNDS_DEFAULT,
-                                           [10, 1000],
-                                           [10, 100, 500]),
-            'max_depth': HyperParameterInfo(MAX_DEPTH_DEFAULT,
-                                            [3, 10],
-                                            [7, 5, 3])
-        }
+        return HyperParameterInfo({
+            'n_rounds': hp.qlognormal('n_rounds', 4, 1, 1),
+            'max_depth': hp.qlognormal('max_depth', 1.6, 0.3, 1)
+        })
 
-    def train(self, x, y, n_rounds=N_ROUNDS_DEFAULT, max_depth=MAX_DEPTH_DEFAULT):
+    def train(self, x, y, n_rounds=100, max_depth=5):
+        n_rounds = int(n_rounds)
+        max_depth = int(max_depth)
         dtrain = xgb.DMatrix(x, y, missing=np.nan)
         params = {
             "objective": "reg:logistic",

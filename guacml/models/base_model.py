@@ -14,3 +14,9 @@ class BaseModel:
 
     def predict(self, x):
         raise NotImplementedError()
+
+    @staticmethod
+    def to_int(value):
+        if value is None:
+            return None
+        return int(value)

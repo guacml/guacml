@@ -18,18 +18,20 @@ class ModelRunner(BaseStep):
 
         hp_optimizer = HyperParameterOptimizer(self.model, train, features,
                                                self.target, self.splitter)
-        hyper_params, cv_error, all_hp_runs = hp_optimizer.optimize(self.hyper_param_iterations)
+        all_trials = hp_optimizer.optimize(self.hyper_param_iterations)
+        all_trials = all_trials.sort_values('cv error')
+        best = all_trials.iloc[0]
 
         training_error, _ = self.score_model(train, features)
         holdout_error, holdout_predictions = self.score_model(holdout, features)
 
         return ModelResult(self.model,
                            training_error,
-                           cv_error,
+                           best['cv error'],
                            holdout_error,
                            holdout_predictions,
-                           hyper_params,
-                           all_hp_runs)
+                           best,
+                           all_trials)
 
     def score_model(self, input, features):
         predictions = self.model.predict(input[features])

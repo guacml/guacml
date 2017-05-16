@@ -1,3 +1,6 @@
+from guacml.step_tree.model_runner import ModelRunner
+
+
 class TreeRunner:
     def __init__(self, dataset, tree):
         self.dataset = dataset
@@ -14,7 +17,7 @@ class TreeRunner:
         children = self.tree.get_children(step_name)
         step = self.tree.get_step(step_name)
 
-        if not children:
+        if isinstance(step, ModelRunner):
             # Poor man's way to distinguish models from transformations - models are always leafs
             # `step` is an instance of ModelRunner here - need to fix that abstraction leak
             step.splitter = self.dataset.splitter
