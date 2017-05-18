@@ -37,7 +37,7 @@ class Dataset:
             res_dict = res.to_display_dict()
             res_dict['model name'] = name
             rows.append(res_dict)
-        result = pd.DataFrame(rows, columns=['model name', 'holdout error', 'cv error', 'training error'])
+        result = pd.DataFrame(rows, columns=['model name', 'holdout error', 'holdout accuracy', 'cv error', 'training error'])
         return result.sort_values('holdout error')
 
     def hyper_param_runs(self, model_name):

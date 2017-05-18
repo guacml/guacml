@@ -24,12 +24,14 @@ class ModelRunner(BaseStep):
 
         training_error, _ = self.score_model(train, features)
         holdout_error, holdout_predictions = self.score_model(holdout, features)
+        holdout_accuracy = self.compute_accuracy(holdout[self.target], holdout_predictions)
         holdout_row_errors = self.rowise_log_loss(holdout[self.target], holdout_predictions)
 
         return ModelResult(self.model,
                            training_error,
                            best['cv error'],
                            holdout_error,
+                           holdout_accuracy,
                            holdout_predictions,
                            holdout_row_errors,
                            metadata,
@@ -39,6 +41,11 @@ class ModelRunner(BaseStep):
     def score_model(self, input, features):
         predictions = self.model.predict(input[features])
         return log_loss(input[self.target], predictions), predictions
+
+    def compute_accuracy(self, truth, predictions):
+        threshold = 0.5
+        correct_predictions = (predictions > threshold) == (truth == 1)
+        return correct_predictions.sum() / truth.shape[0]
 
     @staticmethod
     def rowise_log_loss(truth, prediction):
