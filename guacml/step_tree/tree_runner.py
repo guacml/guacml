@@ -18,8 +18,6 @@ class TreeRunner:
         step = self.tree.get_step(step_name)
 
         if isinstance(step, ModelRunner):
-            # Poor man's way to distinguish models from transformations - models are always leafs
-            # `step` is an instance of ModelRunner here - need to fix that abstraction leak
             step.splitter = self.dataset.splitter
             accumulator[step_name] = step.execute(input, metadata)
         else:
