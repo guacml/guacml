@@ -1,0 +1,9 @@
+Timeseries:
+- use bike sharing
+- split train, CV, and holdout by timestamp (configurable)
+- add Date/Time column type
+- engineer features (DoW, HoD, DoM)
+- configurable backtesting
+Regression:
+- parametrize error metric (logloss)
+- use different models for regression
