@@ -1,5 +1,6 @@
 import pandas as pd
 
+from guacml.plots import Plots
 from guacml.step_tree.random_splitter import RandomSplitter
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
@@ -29,6 +30,7 @@ class Dataset:
 
         runner = TreeRunner(self, tree)
         self.model_results = runner.run()
+        self.plots = Plots(self.model_results)
 
     def model_overview(self):
         rows = []
@@ -45,5 +47,8 @@ class Dataset:
         else:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
 
-    def error_overview(self, model_name):
-        return self.model_results[model_name].holdout_row_errors.hist()
+    def error_overview(self, bins='auto', figsize=(8, 6)):
+        self.plots(bins='auto', figsize=(8, 6))
+
+    def model_error_by_feature(self, model_name):
+        self.plots(model_name)

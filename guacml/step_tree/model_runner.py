@@ -25,7 +25,6 @@ class ModelRunner(BaseStep):
         training_error, _ = self.score_model(train, features)
         holdout_error, holdout_predictions = self.score_model(holdout, features)
         holdout_row_errors = self.rowise_log_loss(holdout[self.target], holdout_predictions)
-        print(type(holdout_row_errors))
 
         return ModelResult(self.model,
                            training_error,
@@ -33,6 +32,7 @@ class ModelRunner(BaseStep):
                            holdout_error,
                            holdout_predictions,
                            holdout_row_errors,
+                           holdout,
                            best,
                            all_trials)
 

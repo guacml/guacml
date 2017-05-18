@@ -7,6 +7,7 @@ class ModelResult:
                  holdout_error,
                  holdout_predictions,
                  holdout_row_errors,
+                 holdout_data,
                  hyper_params,
                  all_hp_runs):
         self.model = model
@@ -15,6 +16,7 @@ class ModelResult:
         self.holdout_error = holdout_error
         self.holdout_predictions = holdout_predictions
         self.holdout_row_errors = holdout_row_errors
+        self.holdout_data = holdout_data
         self.hyper_params = hyper_params
         self.all_hyper_param_runs = all_hp_runs
 
