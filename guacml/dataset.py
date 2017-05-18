@@ -44,3 +44,6 @@ class Dataset:
             return self.model_results[model_name].all_hyper_param_runs
         else:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
+
+    def error_overview(self, model_name):
+        return self.model_results[model_name].holdout_row_errors.hist()

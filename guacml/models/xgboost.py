@@ -7,6 +7,7 @@ from guacml.preprocessing.column_analyzer import ColType
 from hyperopt import hp
 
 
+
 class XgBoost(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]

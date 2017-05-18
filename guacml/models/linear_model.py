@@ -21,6 +21,6 @@ class LinearModel(BaseModel):
         self.lin_model.fit(x, y)
 
     def predict(self, x):
-        return self.lin_model.predict_proba(x)
+        return self.lin_model.predict_proba(x)[:, 1]
 
 

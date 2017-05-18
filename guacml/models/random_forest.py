@@ -5,10 +5,6 @@ from sklearn.ensemble import RandomForestClassifier
 from hyperopt import hp
 
 
-N_ESTIMATORS_DEFAULT = 50
-MIN_SAMPLES_LEAF_DEFAULT = 1
-
-
 class RandomForest(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
@@ -37,5 +33,5 @@ class RandomForest(BaseModel):
         self.rf_model.fit(x, y)
 
     def predict(self, x):
-        return self.rf_model.predict_proba(x)
+        return self.rf_model.predict_proba(x)[:, 1]
 
