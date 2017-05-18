@@ -27,7 +27,7 @@ class XgBoost(BaseModel):
             "objective": "reg:logistic",
             "booster" : "gbtree",
             "eta": 0.2,
-            "silent": 1,
+            "silent": True,
             "max_depth": self.pos_int(max_depth)
         }
         self.xgb_model = xgb.train(params, dtrain, self.pos_int(n_rounds))
