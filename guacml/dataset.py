@@ -8,7 +8,6 @@ from .preprocessing.column_analyzer import ColumnAnalyzer
 from IPython.display import clear_output
 
 
-
 class Dataset:
 
     def __init__(self, path, target, **kwds):
@@ -48,7 +47,7 @@ class Dataset:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
-        self.plots(bins='auto', figsize=(8, 6))
+        self.plots.error_overview(bins=bins, figsize=figsize)
 
     def model_error_by_feature(self, model_name):
-        self.plots(model_name)
+        self.plots.model_error_by_feature(model_name, self.df, self.metadata)

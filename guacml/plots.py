@@ -1,4 +1,7 @@
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+from guacml.preprocessing.column_analyzer import ColType
 
 
 class Plots:
@@ -18,10 +21,15 @@ class Plots:
         plt.suptitle('Model error histograms', fontsize=16)
         plt.show()
 
-    def model_error_by_feature(self, model_name):
+    def model_error_by_feature(self, model_name, data, metadata):
         model_results = self.model_results[model_name]
-        data = model_results.holdout_data
-        all_features = data.columns
         data['error'] = model_results.holdout_row_errors
+        holdout = data[data.error.notnull()]
+
+        low_card_cols = [ColType.CATEGORICAL, ColType.ORDINAL]
+        for col in metadata[metadata.type.isin(low_card_cols)].col_name:
+            sns.barplot(x=col, y='error', data=holdout)
+            plt.show()
+
 
 

@@ -32,7 +32,7 @@ class ModelRunner(BaseStep):
                            holdout_error,
                            holdout_predictions,
                            holdout_row_errors,
-                           holdout,
+                           metadata,
                            best,
                            all_trials)
 
