@@ -27,13 +27,17 @@ class ModelRunner(BaseStep):
         holdout_accuracy = self.compute_accuracy(holdout[self.target], holdout_predictions)
         holdout_row_errors = self.rowise_log_loss(holdout[self.target], holdout_predictions)
 
+        holdout = holdout.copy()
+        holdout['error'] = holdout_row_errors
+        holdout['prediction'] = holdout_predictions
+
         return ModelResult(self.model,
+                           self.target,
                            training_error,
                            best['cv error'],
                            holdout_error,
                            holdout_accuracy,
-                           holdout_predictions,
-                           holdout_row_errors,
+                           holdout,
                            metadata,
                            best,
                            all_trials)

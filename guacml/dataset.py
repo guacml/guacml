@@ -31,23 +31,8 @@ class Dataset:
         self.model_results = runner.run()
         self.plots = Plots(self.model_results)
 
-    def model_overview(self):
-        rows = []
-        for name, res in self.model_results.items():
-            res_dict = res.to_display_dict()
-            res_dict['model name'] = name
-            rows.append(res_dict)
-        result = pd.DataFrame(rows, columns=['model name', 'holdout error', 'holdout accuracy', 'cv error', 'training error'])
-        return result.sort_values('holdout error')
-
     def hyper_param_runs(self, model_name):
         if model_name in self.model_results:
             return self.model_results[model_name].all_hyper_param_runs
         else:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
-
-    def error_overview(self, bins='auto', figsize=(8, 6)):
-        self.plots.error_overview(bins=bins, figsize=figsize)
-
-    def model_error_by_feature(self, model_name):
-        self.plots.model_error_by_feature(model_name, self.df, self.metadata)
