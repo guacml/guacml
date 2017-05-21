@@ -16,10 +16,3 @@ We start with a focus on tabular data like typical business spreadsheets.
 7. Deploy
 
 Ideally, steps 2-3 should be semi-automated (part of 4 as well).
-
-
-### ToDos:
-
-* classification and regression
-* auto hyper parameter tuning
-* handle imbalanced data sets
