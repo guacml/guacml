@@ -9,19 +9,17 @@ from ..models.linear_model import LinearModel
 
 
 class TreeBuilder:
-    def __init__(self, column_info, target):
-        self.metdata = column_info[['col_name', 'type']]
-        self.target = target
+    def __init__(self, problem_type):
+        self.problem_type = problem_type
 
-    def build(self, hyper_param_iterations):
-        step_tree = StepTree(self.target, hyper_param_iterations)
+    def build(self, step_tree):
         step_tree.add_step('clean_columns', None, ColumnCleaner())
         step_tree.add_step('encode_labels', 'clean_columns', LabelEncoder())
-        step_tree.add_model('xg_boost', 'encode_labels', XgBoost())
+        step_tree.add_model('xg_boost', 'encode_labels', XgBoost(self.problem_type))
 
         step_tree.add_step('fill_na', 'encode_labels', FillNa())
-        step_tree.add_model('random_forest', 'fill_na', RandomForest())
+        step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))
 
         step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder())
-        step_tree.add_model('linear_model', 'one_hot_encode', LinearModel())
+        step_tree.add_model('linear_model', 'one_hot_encode', LinearModel(self.problem_type))
         return step_tree

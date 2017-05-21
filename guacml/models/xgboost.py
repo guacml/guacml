@@ -1,6 +1,8 @@
 # ToDo: Deprecation warning because xgboost import cross_validation
 import xgboost as xgb
 import numpy as np
+
+from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
 from guacml.models.hyper_param_info import HyperParameterInfo
 from guacml.preprocessing.column_analyzer import ColType
@@ -24,12 +26,18 @@ class XgBoost(BaseModel):
         max_depth = int(max_depth)
         dtrain = xgb.DMatrix(x, y, missing=np.nan)
         params = {
-            "objective": "reg:logistic",
-            "booster" : "gbtree",
-            "eta": 0.2,
-            "silent": True,
-            "max_depth": self.pos_int(max_depth)
+            'booster' : 'gbtree',
+            'eta': 0.2,
+            'silent': True,
+            'max_depth': self.pos_int(max_depth)
         }
+        if self.problem_type == ProblemType.BINARY_CLAS:
+            params['objective'] = 'reg:logistic'
+        elif self.problem_type == ProblemType.REGRESSION:
+            params['objective'] = 'reg:linear'
+        else:
+            raise NotImplementedError('Problem type {0} not implemented for XgBoost.'.format(self.problem_type))
+
         self.xgb_model = xgb.train(params, dtrain, self.pos_int(n_rounds))
 
     def predict(self, x):

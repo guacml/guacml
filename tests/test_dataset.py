@@ -2,12 +2,12 @@ import guacml as guac
 import os
 import pandas as pd
 import unittest
-from sklearn.ensemble import RandomForestClassifier
+
 
 class TestDataset(unittest.TestCase):
-    def load_dataset(self):
+    def load_dataset(self, eval_metric=None):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        return guac.Dataset(dir_path + '/fixtures/titanic.csv', 'Survived')
+        return guac.Dataset(dir_path + '/fixtures/titanic.csv', 'Survived', eval_metric=eval_metric)
 
     def test_dataset(self):
         ds = self.load_dataset()
@@ -21,12 +21,12 @@ class TestDataset(unittest.TestCase):
         result = ds.model_results
 
         self.assertEquals(3, len(result))
-        self.assertTrue(0 < result['random_forest'].training_error < 1)
-        self.assertTrue(0 < result['random_forest'].cv_error < 1)
+        self.assertAlmostEqual(100, result['random_forest'].training_error, delta=150)
+        self.assertAlmostEqual(100, result['random_forest'].cv_error, delta=150)
 
     def test_accuracy(self):
-        ds = self.load_dataset()
+        ds = self.load_dataset(eval_metric='accuracy')
 
         ds.run(1)
         result = ds.model_results
-        self.assertAlmostEqual(0.8268, result['random_forest'].holdout_accuracy, delta=0.05)
+        self.assertAlmostEqual(-0.8, result['random_forest'].holdout_error, delta=0.2)

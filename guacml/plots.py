@@ -9,15 +9,6 @@ class Plots:
     def __init__(self, model_results):
         self.model_results = model_results
 
-    def model_overview(self):
-        rows = []
-        for name, res in self.model_results.items():
-            res_dict = res.to_display_dict()
-            res_dict['model name'] = name
-            rows.append(res_dict)
-        result = pd.DataFrame(rows, columns=['model name', 'holdout error', 'holdout accuracy', 'cv error', 'training error'])
-        return result.sort_values('holdout error')
-
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)
         fig, axes = plt.subplots(n_models, sharex=True, sharey=True)

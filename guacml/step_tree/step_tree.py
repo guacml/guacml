@@ -5,11 +5,12 @@ from .model_runner import ModelRunner
 
 
 class StepTree:
-    def __init__(self, target, hyper_param_iterations):
+    def __init__(self, target, hyper_param_iterations, eval_metric):
         self.steps = {}
         self.children = defaultdict(list)
         self.target = target
         self.hyper_param_iterations = hyper_param_iterations
+        self.eval_metric = eval_metric
 
     def add_step(self, step_name, parent_name, step):
         if parent_name is None:
@@ -30,7 +31,10 @@ class StepTree:
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
             raise ValueError('The model paramter should inherit from BaseModel')
-        self.add_step(step_name, parent_name, ModelRunner(model, self.target, self.hyper_param_iterations))
+        self.add_step(step_name, parent_name, ModelRunner(model,
+                                                          self.target,
+                                                          self.hyper_param_iterations,
+                                                          self.eval_metric))
 
     def get_step(self, name):
         return self.steps[name]

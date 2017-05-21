@@ -1,31 +1,30 @@
-from sklearn.metrics import log_loss
-
 from guacml.step_tree.hyper_param_optimizer import HyperParameterOptimizer
 from guacml.step_tree.model_result import ModelResult
 from .base_step import BaseStep
-import numpy as np
+
 
 class ModelRunner(BaseStep):
-    def __init__(self, model, target, hyper_param_iterations):
+    def __init__(self, model, target, hyper_param_iterations, eval_metric):
         self.model = model
         self.target = target
         self.hyper_param_iterations = hyper_param_iterations
+        self.eval_metric = eval_metric
 
     def execute(self, input, metadata):
-        train, holdout = self.splitter.split(input)
+        train_and_cv, holdout = self.splitter.split(input)
+        train, cv = self.splitter.split(train_and_cv)
         features = self.model.select_features(metadata)
         features = features[features != self.target]
 
-        hp_optimizer = HyperParameterOptimizer(self.model, train, features,
-                                               self.target, self.splitter)
+        hp_optimizer = HyperParameterOptimizer(self.model, train, cv, features,
+                                               self.target, self.eval_metric)
         all_trials = hp_optimizer.optimize(self.hyper_param_iterations)
         all_trials = all_trials.sort_values('cv error')
         best = all_trials.iloc[0]
 
         training_error, _ = self.score_model(train, features)
         holdout_error, holdout_predictions = self.score_model(holdout, features)
-        holdout_accuracy = self.compute_accuracy(holdout[self.target], holdout_predictions)
-        holdout_row_errors = self.rowise_log_loss(holdout[self.target], holdout_predictions)
+        holdout_row_errors = self.eval_metric.row_wise_error(holdout[self.target], holdout_predictions)
 
         holdout = holdout.copy()
         holdout['error'] = holdout_row_errors
@@ -36,7 +35,6 @@ class ModelRunner(BaseStep):
                            training_error,
                            best['cv error'],
                            holdout_error,
-                           holdout_accuracy,
                            holdout,
                            metadata,
                            best,
@@ -44,15 +42,4 @@ class ModelRunner(BaseStep):
 
     def score_model(self, input, features):
         predictions = self.model.predict(input[features])
-        return log_loss(input[self.target], predictions), predictions
-
-    def compute_accuracy(self, truth, predictions):
-        threshold = 0.5
-        correct_predictions = (predictions > threshold) == (truth == 1)
-        return correct_predictions.sum() / truth.shape[0]
-
-    @staticmethod
-    def rowise_log_loss(truth, prediction):
-        eps = 1e-15
-        prediction = np.clip(prediction, eps, 1 - eps)
-        return -1 * (truth * np.log(prediction) + (1 - truth) * np.log(1 - prediction))
+        return self.eval_metric.error(input[self.target], predictions), predictions

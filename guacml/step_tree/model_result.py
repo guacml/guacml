@@ -6,7 +6,6 @@ class ModelResult:
                  training_error,
                  cv_error,
                  holdout_error,
-                 holdout_accuracy,
                  holdout_data,
                  metadata,
                  hyper_params,
@@ -16,7 +15,6 @@ class ModelResult:
         self.training_error = training_error
         self.cv_error = cv_error
         self.holdout_error = holdout_error
-        self.holdout_accuracy = holdout_accuracy
         self.holdout_data = holdout_data
         self.metadata = metadata
         self.hyper_params = hyper_params
@@ -25,8 +23,8 @@ class ModelResult:
     def to_display_dict(self):
         return {
             'holdout error': '{:.4g}'.format(self.holdout_error),
-            'holdout accuracy': '{:.4g}'.format(self.holdout_accuracy),
             'cv error': '{:.4g}'.format(self.cv_error),
             'training error': '{:.4g}'.format(self.training_error),
             'hyper_params': self.hyper_params
         }
+

@@ -57,7 +57,8 @@ class ColumnAnalyzer:
         if col.dtype == 'object':
             return self.analyze_object_col(col, not_null, n_unique_pct, col_info)
 
-    def analyze_int_col(self, col, n_unique, n_unique_pct, col_info):
+    @staticmethod
+    def analyze_int_col(col, n_unique, n_unique_pct, col_info):
         if col.min() == 0 and col.max() == 1:
             col_info['type'] = ColType.BINARY
             return col_info

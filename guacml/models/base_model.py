@@ -1,4 +1,7 @@
 class BaseModel:
+    def __init__(self, problem_type):
+        self.problem_type = problem_type
+
     def select_features(self, metadata):
         return metadata[metadata.type.isin(self.get_valid_types())].col_name
 

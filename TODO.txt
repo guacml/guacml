@@ -1,3 +1,6 @@
+General:
+- Disk caching
+
 Timeseries:
 - use bike sharing
 - split train, CV, and holdout by timestamp (configurable)
