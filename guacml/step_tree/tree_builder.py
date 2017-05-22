@@ -1,4 +1,5 @@
 from guacml.preprocessing.column_cleaner import ColumnCleaner
+from guacml.preprocessing.feature_generation.date_splitter import DateSplitter
 from .step_tree import StepTree
 from ..preprocessing.feature_generation.label_encoder import LabelEncoder
 from ..preprocessing.feature_generation.one_hot_encoder import OneHotEncoder
@@ -15,9 +16,10 @@ class TreeBuilder:
     def build(self, step_tree):
         step_tree.add_step('clean_columns', None, ColumnCleaner())
         step_tree.add_step('encode_labels', 'clean_columns', LabelEncoder())
-        step_tree.add_model('xg_boost', 'encode_labels', XgBoost(self.problem_type))
+        step_tree.add_step('split_dates', 'encode_labels', DateSplitter())
+        step_tree.add_model('xg_boost', 'split_dates', XgBoost(self.problem_type))
 
-        step_tree.add_step('fill_na', 'encode_labels', FillNa())
+        step_tree.add_step('fill_na', 'split_dates', FillNa())
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))
 
         step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder())

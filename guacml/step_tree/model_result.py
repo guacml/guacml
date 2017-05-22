@@ -22,6 +22,7 @@ class ModelResult:
 
     def to_display_dict(self):
         return {
+            'holdout error numeric': self.holdout_error,
             'holdout error': '{:.4g}'.format(self.holdout_error),
             'cv error': '{:.4g}'.format(self.cv_error),
             'training error': '{:.4g}'.format(self.training_error),

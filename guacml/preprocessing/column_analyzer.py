@@ -15,7 +15,7 @@ class ColumnAnalyzer:
         """
         col_data = []
         for col in df.columns:
-            ci = self.analyze_col(df[col], col)
+            ci = self.analyze_col(df, col)
             if not isinstance(ci, dict):
                 raise Exception('Error analyzing col {0}'.format(col))
             col_data.append(ci)
@@ -28,7 +28,8 @@ class ColumnAnalyzer:
                             columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank'])
         return col_infos, col_metadata
 
-    def analyze_col(self, col, col_name):
+    def analyze_col(self, df, col_name):
+        col = df[col_name]
         n_unique = col.nunique()
         n_unique_pct = n_unique * 100 / len(col)
         not_null = col[col.notnull()]
@@ -55,7 +56,7 @@ class ColumnAnalyzer:
             return self.analyze_date_col(col_info)
 
         if col.dtype == 'object':
-            return self.analyze_object_col(col, not_null, n_unique_pct, col_info)
+            return self.analyze_object_col(df, col_name, not_null, n_unique_pct, col_info)
 
     @staticmethod
     def analyze_int_col(col, n_unique, n_unique_pct, col_info):
@@ -83,7 +84,8 @@ class ColumnAnalyzer:
         col_info['type'] = ColType.DATETIME
         return col_info
 
-    def analyze_object_col(self, col, not_null, n_unique_pct, col_info):
+    def analyze_object_col(self, df, col_name, not_null, n_unique_pct, col_info):
+        col = df[col_name]
         is_str = (not_null.values.dtype == np.str) or \
                  (type(not_null.iloc[0]) is str and type(not_null.iloc[-1]) is str)
         if is_str:
@@ -94,20 +96,20 @@ class ColumnAnalyzer:
             first = not_null.iloc[0]
             if first.isdecimal():
                 try:
-                    col = col.astype(int)
+                    df[col_name] = col.astype(int)
                     return self.analyze_int_col(col, n_unique_pct, col_info)
                 except ValueError:
                     pass
             elif first.isnumeric():
                 try:
-                    col = col.astype(float)
+                    df[col_name] = col.astype(float)
                     return self.analyze_float_col(col_info)
                 except ValueError:
                     pass
             else:
                 try:
                     date_parser.parse(first)
-                    col = pd.to_datetime(col)
+                    df[col_name] = pd.to_datetime(col)
                     return self.analyze_date_col(col_info)
                 except ValueError:
                     pass

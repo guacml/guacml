@@ -4,6 +4,7 @@ from guacml.enums import ProblemType
 from guacml.metrics.accuracy import Accuracy
 from guacml.metrics.log_loss import LogLoss
 from guacml.metrics.mean_squared_error import MeanSquaredError
+from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
 from guacml.plots import Plots
 from guacml.step_tree.random_splitter import RandomSplitter
 from guacml.step_tree.step_tree import StepTree
@@ -15,13 +16,20 @@ from IPython.display import clear_output
 
 class Dataset:
 
-    def __init__(self, path, target, eval_metric=None, **kwds):
+    def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
         print('loading data..')
         self.df = pd.read_csv(path, **kwds)
         if not target in self.df.columns:
             raise ValueError('The target {0} does not exist as column.\n'
                              'Available columns: {1}'.format(target, self.df.columns))
         self.target = target
+        if not exclude_cols is None:
+            for col in exclude_cols:
+                if not col in self.df.columns:
+                    raise ValueError('The column to exclude {0} does not exist as column.\n'
+                                     'Available columns: {1}'.format(target, self.df.columns))
+                del self.df[col]
+
         print('analyzing columns..')
         col_analyzer = ColumnAnalyzer()
         self.column_info, self.metadata = col_analyzer.analyze(self.df)
@@ -46,6 +54,8 @@ class Dataset:
         if not eval_metric is None:
             if eval_metric.lower() == 'accuracy':
                 self.eval_metric = Accuracy()
+            elif eval_metric.lower() == 'rmsle':
+                self.eval_metric = RootMeanSquaredLogError()
             else:
                 raise NotImplementedError('Unknown eval metic: ' + eval_metric)
 
@@ -67,10 +77,10 @@ class Dataset:
             res_dict['model name'] = name
             rows.append(res_dict)
 
+        columns = ['model name', 'holdout error', 'cv error', 'training error']
         result = pd.DataFrame(rows,
-                              columns=['model name', 'holdout error', 'cv error', 'training error'])
-        # sorted as strings
-        return result.sort_values('holdout error', ascending=False)
+                              columns=columns + ['holdout error numeric'])
+        return result.sort_values('holdout error numeric')[columns]
 
     def hyper_param_runs(self, model_name):
         if model_name in self.model_results:
