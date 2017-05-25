@@ -1,0 +1,65 @@
+#!/bin/bash
+
+function install_python_deps() {
+  echo
+  echo --- Install Python Dependencies
+
+  if command -v conda >/dev/null 2>&1; then
+    echo ----- using conda found in path
+    echo
+    while read requirement; do conda install --yes $requirement; done < requirements.txt
+  else
+    echo ----- no conda in path using pip
+    echo
+    [ ! -e venv ] && python3 -m venv venv
+    source venv/bin/activate
+    pip3 install --upgrade pip setuptools
+    pip3 install -r requirements.txt
+  fi
+}
+
+function build_xgboost() {
+  echo ----- Building binary
+
+  cd lib/xgboost
+  ./build.sh
+  cd -
+
+  echo ----- Install XGBoost Python Package
+
+  cd lib/xgboost/python-package
+  python3 setup.py install
+  cd -
+}
+
+function install_xgboost() {
+  echo
+  echo --- Make XGBoost
+
+  if [ ! -e lib/xgboost ]; then
+    echo --- Cloning repo into lib/xgboost
+    git clone --recursive https://github.com/dmlc/xgboost lib/xgboost
+    build_xgboost
+  else
+    cd lib/xgboost
+    if git checkout master &&
+      git fetch origin master &&
+      [ `git rev-list HEAD...origin/master --count` != 0 ] &&
+      git merge origin/master
+    then
+      echo
+      echo ----- Fetched new XGBoost source
+      echo
+      cd -
+      build_xgboost
+    else
+      echo
+      echo ----- XGBoost source is already up to date
+      cd -
+    fi
+  fi
+}
+
+install_python_deps
+install_xgboost
+
