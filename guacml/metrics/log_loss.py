@@ -1,6 +1,5 @@
 from guacml.metrics.base_eval_metric import BaseEvalMetric
 import numpy as np
-from sklearn.metrics import log_loss
 
 
 class LogLoss(BaseEvalMetric):

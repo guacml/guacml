@@ -77,7 +77,7 @@ class Dataset:
             res_dict['model name'] = name
             rows.append(res_dict)
 
-        columns = ['model name', 'holdout error', 'cv error', 'training error']
+        columns = ['model name', 'n features', 'holdout error', 'holdout error interval', 'cv error', 'training error']
         result = pd.DataFrame(rows,
                               columns=columns + ['holdout error numeric'])
         return result.sort_values('holdout error numeric')[columns]

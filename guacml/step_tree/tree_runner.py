@@ -1,4 +1,4 @@
-from guacml.step_tree.model_runner import ModelRunner
+from guacml.step_tree.model_manager import ModelManager
 
 
 class TreeRunner:
@@ -17,7 +17,7 @@ class TreeRunner:
         children = self.tree.get_children(step_name)
         step = self.tree.get_step(step_name)
 
-        if isinstance(step, ModelRunner):
+        if isinstance(step, ModelManager):
             step.splitter = self.dataset.splitter
             accumulator[step_name] = step.execute(input, metadata)
         else:

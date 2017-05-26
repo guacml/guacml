@@ -2,9 +2,6 @@ class BaseModel:
     def __init__(self, problem_type):
         self.problem_type = problem_type
 
-    def select_features(self, metadata):
-        return metadata[metadata.type.isin(self.get_valid_types())].col_name
-
     def get_valid_types(self):
         raise NotImplementedError()
 
@@ -18,8 +15,15 @@ class BaseModel:
     def predict(self, x):
         raise NotImplementedError()
 
+    def feature_importances(self, x):
+        raise NotImplementedError()
+
     @staticmethod
     def to_int(value):
         if value is None:
             return None
         return int(value)
+
+    @staticmethod
+    def pos_int(value):
+        return max(int(value), 0)

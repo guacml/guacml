@@ -11,7 +11,6 @@ class TestDataset(unittest.TestCase):
 
     def test_dataset(self):
         ds = self.load_dataset()
-
         self.assertIsInstance(ds.df, pd.DataFrame)
 
     def test_run(self):

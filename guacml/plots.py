@@ -48,7 +48,7 @@ class Plots:
         axes[1].bar(bins[:-1], bin_counts, width=1/n_bins)
         axes[1].set_ylabel('number of rows')
         plt.xlabel('predicted probability')
-        plt.suptitle('Predictions vs Actual', fontsize=14)
+        plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
 
 
 

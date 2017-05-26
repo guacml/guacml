@@ -5,24 +5,33 @@ from hyperopt import fmin, tpe
 
 class HyperParameterOptimizer:
 
-    def __init__(self, model, train, cv, features, target, eval_metric):
-        self.model = model
-        self.X_train = train[features]
-        self.y_train = train[target]
-        self.X_cv = cv[features]
-        self.y_cv = cv[target]
-        self.eval_metric = eval_metric
+    def __init__(self, model_runner, features):
+        self.model_runner = model_runner
+        self.features = features
 
     def optimize(self, hyper_param_iterations):
-        hp_info = self.model.hyper_parameter_info()
+        hp_info = self.model_runner.hyper_parameter_info()
 
         trials = Trials()
-        fmin(self.to_minimize,
-             hp_info.search_space,
+        best_hps = fmin(self.to_minimize,
+             hp_info,
              algo=tpe.suggest,
              max_evals=hyper_param_iterations,
              trials=trials)
 
+        filtered_hps = {}
+        for hp in self.model_runner.hyper_parameter_info():
+            try:
+                filtered_hps[hp] = best_hps[hp]
+            except KeyError:
+                filtered_hps[hp] = None
+
+        return self.trials_to_data_frame(trials), filtered_hps
+
+    def to_minimize(self, args):
+        return self.model_runner.train_and_cv_error(self.features, args)
+
+    def trials_to_data_frame(self, trials):
         all_trials = []
         for trial in trials.trials:
             unpacked = {
@@ -43,9 +52,3 @@ class HyperParameterOptimizer:
             all_trials.append(unpacked)
 
         return pd.DataFrame(all_trials)
-
-    def to_minimize(self, args):
-        self.model.train(self.X_train, self.y_train, **args)
-        cv_predictions = self.model.predict(self.X_cv)
-        cv_error = self.eval_metric.error(self.y_cv, cv_predictions)
-        return cv_error

@@ -1,7 +1,7 @@
 from guacml.models.base_model import BaseModel
 from .base_step import BaseStep
 from collections import defaultdict
-from .model_runner import ModelRunner
+from .model_manager import ModelManager
 
 
 class StepTree:
@@ -31,10 +31,10 @@ class StepTree:
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
             raise ValueError('The model paramter should inherit from BaseModel')
-        self.add_step(step_name, parent_name, ModelRunner(model,
-                                                          self.target,
-                                                          self.hyper_param_iterations,
-                                                          self.eval_metric))
+        self.add_step(step_name, parent_name, ModelManager(model,
+                                                           self.target,
+                                                           self.hyper_param_iterations,
+                                                           self.eval_metric))
 
     def get_step(self, name):
         return self.steps[name]

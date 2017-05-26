@@ -10,8 +10,9 @@ class Accuracy(BaseEvalMetric):
 
     @staticmethod
     def error(truth, prediction):
-        return -Accuracy.correct(truth, prediction).sum() / truth.shape[0]
+        return - Accuracy.correct(truth, prediction).sum() / truth.shape[0]
 
     @staticmethod
     def correct(truth, prediction):
         return (prediction >= THRESHOLD) == (truth == 1)
+

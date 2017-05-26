@@ -4,8 +4,9 @@ from sklearn.linear_model import Ridge
 
 from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
-from guacml.models.hyper_param_info import HyperParameterInfo
 from guacml.preprocessing.column_analyzer import ColType
+import pandas as pd
+import numpy as np
 
 
 class LinearModel(BaseModel):
@@ -14,27 +15,31 @@ class LinearModel(BaseModel):
 
     @staticmethod
     def hyper_parameter_info():
-        return HyperParameterInfo({
+        return {
             'alpha': hp.loguniform('alpha', -12, 3)
-        })
+        }
 
     def train(self, x, y, alpha=1):
         if self.problem_type == ProblemType.BINARY_CLAS:
-            self.lin_model = LogisticRegression(C=alpha)
+            self.model = LogisticRegression(C=alpha)
         elif self.problem_type == ProblemType.REGRESSION:
-            self.lin_model = Ridge(alpha=alpha)
+            self.model = Ridge(alpha=alpha)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
 
-        self.lin_model.fit(x, y)
+        self.model.fit(x, y)
 
     def predict(self, x):
         if self.problem_type == ProblemType.BINARY_CLAS:
-            return self.lin_model.predict_proba(x)[:, 1]
+            return self.model.predict_proba(x)[:, 1]
         elif self.problem_type == ProblemType.REGRESSION:
-            return self.lin_model.predict(x)
+            return self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
+
+    def feature_importances(self, x):
+        importance = np.abs(self.model.coef_) * x.std().values
+        return pd.Series(importance.flatten(), index=x.columns)
 
 
 

@@ -1,45 +1,101 @@
-from guacml.step_tree.hyper_param_optimizer import HyperParameterOptimizer
-from guacml.step_tree.model_result import ModelResult
-from .base_step import BaseStep
+import pandas as pd
+import numpy as np
 
 
-class ModelRunner(BaseStep):
-    def __init__(self, model, target, hyper_param_iterations, eval_metric):
+class ModelRunner():
+    def __init__(self, model, input, target, eval_metric, splitter):
         self.model = model
         self.target = target
-        self.hyper_param_iterations = hyper_param_iterations
         self.eval_metric = eval_metric
+        holdout_train, holdout = splitter.holdout_split(input)
+        self.holdout = holdout.copy()
+        self.train_and_cv = holdout_train.copy()
+        self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
+        self.final_features = None
+        self.final_hyper_params = None
 
-    def execute(self, input, metadata):
-        train_and_cv, holdout = self.splitter.split(input)
-        train, cv = self.splitter.split(train_and_cv)
-        features = self.model.select_features(metadata)
-        features = features[features != self.target]
+    def train_and_cv_error(self, features, hyper_params):
+        self.train_for_cv(features, hyper_params)
+        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv['cv_prediction'])
 
-        hp_optimizer = HyperParameterOptimizer(self.model, train, cv, features,
-                                               self.target, self.eval_metric)
-        all_trials = hp_optimizer.optimize(self.hyper_param_iterations)
-        all_trials = all_trials.sort_values('cv error')
-        best = all_trials.iloc[0]
+    def train_for_cv(self, features, hyper_params, with_feature_importances=False):
+        feature_importances = []
+        self.train_and_cv['cv_prediction'] = np.nan
+        for train_indices, cv_indices in self.train_and_cv_folds:
+            self.model.train(self.train_and_cv[features].iloc[train_indices],
+                             self.train_and_cv[self.target].iloc[train_indices]
+                             , **hyper_params)
+            col_idx = self.train_and_cv.columns.get_loc('cv_prediction')
+            self.train_and_cv.iloc[cv_indices, col_idx] =\
+                self.model.predict(self.train_and_cv[features].iloc[cv_indices])
 
-        training_error, _ = self.score_model(train, features)
-        holdout_error, holdout_predictions = self.score_model(holdout, features)
-        holdout_row_errors = self.eval_metric.row_wise_error(holdout[self.target], holdout_predictions)
+            if with_feature_importances:
+                feat_importance = self.model.feature_importances(self.train_and_cv[features])
+                if feat_importance is None or len(feat_importance) == 0:
+                    raise Exception('Error computing feature importances.')
+                feature_importances.append(feat_importance)
 
-        holdout = holdout.copy()
-        holdout['error'] = holdout_row_errors
-        holdout['prediction'] = holdout_predictions
+        if with_feature_importances:
+            feature_importances = pd.DataFrame(feature_importances)
+            self.cv_feature_importances = feature_importances.mean()
 
-        return ModelResult(self.model,
-                           self.target,
-                           training_error,
-                           best['cv error'],
-                           holdout_error,
-                           holdout,
-                           metadata,
-                           best,
-                           all_trials)
+    def train_final_model(self, features, hyper_params):
+        self.final_features = features
+        self.final_hyper_params = hyper_params
+        self.model.train(self.train_and_cv[features], self.train_and_cv[self.target], **hyper_params)
+        self.train_and_cv['train_prediction'] = self.model.predict(self.train_and_cv[features])
+        self.holdout['prediction'] = self.model.predict(self.holdout[features])
 
-    def score_model(self, input, features):
-        predictions = self.model.predict(input[features])
-        return self.eval_metric.error(input[self.target], predictions), predictions
+    # def train_model(self, features, hyper_params):
+    #     self.features = features
+    #     self.hyper_params = hyper_params
+    #     self.model.train(self.train[features], self.train[self.target], **hyper_params)
+    #     self.train['prediction'] = self.model.predict(self.train[features])
+    #     self.cv['prediction'] = self.model.predict(self.cv[features])
+    #     self.holdout['prediction'] = self.model.predict(self.holdout[features])
+
+    # def train_and_cv(self, features, hyper_params):
+    #     self.train_model(features, hyper_params)
+    #     return self.cv_error()
+
+    def cv_error(self):
+        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv.cv_prediction)
+
+    def training_error(self):
+        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv.cv_prediction)
+
+    def holdout_error(self):
+        return self.eval_metric.error(self.holdout[self.target], self.holdout.prediction)
+
+    def cv_predictions(self):
+        return self.train_and_cv.cv_prediction
+
+    def holdout_predictions(self):
+        return self.holdout.prediction
+
+    def row_wise_holdout_error(self):
+        return self.eval_metric.row_wise_error(self.holdout[self.target], self.holdout_predictions())
+
+    def holdout_error_interval(self):
+        bs_holdout_errors = self.bootstrap_errors_(self.holdout[self.target], self.holdout_predictions())
+        return bs_holdout_errors.quantile(0.1), bs_holdout_errors.quantile(0.9)
+
+    def bootstrap_cv_errors(self):
+        return self.bootstrap_errors_(self.train_and_cv[self.target], self.cv_predictions())
+
+    def bootstrap_errors_(self, truth, predictions, i=200):
+        n = len(truth)
+        errors = []
+        for i in range(i):
+            resample_indices = np.random.randint(n, size=n)
+            err = self.eval_metric.error(truth.iloc[resample_indices], predictions.iloc[resample_indices])
+            errors.append(err)
+        return pd.Series(errors)
+
+    def is_cv_error_significantly_worse(self, other_errors):
+        new_bs_errors = self.bootstrap_errors_(self.train_and_cv[self.target], self.cv_predictions())
+        # error gets larger with probability larger 80%
+        return (new_bs_errors > other_errors).mean() > 0.8
+
+    def hyper_parameter_info(self):
+        return self.model.hyper_parameter_info()
