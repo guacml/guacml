@@ -1,0 +1,4 @@
+#!/bin/bash
+[ -e venv ] && source venv/bin/activate
+
+jupyter notebook --notebook-dir demos

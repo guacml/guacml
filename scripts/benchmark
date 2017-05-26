@@ -1,0 +1,8 @@
+#!/bin/bash
+[ -e venv ] && source venv/bin/activate
+
+for file in demos/**/demo.ipynb; do
+  echo -n $file :
+  time jupyter nbconvert --ExecutePreprocessor.timeout=600 --to=html --output-dir=/tmp/ --execute $file >/dev/null 2>&1
+  echo
+done
