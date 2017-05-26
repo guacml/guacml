@@ -16,3 +16,9 @@ We start with a focus on tabular data like typical business spreadsheets.
 7. Deploy
 
 Ideally, steps 2-3 should be semi-automated (part of 4 as well).
+
+## How to get started
+
+1. Clone the project to your own machine
+2. Run `scripts/setup` - This will install xgboost and all python dependencies
+3. Run `scripts/demo` - This will run a jupyter notebook server so you can take a look at the demo notebooks
