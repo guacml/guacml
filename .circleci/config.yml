@@ -1,0 +1,21 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/guacml
+    docker:
+      - image: circleci/python:3.6.1
+    steps:
+      - checkout
+      - restore_cache:
+          key: deps-{{ checksum "requirements.txt" }}
+      - run:
+          name: Setup
+          command: scripts/setup
+      - save_cache:
+          key: deps-{{ checksum "requirements.txt" }}
+          paths:
+            - venv
+            - lib
+      - run:
+          name: test
+          command: scripts/test

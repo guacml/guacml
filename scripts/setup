@@ -13,8 +13,8 @@ function install_python_deps() {
     echo
     [ ! -e venv ] && python3 -m venv venv
     source venv/bin/activate
-    pip3 install --upgrade pip setuptools
-    pip3 install -r requirements.txt
+    pip3 install -q --upgrade pip setuptools
+    pip3 install -q -r requirements.txt
   fi
 }
 
@@ -28,7 +28,7 @@ function build_xgboost() {
   echo ----- Install XGBoost Python Package
 
   cd lib/xgboost/python-package
-  python3 setup.py install
+  python3 setup.py -q install
   cd -
 }
 
@@ -62,4 +62,3 @@ function install_xgboost() {
 
 install_python_deps
 install_xgboost
-

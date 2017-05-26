@@ -1,0 +1,8 @@
+#!/bin/bash
+[ -e venv ] && source venv/bin/activate
+
+export PYTHONPATH=.
+
+# The unittest discover feature somehow doesn't pick up all tests
+# python -m unittest discover -s tests
+find tests -name 'test_*.py' -exec python3 -m unittest -v {} \;
