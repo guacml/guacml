@@ -60,5 +60,13 @@ function install_xgboost() {
   fi
 }
 
+function install_nbstripout() {
+  if ! nbstripout --is-installed ; then
+    echo --- Installing nbstripout
+    nbstripout --install
+  fi
+}
+
 install_python_deps
 install_xgboost
+install_nbstripout
