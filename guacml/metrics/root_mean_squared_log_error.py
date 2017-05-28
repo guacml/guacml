@@ -4,7 +4,7 @@ from guacml.metrics.base_eval_metric import BaseEvalMetric
 
 
 def _row_error(truth, prediction):
-    return (np.log1p(prediction) - np.log1p(truth)) ** 2
+    return (np.log1p(np.maximum(prediction, 0)) - np.log1p(truth)) ** 2
 
 
 class RootMeanSquaredLogError(BaseEvalMetric):
