@@ -17,5 +17,12 @@ jobs:
             - venv
             - lib
       - run:
+          shell: /bin/bash
           name: test
-          command: scripts/test
+          command: |
+            [ -e venv ] && source venv/bin/activate
+            export PYTHONPATH=.
+            mkdir -p /tmp/test-results
+            nosetests -v --with-xunit --xunit-file=/tmp/test-results/nosetests.xml
+      - store_test_results:
+          path: /tmp/test-results
