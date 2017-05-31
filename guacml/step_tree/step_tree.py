@@ -1,3 +1,5 @@
+import pydot
+
 from guacml.models.base_model import BaseModel
 from .base_step import BaseStep
 from collections import defaultdict
@@ -43,17 +45,17 @@ class StepTree:
     def get_children(self, step_name):
         return self.children[step_name]
 
-    def to_dot(self):
-        result = []
+    def to_pydot(self):
+        """Return a pydot digraph from a StepTree."""
+
+        graph = pydot.Dot(graph_type='digraph')
 
         # make sure Root shows up in single node trees
         if self.root_name:
-            result.append(self.root_name)
+            graph.add_node(pydot.Node(self.root_name))
 
         for parent, children in self.children.items():
             for child in children:
-                result.append(parent + " -> " + child)
+                graph.add_edge(pydot.Edge(parent, child))
 
-        return "digraph G {\n\t" + "\n\t".join(result) + "\n}\n"
-
-
+        return graph
