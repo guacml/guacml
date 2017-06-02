@@ -6,8 +6,9 @@ from guacml.preprocessing.column_analyzer import ColType
 
 
 class Plots:
-    def __init__(self, model_results):
+    def __init__(self, model_results, step_tree):
         self.model_results = model_results
+        self.step_tree = step_tree
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)
@@ -32,7 +33,7 @@ class Plots:
             sns.barplot(x=col, y='error', data=holdout)
             plt.show()
 
-    def predictions_vs_actual(self, model_name, n_bins = 5, figsize=(7, 5)):
+    def predictions_vs_actual(self, model_name, n_bins=5, figsize=(7, 5)):
         model_resuls = self.model_results[model_name]
         holdout = model_resuls.holdout_data
         target = model_resuls.target
@@ -50,7 +51,9 @@ class Plots:
         plt.xlabel('predicted probability')
         plt.suptitle('Predictions vs Actual', fontsize=14)
 
+    def tree(self):
+        # render pydot by calling dot, no file saved to disk
+        png_str = self.step_tree.to_pydot().create_png(prog='dot')
 
-
-
-
+        from IPython.core.display import Image
+        return Image(png_str, embed=True)

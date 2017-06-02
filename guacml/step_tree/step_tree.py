@@ -1,3 +1,5 @@
+import pydot
+
 from guacml.models.base_model import BaseModel
 from .base_step import BaseStep
 from collections import defaultdict
@@ -11,6 +13,7 @@ class StepTree:
         self.target = target
         self.hyper_param_iterations = hyper_param_iterations
         self.eval_metric = eval_metric
+        self.root_name = None
 
     def add_step(self, step_name, parent_name, step):
         if parent_name is None:
@@ -41,3 +44,28 @@ class StepTree:
 
     def get_children(self, step_name):
         return self.children[step_name]
+
+    def to_pydot(self):
+        """Return a pydot digraph from a StepTree."""
+
+        graph = pydot.Dot(graph_type='digraph')
+
+        # make sure Root shows up in single node trees
+        if self.root_name:
+            graph.add_node(pydot.Node(self._step_graph_label(self.root_name)))
+
+        for parent, children in self.children.items():
+            for child in children:
+                graph.add_edge(pydot.Edge(
+                    self._step_graph_label(parent),
+                    self._step_graph_label(child)
+                    ))
+
+        return graph
+
+    def _step_graph_label(self, step_name):
+        step = self.get_step(step_name)
+        if step.runtime:
+            return "%s\n(%.2f sec)" % (step_name, step.runtime)
+        else:
+            return step_name

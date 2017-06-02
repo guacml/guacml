@@ -68,7 +68,7 @@ class Dataset:
 
         runner = TreeRunner(self, tree)
         self.model_results = runner.run()
-        self.plots = Plots(self.model_results)
+        self.plots = Plots(self.model_results, step_tree)
 
     def model_overview(self):
         rows = []
