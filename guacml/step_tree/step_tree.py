@@ -52,10 +52,20 @@ class StepTree:
 
         # make sure Root shows up in single node trees
         if self.root_name:
-            graph.add_node(pydot.Node(self.root_name))
+            graph.add_node(pydot.Node(self._step_graph_label(self.root_name)))
 
         for parent, children in self.children.items():
             for child in children:
-                graph.add_edge(pydot.Edge(parent, child))
+                graph.add_edge(pydot.Edge(
+                    self._step_graph_label(parent),
+                    self._step_graph_label(child)
+                    ))
 
         return graph
+
+    def _step_graph_label(self, step_name):
+        step = self.get_step(step_name)
+        if step.runtime:
+            return "%s\n(%.2f sec)" % (step_name, step.runtime)
+        else:
+            return step_name
