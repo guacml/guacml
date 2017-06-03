@@ -1,13 +1,9 @@
 General:
 - Disk caching
-- feature selection
 
 Timeseries:
-- use bike sharing
 - split train, CV, and holdout by timestamp (configurable)
 - configurable backtesting
-
-
 
 Charts:
 - better charts for regression problems
