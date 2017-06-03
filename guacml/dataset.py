@@ -10,29 +10,31 @@ from guacml.step_tree.random_splitter import RandomSplitter
 from guacml.step_tree.step_tree import StepTree
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
-from .preprocessing.column_analyzer import ColumnAnalyzer, ColType
 from IPython.display import clear_output
+from .preprocessing.column_analyzer import ColumnAnalyzer, ColType
 
 
 class Dataset:
-
     def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
+        self.plots, self.model_results = None, None
+
         print('loading data..')
-        self.df = pd.read_csv(path, **kwds)
-        if target not in self.df.columns:
+        self.dataframe = pd.read_csv(path, **kwds)
+        if target not in self.dataframe.columns:
             raise ValueError('The target {0} does not exist as column.\n'
-                             'Available columns: {1}'.format(target, self.df.columns))
+                             'Available columns: {1}'.format(target, self.dataframe.columns))
         self.target = target
         if exclude_cols is not None:
             for col in exclude_cols:
-                if col not in self.df.columns:
+                if col not in self.dataframe.columns:
                     raise ValueError('The column to exclude {0} does not exist as column.\n'
-                                     'Available columns: {1}'.format(target, self.df.columns))
-                del self.df[col]
+                                     'Available columns: {1}'.format(target,
+                                                                     self.dataframe.columns))
+                del self.dataframe[col]
 
         print('analyzing columns..')
         col_analyzer = ColumnAnalyzer()
-        self.column_info, self.metadata = col_analyzer.analyze(self.df)
+        self.column_info, self.metadata = col_analyzer.analyze(self.dataframe)
         clear_output()
 
         target_meta = self.metadata[self.metadata.col_name == target]

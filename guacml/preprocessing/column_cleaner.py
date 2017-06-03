@@ -2,7 +2,7 @@ from guacml.step_tree.base_step import BaseStep
 
 
 class ColumnCleaner(BaseStep):
-    def execute(self, input, metadata):
+    def execute(self, dataframe, metadata):
         for _, col_desc in metadata.iterrows():
             if col_desc.n_blank > 0:
                 col = col_desc.col_name
@@ -13,4 +13,4 @@ class ColumnCleaner(BaseStep):
                     col
                 ))
 
-        return input, metadata
+        return dataframe, metadata

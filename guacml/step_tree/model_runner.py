@@ -10,8 +10,8 @@ class ModelRunner(BaseStep):
         self.hyper_param_iterations = hyper_param_iterations
         self.eval_metric = eval_metric
 
-    def execute(self, input, metadata):
-        train_and_cv, holdout = self.splitter.split(input)
+    def execute(self, dataframe, metadata):
+        train_and_cv, holdout = self.splitter.split(dataframe)
         train, cv = self.splitter.split(train_and_cv)
         features = self.model.select_features(metadata)
         features = features[features != self.target]
@@ -41,6 +41,6 @@ class ModelRunner(BaseStep):
                            best,
                            all_trials)
 
-    def score_model(self, input, features):
-        predictions = self.model.predict(input[features])
-        return self.eval_metric.error(input[self.target], predictions), predictions
+    def score_model(self, dataframe, features):
+        predictions = self.model.predict(dataframe[features])
+        return self.eval_metric.error(dataframe[self.target], predictions), predictions

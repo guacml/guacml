@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash -eo pipefail
 [ -e venv ] && source venv/bin/activate
 
+pylint --disable=missing-docstring guacml/
 flake8 --exclude=lib/,bin/,venv/,docs/conf.py --max-line-length=100 -j=2 .

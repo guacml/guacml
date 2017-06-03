@@ -41,7 +41,7 @@ class Plots:
         bin_counts = holdout.groupby(binned)[target].count()
         bin_means = holdout.groupby(binned)[target].mean()
 
-        fig, axes = plt.subplots(2, sharex=True, figsize=figsize)
+        _fig, axes = plt.subplots(2, sharex=True, figsize=figsize)
         axes[0].bar(bins[:-1], bin_means, width=1/n_bins)
         axes[0].plot(bins, bins, color=sns.color_palette()[1])
         axes[0].set_ylabel('actual rate')
