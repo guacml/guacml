@@ -1,6 +1,4 @@
 #!/bin/bash
 [ -e venv ] && source venv/bin/activate
 
-export PYTHONPATH=.
-
-nosetests -v
+python3 -m nose -v
