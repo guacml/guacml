@@ -3,20 +3,18 @@ from guacml.storage.previous_runs import PreviousRuns
 
 
 class TreeRunner:
-    def __init__(self, data, config, tree, min_hyper_param_iterations):
+    def __init__(self, data, config, tree):
         self.data = data
         self.config = config
         self.tree = tree
-        self.min_hp_iterations = min_hyper_param_iterations
-        self.prev_runs = PreviousRuns(data, config, min_hyper_param_iterations)
+        self.prev_runs = PreviousRuns(data, config)
 
     def run(self):
         """
         Either runs all preprocessing steps or loads the preprocessed
         data from files, if they have been run before.
         """
-        if not self.prev_runs.found_matching_run or \
-               self.min_hp_iterations > self.prev_runs.get_hyper_param_iterations():
+        if not self.prev_runs.found_matching_run:
             results = {}
             self.run_step(self.tree.root_name, self.data, results)
             self.prev_runs.store_run()
@@ -30,7 +28,7 @@ class TreeRunner:
         step = self.tree.get_step(step_name)
 
         if isinstance(step, ModelManager):
-            results[step_name] = step.run(data, self.min_hp_iterations)
+            results[step_name] = step.run(data)
             # self.prev_runs.add_model_input(step_name, data)
             self.prev_runs.add_model_result(step_name, results[step_name])
         else:

@@ -1,5 +1,7 @@
 demos/*/data/
+tests/data/
 
+# Mac-OSX file system
 .DS_Store
 
 # Ignore PyCharm settings

@@ -4,6 +4,7 @@ from sklearn.model_selection import KFold
 
 class RandomSplitter:
     def __init__(self, cv_config):
+        print(cv_config)
         self.test_size = cv_config['holdout_size']
         self.k_fold = KFold(n_splits=cv_config['n_folds'])
 

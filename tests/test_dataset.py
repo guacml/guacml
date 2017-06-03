@@ -31,12 +31,18 @@ class TestDataset(unittest.TestCase):
         self.assertAlmostEqual(-0.8, result['random_forest'].holdout_error, delta=0.2)
         ds.clear_prev_runs()
 
-
     def test_boolean_column(self):
         ds = self.load_dataset('boolean')
 
         ds.run(1)
         result = ds.model_results
         self.assertAlmostEqual(0.5, result['random_forest'].holdout_error, delta=0.2)
+        ds.clear_prev_runs()
+
+    def test_date_splitter(self):
+        ds = self.load_dataset(fixture='bike_sharing', target='count')
+        ds.run(1, 'datetime')
+        result = ds.model_results
+        self.assertEqual(3, len(result))
         ds.clear_prev_runs()
 
