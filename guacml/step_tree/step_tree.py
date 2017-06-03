@@ -11,6 +11,7 @@ class StepTree:
         self.target = target
         self.hyper_param_iterations = hyper_param_iterations
         self.eval_metric = eval_metric
+        self.root_name = None
 
     def add_step(self, step_name, parent_name, step):
         if parent_name is None:
@@ -41,3 +42,18 @@ class StepTree:
 
     def get_children(self, step_name):
         return self.children[step_name]
+
+    def to_dot(self):
+        result = []
+
+        # make sure Root shows up in single node trees
+        if self.root_name:
+            result.append(self.root_name)
+
+        for parent, children in self.children.items():
+            for child in children:
+                result.append(parent + " -> " + child)
+
+        return "digraph G {\n\t" + "\n\t".join(result) + "\n}\n"
+
+
