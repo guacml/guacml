@@ -35,7 +35,3 @@ class LinearModel(BaseModel):
             return self.lin_model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
-
-
-
-

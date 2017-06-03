@@ -19,13 +19,13 @@ class Dataset:
     def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
         print('loading data..')
         self.df = pd.read_csv(path, **kwds)
-        if not target in self.df.columns:
+        if target not in self.df.columns:
             raise ValueError('The target {0} does not exist as column.\n'
                              'Available columns: {1}'.format(target, self.df.columns))
         self.target = target
-        if not exclude_cols is None:
+        if exclude_cols is not None:
             for col in exclude_cols:
-                if not col in self.df.columns:
+                if col not in self.df.columns:
                     raise ValueError('The column to exclude {0} does not exist as column.\n'
                                      'Available columns: {1}'.format(target, self.df.columns))
                 del self.df[col]
@@ -51,7 +51,7 @@ class Dataset:
         else:
             print('Can not automatically infer problem type.')
 
-        if not eval_metric is None:
+        if eval_metric is not None:
             if eval_metric.lower() == 'accuracy':
                 self.eval_metric = Accuracy()
             elif eval_metric.lower() == 'rmsle':

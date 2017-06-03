@@ -1,6 +1,5 @@
 from guacml.preprocessing.column_cleaner import ColumnCleaner
 from guacml.preprocessing.feature_generation.date_splitter import DateSplitter
-from .step_tree import StepTree
 from ..preprocessing.feature_generation.label_encoder import LabelEncoder
 from ..preprocessing.feature_generation.one_hot_encoder import OneHotEncoder
 from ..preprocessing.fill_na import FillNa

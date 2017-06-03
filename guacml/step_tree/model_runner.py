@@ -24,7 +24,8 @@ class ModelRunner(BaseStep):
 
         training_error, _ = self.score_model(train, features)
         holdout_error, holdout_predictions = self.score_model(holdout, features)
-        holdout_row_errors = self.eval_metric.row_wise_error(holdout[self.target], holdout_predictions)
+        holdout_row_errors = self.eval_metric.row_wise_error(holdout[self.target],
+                                                             holdout_predictions)
 
         holdout = holdout.copy()
         holdout['error'] = holdout_row_errors

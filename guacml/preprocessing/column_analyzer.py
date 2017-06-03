@@ -19,13 +19,16 @@ class ColumnAnalyzer:
             if not isinstance(ci, dict):
                 raise Exception('Error analyzing col {0}'.format(col))
             col_data.append(ci)
+
         # for display to the user
         col_infos = pd.DataFrame(col_data,
-                            columns=['col_name', 'type', 'n_unique', 'n_unique_%',
-                                     'n_na_%', 'n_blank_%', 'example'])
+                                 columns=['col_name', 'type', 'n_unique', 'n_unique_%', 'n_na_%',
+                                          'n_blank_%', 'example'])
         # for processing
         col_metadata = pd.DataFrame(col_data,
-                            columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank'])
+                                    columns=['col_name', 'type', 'derived_from', 'n_unique',
+                                             'n_na', 'n_blank'])
+
         return col_infos, col_metadata
 
     def analyze_col(self, df, col_name):

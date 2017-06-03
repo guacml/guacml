@@ -1,5 +1,3 @@
-import guacml as guac
-import os
 import numpy as np
 import unittest
 
@@ -25,7 +23,7 @@ class TestRootMeanSquaredLogError(unittest.TestCase):
 
     def test_mix(self):
         rsmle = RootMeanSquaredLogError()
-        error = rsmle.error(np.array([0,0,1,1]), np.array([0,1,0,1]))
+        error = rsmle.error(np.array([0, 0, 1, 1]), np.array([0, 1, 0, 1]))
         self.assertAlmostEqual(0.4901290717, error, delta=1e-9)
 
     def test_ignore_negative_prediction(self):

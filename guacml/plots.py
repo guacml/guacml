@@ -32,7 +32,7 @@ class Plots:
             sns.barplot(x=col, y='error', data=holdout)
             plt.show()
 
-    def predictions_vs_actual(self, model_name, n_bins = 5, figsize=(7, 5)):
+    def predictions_vs_actual(self, model_name, n_bins=5, figsize=(7, 5)):
         model_resuls = self.model_results[model_name]
         holdout = model_resuls.holdout_data
         target = model_resuls.target
@@ -49,8 +49,3 @@ class Plots:
         axes[1].set_ylabel('number of rows')
         plt.xlabel('predicted probability')
         plt.suptitle('Predictions vs Actual', fontsize=14)
-
-
-
-
-

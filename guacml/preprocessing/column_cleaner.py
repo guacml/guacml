@@ -8,6 +8,9 @@ class ColumnCleaner(BaseStep):
                 col = col_desc.col_name
                 col = col.replace('', None)
                 col_desc.n_blank = 0
-                print('Replaced {0} blank values with None for column {1}:.'.format(col_desc.n_blanks, col))
+                print('Replaced {0} blank values with None for column {1}:.'.format(
+                    col_desc.n_blanks,
+                    col
+                ))
 
         return input, metadata
