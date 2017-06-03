@@ -28,4 +28,3 @@ class ModelResult:
             'training error': '{:.4g}'.format(self.training_error),
             'hyper_params': self.hyper_params
         }
-

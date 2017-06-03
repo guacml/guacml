@@ -19,7 +19,7 @@ class RandomForest(BaseModel):
             'max_depth': hp.choice('use_max_depth',
                                    [None, hp.qlognormal('max_depth', 3, 1, 1)]),
             'min_samples_leaf': hp.choice('use_min_samples_leaf',
-                                [1 , hp.qlognormal('min_samples_split', 2, 1, 1) + 1])
+                                          [1, hp.qlognormal('min_samples_split', 2, 1, 1) + 1])
         })
 
     def train(self, x, y,
@@ -36,8 +36,8 @@ class RandomForest(BaseModel):
                                                    min_samples_leaf=min_samples_leaf)
         elif self.problem_type == ProblemType.REGRESSION:
             self.rf_model = RandomForestRegressor(n_estimators,
-                                                   max_depth=max_depth,
-                                                   min_samples_leaf=min_samples_leaf)
+                                                  max_depth=max_depth,
+                                                  min_samples_leaf=min_samples_leaf)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
 
@@ -50,4 +50,3 @@ class RandomForest(BaseModel):
             return self.rf_model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
-
