@@ -27,8 +27,7 @@ class RandomForest(BaseModel):
               min_samples_leaf=1):
         n_estimators = self.to_int(n_estimators)
         max_depth = self.to_int(max_depth)
-        min_samples_leaf = self.pos_int\
-            (min_samples_leaf)
+        min_samples_leaf = self.pos_int(min_samples_leaf)
 
         if self.problem_type == ProblemType.BINARY_CLAS:
             self.model = RandomForestClassifier(n_estimators,

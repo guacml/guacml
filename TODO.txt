@@ -1,5 +1,7 @@
 General:
 - Disk caching
+- xg boost said it's only a single thread version. Instructions in doc/build.md
+
 
 Timeseries:
 - split train, CV, and holdout by timestamp (configurable)

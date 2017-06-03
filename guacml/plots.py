@@ -22,17 +22,16 @@ class Plots:
         plt.suptitle('Model error histograms', fontsize=14)
         plt.show()
 
-    def model_error_by_feature(self, model_name, data, metadata):
+    def model_error_by_feature(self, model_name):
         model_results = self.model_results[model_name]
-        data['error'] = model_results.holdout_data['error']
-        holdout = data[data.error.notnull()]
-
+        metadata = model_results.metadata
+        holdout = model_results.holdout_data
         low_card_cols = [ColType.CATEGORICAL, ColType.ORDINAL]
         for col in metadata[metadata.type.isin(low_card_cols)].col_name:
             sns.barplot(x=col, y='error', data=holdout)
             plt.show()
 
-    def predictions_vs_actual(self, model_name, n_bins = 5, figsize=(7, 5)):
+    def predictions_vs_actual(self, model_name, n_bins = 10, figsize=(7, 4)):
         model_resuls = self.model_results[model_name]
         holdout = model_resuls.holdout_data
         target = model_resuls.target
@@ -41,14 +40,32 @@ class Plots:
         bin_counts = holdout.groupby(binned)[target].count()
         bin_means = holdout.groupby(binned)[target].mean()
 
-        fig, axes = plt.subplots(2, sharex=True, figsize=figsize)
-        axes[0].bar(bins[:-1], bin_means, width=1/n_bins)
-        axes[0].plot(bins, bins, color=sns.color_palette()[1])
-        axes[0].set_ylabel('actual rate')
-        axes[1].bar(bins[:-1], bin_counts, width=1/n_bins)
-        axes[1].set_ylabel('number of rows')
-        plt.xlabel('predicted probability')
-        plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
+        plt.figure(figsize=figsize)
+        plt.title('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
+        ax1 = plt.gca()
+        ax1.grid(False)
+        ax1.bar(bins[:-1], bin_counts, width=1/n_bins, color=sns.light_palette('green')[1],
+                label='row count', linewidth = 1, edgecolor='grey')
+        ax1.set_xlabel('predicted probability')
+        ax1.set_ylabel('row count')
+
+        ax2 = ax1.twinx()
+        ax2.plot((bins[:-1]+bins[1:]) / 2 , bin_means, linewidth=3,
+                 marker='.', markersize=16, label='actual rate')
+        ax2.plot(bins, bins, color=sns.color_palette()[2], label='main diagonal')
+
+        ax2.set_ylabel('actual rate')
+
+        handles, labels = ax1.get_legend_handles_labels()
+        handles2, labels2 = ax2.get_legend_handles_labels()
+        legend = plt.legend(handles + handles2, labels + labels2,
+                   loc='best',
+                   frameon=True,
+                   framealpha=0.7)
+        frame = legend.get_frame()
+        frame.set_facecolor('white')
+        plt.show()
+
 
 
 

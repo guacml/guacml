@@ -26,4 +26,4 @@ class BaseModel:
 
     @staticmethod
     def pos_int(value):
-        return max(int(value), 0)
+        return max(int(value), 1)

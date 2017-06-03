@@ -6,7 +6,7 @@ THRESHOLD = 0.5
 class Accuracy(BaseEvalMetric):
     @staticmethod
     def row_wise_error(truth, prediction):
-        return -Accuracy.correct(truth, prediction)
+        return (truth - prediction).abs()
 
     @staticmethod
     def error(truth, prediction):
