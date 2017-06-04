@@ -19,11 +19,10 @@ class Dataset:
     def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
         print('loading data..')
         self.df = pd.read_csv(path, **kwds)
-        if not target in self.df.columns:
+        if target not in self.df.columns:
             raise ValueError('The target {0} does not exist as column.\n'
                              'Available columns: {1}'.format(target, self.df.columns))
-        self.target = target
-        if not exclude_cols is None:
+        if exclude_cols is not None:
             for col in exclude_cols:
                 if not col in self.df.columns:
                     raise ValueError('The column to exclude {0} does not exist as column.\n'
@@ -51,7 +50,7 @@ class Dataset:
         else:
             print('Can not automatically infer problem type.')
 
-        if not eval_metric is None:
+        if eval_metric is not None:
             if eval_metric.lower() == 'accuracy':
                 self.eval_metric = Accuracy()
             elif eval_metric.lower() == 'rmsle':
@@ -59,7 +58,10 @@ class Dataset:
             else:
                 raise NotImplementedError('Unknown eval metic: ' + eval_metric)
 
+        self.target = target
+        self.plots = Plots(self.problem_type)
         self.splitter = RandomSplitter(.8)
+        self.model_results = None
 
     def run(self, hyper_param_iterations):
         tree_builder = TreeBuilder(self.problem_type)
@@ -68,7 +70,7 @@ class Dataset:
 
         runner = TreeRunner(self, tree)
         self.model_results = runner.run()
-        self.plots = Plots(self.model_results)
+        self.plots.set_model_results(self.model_results)
 
     def model_overview(self):
         rows = []
