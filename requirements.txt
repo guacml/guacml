@@ -11,3 +11,4 @@ python_dateutil~=2.6.0
 scikit_learn~=0.18.1
 seaborn~=0.7.1
 statsmodels~=0.8
+pyyaml~=3.12

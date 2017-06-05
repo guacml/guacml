@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
-from enum import Enum
 from dateutil import parser as date_parser
 
-ColType = Enum('ColType', 'BINARY NUMERIC ORDINAL INT_ENCODING\
-                           ID CATEGORICAL DATETIME TEXT WORDS LIST UNKNOWN')
+from guacml.enums import ColType
 
 
 class ColumnAnalyzer:
@@ -19,14 +17,10 @@ class ColumnAnalyzer:
             if not isinstance(ci, dict):
                 raise Exception('Error analyzing col {0}'.format(col))
             col_data.append(ci)
-        # for display to the user
-        col_infos = pd.DataFrame(col_data,
-                            columns=['col_name', 'type', 'n_unique', 'n_unique_%',
-                                     'n_na_%', 'n_blank_%', 'example'])
-        # for processing
+
         col_metadata = pd.DataFrame(col_data,
-                            columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank'])
-        return col_infos, col_metadata
+                            columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example'])
+        return col_metadata
 
     def analyze_col(self, df, col_name):
         col = df[col_name]
@@ -38,11 +32,8 @@ class ColumnAnalyzer:
         col_info = {
             'col_name': col_name,
             'n_unique': n_unique,
-            'n_unique_%': round(n_unique_pct),
             'n_na': n_not_null,
-            'n_na_%': round(n_not_null * 100 / len(col)),
             'n_blank': 0,
-            'n_blank_%': 0,
             'example': not_null.iloc[0]
         }
 
@@ -91,7 +82,6 @@ class ColumnAnalyzer:
         if is_str:
             n_blank = (not_null == '').sum()
             col_info['n_blank'] = n_blank
-            col_info['n_blank_%'] = round(n_blank * 100 / len(col))
 
             first = not_null.iloc[0]
             if first.isdecimal():

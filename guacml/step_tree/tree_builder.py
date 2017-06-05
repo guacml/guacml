@@ -10,8 +10,10 @@ from ..models.linear_model import LinearModel
 
 
 class TreeBuilder:
-    def __init__(self, problem_type):
-        self.problem_type = problem_type
+    def __init__(self, config):
+        self.config = config
+        self.problem_type = config['run_time']['problem_type']
+
 
     def build(self, step_tree):
         step_tree.add_step('clean_columns', None, ColumnCleaner())
@@ -22,6 +24,6 @@ class TreeBuilder:
         step_tree.add_step('fill_na', 'split_dates', FillNa())
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))
 
-        step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder())
+        step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder(self.config['pre_processing']))
         step_tree.add_model('linear_model', 'one_hot_encode', LinearModel(self.problem_type))
         return step_tree

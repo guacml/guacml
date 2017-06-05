@@ -1,4 +1,4 @@
-import guacml as guac
+from guacml import GuacMl
 import os
 import pandas as pd
 import unittest
@@ -7,11 +7,11 @@ import unittest
 class TestDataset(unittest.TestCase):
     def load_dataset(self, eval_metric=None):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        return guac.Dataset(dir_path + '/fixtures/titanic.csv', 'Survived', eval_metric=eval_metric)
+        return GuacMl(dir_path + '/fixtures/titanic.csv', 'Survived', eval_metric=eval_metric)
 
     def test_dataset(self):
         ds = self.load_dataset()
-        self.assertIsInstance(ds.df, pd.DataFrame)
+        self.assertIsInstance(ds.data.df, pd.DataFrame)
 
     def test_run(self):
         ds = self.load_dataset()
