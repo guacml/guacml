@@ -6,14 +6,13 @@ from guacml.step_tree.model_runner import ModelRunner
 from .base_step import BaseStep
 
 
-class ModelManager(BaseStep):
+class ModelManager():
     def __init__(self, model, config):
         self.model = model
         self.config = config
         self.target = config['run_time']['target']
-        self.splitter = None
 
-    def execute(self, data):
+    def execute(self, data, min_hyper_param_iterations):
         model_runner = ModelRunner(self.model, data, self.config)
         features = self.select_features(data.metadata)
         features = features[features != self.target]
