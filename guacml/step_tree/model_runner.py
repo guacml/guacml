@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-
 from guacml.step_tree.random_splitter import RandomSplitter
+from hyperopt import STATUS_OK
 
 
 class ModelRunner():
@@ -20,7 +20,15 @@ class ModelRunner():
 
     def train_and_cv_error(self, features, hyper_params):
         self.train_for_cv(features, hyper_params)
-        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv['cv_prediction'])
+        target = self.train_and_cv[self.target]
+        prediction = self.train_and_cv['cv_prediction']
+        loss = self.eval_metric.error(target, prediction)
+        loss_variance = self.bootstrap_errors_(target, prediction).var()
+        return {
+            'status': STATUS_OK,
+            'loss': loss,
+            'loss_variance': loss_variance
+        }
 
     def train_for_cv(self, features, hyper_params, with_feature_importances=False):
         feature_importances = []
