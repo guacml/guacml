@@ -18,7 +18,6 @@ class ModelManager():
         features = features[features != self.target]
 
         hp_optimizer = HyperParameterOptimizer(model_runner, features)
-
         all_trials, best_hps = hp_optimizer.optimize(self.config['run_time']['hyper_param_iterations'])
 
         feature_reducer = FeatureReducer(model_runner, best_hps)
