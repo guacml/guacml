@@ -55,6 +55,7 @@ class GuacMl:
         rt_conf['exclude_cols'] = exclude_cols
         self.plots = Plots(rt_conf, self.data)
         self.model_results = None
+        self.runner = None
 
     def run(self, min_hyper_param_iterations):
 
@@ -62,9 +63,13 @@ class GuacMl:
         step_tree = StepTree(self.config)
         tree = tree_builder.build(step_tree)
 
-        runner = TreeRunner(self.data, tree)
-        self.model_results = runner.run(min_hyper_param_iterations)
+        self.runner = TreeRunner(self.data, self.config, tree, min_hyper_param_iterations)
+        self.model_results = self.runner.run()
         self.plots.set_model_results(self.model_results)
+
+    def clear_prev_runs(self):
+        if self.runner is not None:
+            self.runner.clear_prev_runs()
 
     def model_overview(self):
         rows = []

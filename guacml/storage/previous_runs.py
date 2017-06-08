@@ -1,76 +1,107 @@
-import pandas as pd
+import shutil
 import os
 import yaml
-import json
+import joblib
 
 
 class PreviousRuns():
-    def __init__(self, data, config):
-        self.config = self.config
-        self.config_hash = hash(json.dumps(config, sort_keys=True))
-        self.data_hash = data.df_hash
+    def __init__(self, data, config, hyper_param_iterations,
+                 previous_runs_folder='./data/previous_runs'):
+        self.found_matching_run = None
+        self.config_ = config
+        self.config_hash_ = joblib.hash(config)
+        self.data_ = data
+        self.run_ = None
+        self.all_prev_runs_ = None
+        self.max_data_version_ = 0
+        self.max_config_version_ = 0
 
-        self.run = None
-        self.exists = None
-        self.max_data_version = 0
-        self.max_config_version = 0
-
-        previous_runs_folder = './data/previous_runs'
+        self.previous_runs_folder = previous_runs_folder
         if not os.path.exists(previous_runs_folder):
             os.makedirs(previous_runs_folder)
-        self.prev_runs_file = os.path.join(previous_runs_folder, 'previous_runs.yaml')
+        self.prev_runs_file_ = os.path.join(previous_runs_folder, 'previous_runs.yaml')
 
         self.load_previous_runs()
 
-        if not self.exists:
-            self.data_folder = os.path.join(previous_runs_folder,
-                                       'data_v_' + str(self.max_data_version + 1),
-                                       'config_v_' + str(self.max_config_version + 1))
-            if not os.path.exists(self.data_folder):
-                os.makedirs(self.data_folder)
-            self.create_run_()
+        if not self.found_matching_run:
+            self.data_folder_ = self.get_versioned_folder(self.max_data_version_ + 1,
+                                                         self.max_config_version_ + 1)
+            if not os.path.exists(self.data_folder_):
+                os.makedirs(self.data_folder_)
+            with open(os.path.join(self.data_folder_, 'config.yaml'), 'w') as config_file:
+                config_file.write(yaml.dump(self.config_, default_flow_style=False))
+            self.create_run_(hyper_param_iterations)
+
+    def get_versioned_folder(self, max_data_version, max_config_version):
+        return os.path.join(self.previous_runs_folder,
+                            'data_v_' + str(max_data_version),
+                            'config_v_' + str(max_config_version))
 
     def load_previous_runs(self):
-
-        if not os.path.isfile(self.prev_runs_file):
-            self.exists = False
+        if not os.path.isfile(self.prev_runs_file_):
+            self.found_matching_run = False
             return
 
-        with open(self.prev_runs_file, 'r') as file:
-            all_prev_runs = yaml.load(file)
-            for run in all_prev_runs:
-                self.max_data_version = max(self.max_data_version, run['data_version'])
-                if run['input_data_hash'] == self.data_hash:
-                    self.data_found = True
-                    self.max_config_version = max(self.max_config_version, run['config_version'])
-                    if run['config_hash'] == self.config_hash:
-                        if self.exists:
+        with open(self.prev_runs_file_, 'r') as file:
+            self.all_prev_runs_ = yaml.load(file)
+            for run in self.all_prev_runs_:
+                self.max_data_version_ = max(self.max_data_version_, run['input_data_version'])
+                if run['input_data_hash'] == self.data_.df_hash:
+                    self.max_config_version_ = max(self.max_config_version_, run['config_version'])
+                    if run['config_hash'] == self.config_hash_:
+                        if self.found_matching_run:
                             raise Exception('Duplicate previous run entries found.')
-                        self.exists = True
-                        self.run = run
-        if self.exists is None:
-            self.exists = False
+                        self.found_matching_run = True
+                        self.run_ = run
+                        self.data_folder_ = self.get_versioned_folder(run['input_data_version'],
+                                                                      run['config_version'])
 
-    def get_model_input(self, model_name):
-        data_path = self.run['model_data_paths'][model_name]
-        return pd.read_feather(data_path)
+        if self.found_matching_run is None:
+            self.found_matching_run = False
 
-    def create_run_(self):
-        self.run = {
-            'models': {},
-            'data_version': self.max_data_version + 1,
-            'config_version': self.max_config_version + 1,
-            'config': self.config
+    def get_hyper_param_iterations(self):
+        return self.run_['hyper_param_iterations']
+
+    # def get_model_input(self, model_name):
+    #     data_path = self.run_['model_data_paths'][model_name]
+    #     return pd.read_feather(data_path)
+
+    def get_prev_results(self):
+        model_results = self.run_['model_result_paths']
+        return {name: joblib.load(path) for name, path in model_results.items()}
+
+    def create_run_(self, hyper_param_iterations):
+        self.run_ = {
+            'input_data_version': self.max_data_version_ + 1,
+            'input_data_hash': self.data_.df_hash,
+            'config_version': self.max_config_version_ + 1,
+            'config_hash': self.config_hash_,
+            #'config': self.config_,
+            #'model_data_paths': {},
+            'model_result_paths': {},
+            'hyper_param_iterations': hyper_param_iterations
         }
 
-    def add_model_input(self, model_name, data):
-        data_path = os.path.join(self.data_folder, model_name + '.feather')
-        data.to_feather(data_path)
-        self.run['model_data_paths'][model_name] = data_path
+    # def add_model_input(self, model_name, data):
+    #     data_path = os.path.join(self.data_folder_, model_name + '_input.feather')
+    #     data.df.to_feather(data_path)
+    #     self.run_['model_data_paths'][model_name] = data_path
+
+    def add_model_result(self, model_name, result):
+        result_path = os.path.join(self.data_folder_, model_name + '_result.joblib_dump.gz')
+        joblib.dump(result, result_path)
+        self.run_['model_result_paths'][model_name] = result_path
 
     def store_run(self):
-        if self.exists:
-            raise Exception('Tried to store data although a previous run was found.')
-        with open(self.prev_runs_file, 'a') as file:
-            file.write(yaml.dump(self.run))
+        print(self.found_matching_run)
+        if not self.found_matching_run:
+            with open(self.prev_runs_file_, 'w') as file:
+                if self.all_prev_runs_ is None:
+                    self.all_prev_runs_ = [self.run_]
+                else:
+                    self.all_prev_runs_.append(self.run_)
+                file.write(yaml.dump(self.all_prev_runs_, default_flow_style=False))
+
+    def clear(self):
+        shutil.rmtree(self.previous_runs_folder)
 

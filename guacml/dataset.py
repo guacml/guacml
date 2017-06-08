@@ -25,7 +25,7 @@ class Dataset:
 
         df_hash = joblib.hash(df)
         metadata = Dataset.get_metadata(df)
-        return Dataset(df, metadata, df_hash)
+        return Dataset(df, metadata, data_path, df_hash)
 
     @staticmethod
     def get_metadata(df):
@@ -35,9 +35,10 @@ class Dataset:
         clear_output()
         return metadata
 
-    def __init__(self, df, metadata, df_hash=None):
+    def __init__(self, df, metadata, data_path=None, df_hash=None):
         self.df = df
         self.metadata = metadata
+        self.data_path = data_path
         self.df_hash = df_hash
 
     def copy(self):

@@ -20,9 +20,9 @@ class StepTree:
             raise ValueError('Parent {0} not present.'.format(parent_name))
         if step_name in self.steps:
             raise ValueError('Step {0} alrady present.'.format(step_name))
-        if not isinstance(step, BaseStep) or isinstance(step, ModelManager):
-            raise ValueError('Argument step needs to be derived from BaseStep.')
-
+        if not (isinstance(step, BaseStep) or isinstance(step, ModelManager)):
+            raise ValueError('Argument step of type {0} needs to be derived from BaseStep.'
+                             .format(type(step)))
         self.steps[step_name] = step
         if not parent_name is None:
             self.children[parent_name].append(step_name)
@@ -39,9 +39,9 @@ class StepTree:
         return self.children[step_name]
 
     def get_leaf_names(self):
-        leaf_steps = []
+        leaf_names = []
         self.get_children_or_leaf_(self.root_name, leaf_names)
-        return leaf_steps
+        return leaf_names
 
     def get_children_or_leaf_(self, step_name, leaf_names):
         for child_step_name in self.get_children(step_name):

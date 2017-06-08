@@ -1,4 +1,3 @@
-from guacml.dataset import Dataset
 from guacml.preprocessing.column_analyzer import ColType
 from guacml.step_tree.base_step import BaseStep
 import pandas as pd

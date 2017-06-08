@@ -9,10 +9,13 @@ class HyperParameterOptimizer:
         self.model_runner = model_runner
         self.features = features
 
-    def optimize(self, hyper_param_iterations):
+    def optimize(self, hyper_param_iterations, old_trials=None):
         hp_info = self.model_runner.hyper_parameter_info()
+        if old_trials is None:
+            trials = Trials()
+        else:
+            trials = old_trials
 
-        trials = Trials()
         best_hps = fmin(self.to_minimize,
              hp_info,
              algo=tpe.suggest,
@@ -26,12 +29,13 @@ class HyperParameterOptimizer:
             except KeyError:
                 filtered_hps[hp] = None
 
-        return self.trials_to_data_frame(trials), filtered_hps
+        return trials, filtered_hps
 
     def to_minimize(self, args):
         return self.model_runner.train_and_cv_error(self.features, args)
 
-    def trials_to_data_frame(self, trials):
+    @staticmethod
+    def trials_to_data_frame(trials):
         all_trials = []
         for trial in trials.trials:
             unpacked = {

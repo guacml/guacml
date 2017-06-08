@@ -1,4 +1,3 @@
-from guacml.dataset import Dataset
 from guacml.step_tree.base_step import BaseStep
 from ..column_analyzer import ColType
 from sklearn.preprocessing import LabelEncoder as LE
