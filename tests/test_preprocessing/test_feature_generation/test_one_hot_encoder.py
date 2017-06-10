@@ -11,7 +11,33 @@ class TestOneHotEncoder(unittest.TestCase):
     def test_encoding(self):
         config = test_util.load_config()
         enc = OneHotEncoder(config['pre_processing'])
-        input = pd.DataFrame({'a': [3, 1, 2]})
+        input = pd.DataFrame({'a': [3, 1, 2], 'b': [1.1, 1.2, 1.3]}, index=['row_1', 'row_2', 'row_3'])
+        metadata = pd.DataFrame({
+            'type': [ColType.INT_ENCODING, ColType.NUMERIC],
+            'derived_from': [None, None],
+            'n_unique': [input['a'].nunique(), input['b'].nunique()],
+            'n_na': [0, 0],
+            'n_blank': [0, 0]
+        }, index=['a', 'b'])
+        dataset = Dataset(input, metadata)
+        data = enc.execute(dataset)
+        output = data.df
+        meta_out = data.metadata
+
+        self.assertEquals(output.shape, (3, 5))
+        self.assertEquals(output.columns[2], 'a_one_hot_1')
+        self.assertEquals(output['a_one_hot_1'].iloc[0], 0)
+        self.assertEquals(output['a_one_hot_3'].iloc[0], 1)
+
+        self.assertEquals(meta_out.shape[0], 5)
+        self.assertEquals(meta_out.index[2], 'a_one_hot_1')
+        self.assertEquals(meta_out['type'].iloc[2], ColType.BINARY)
+
+    def test_single_zero_column(self):
+        """ This was causing an exception in the One-Hot-Encoder."""
+        config = test_util.load_config()
+        enc = OneHotEncoder(config['pre_processing'])
+        input = pd.DataFrame({'a': [0.0, 0.0, 0.0]})
         metadata = pd.DataFrame({
             'col_name': ['a'],
             'type': [ColType.INT_ENCODING],
@@ -22,14 +48,11 @@ class TestOneHotEncoder(unittest.TestCase):
         })
         dataset = Dataset(input, metadata)
         data = enc.execute(dataset)
+
         output = data.df
         meta_out = data.metadata
 
-        self.assertEqual(output.shape, (3, 4))
-        self.assertEqual(output.columns[1], 'a_one_hot_1')
-        self.assertEqual(output['a_one_hot_1'].iloc[0], 0)
-        self.assertEqual(output['a_one_hot_3'].iloc[0], 1)
+        self.assertEqual(output.shape, (3, 1))
+        self.assertEqual(meta_out.shape[0], 1)
 
-        self.assertEqual(meta_out.shape[0], 4)
-        self.assertEqual(meta_out['col_name'].iloc[1], 'a_one_hot_1')
-        self.assertEqual(meta_out['type'].iloc[1], ColType.BINARY)
+

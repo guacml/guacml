@@ -27,12 +27,16 @@ class ColumnAnalyzer:
         not_null = col[col.notnull()]
         n_not_null = col.isnull().sum()
 
+        if not_null.shape[0] > 0:
+            example = not_null.iloc[0]
+        else:
+            example = None
         col_info = {
             'col_name': col_name,
             'n_unique': n_unique,
             'n_na': n_not_null,
             'n_blank': 0,
-            'example': not_null.iloc[0]
+            'example': example
         }
 
         if col.dtype == 'int64':

@@ -26,7 +26,7 @@ class ModelManager():
         return self.build_result(model_runner, data.metadata, features, all_trials, best_hps)
 
     def select_features(self, metadata):
-        return metadata[metadata.type.isin(self.model.get_valid_types())].col_name
+        return metadata[metadata.type.isin(self.model.get_valid_types())].index.values
 
     def build_result(self, model_runner, metadata, features, all_trials, best_hps):
         df_trials = HyperParameterOptimizer.trials_to_data_frame(all_trials)

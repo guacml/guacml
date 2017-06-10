@@ -73,9 +73,7 @@ class GuacMl:
 
         self.plots.set_model_results(self.model_results)
 
-    def clear_prev_runs(self):
-        if self.runner is not None:
-            self.runner.clear_prev_runs()
+        return self.model_overview()
 
     def model_overview(self):
         rows = []
@@ -88,6 +86,10 @@ class GuacMl:
         result = pd.DataFrame(rows,
                               columns=columns + ['holdout error numeric'])
         return result.sort_values('holdout error numeric')[columns]
+
+    def clear_previous_runs(self):
+        if self.runner is not None:
+            self.runner.clear_prev_runs()
 
     def hyper_param_runs(self, model_name):
         if model_name in self.model_results:

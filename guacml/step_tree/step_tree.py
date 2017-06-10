@@ -31,7 +31,7 @@ class StepTree:
 
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
-            raise ValueError('The model paramter should inherit from BaseModel')
+            raise ValueError('The model parameter should inherit from BaseModel')
         self.add_step(step_name, parent_name, ModelManager(model, self.config))
 
     def get_step(self, name):
