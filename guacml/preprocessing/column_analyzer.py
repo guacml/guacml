@@ -18,7 +18,7 @@ class ColumnAnalyzer:
 
         col_metadata = pd.DataFrame(col_data,
                             columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example'])
-        return col_metadata
+        return col_metadata.set_index('col_name')
 
     def analyze_col(self, df, col_name):
         col = df[col_name]

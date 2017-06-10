@@ -25,17 +25,17 @@ class GuacMl:
         self.data = Dataset.from_df(data, target, exclude_cols, **kwds)
 
         metadata = self.data.metadata
-        target_meta = metadata[metadata.col_name == target]
+        target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
-        if target_meta.iloc[0].type == ColType.BINARY:
+        if target_meta.type == ColType.BINARY:
             problem_type = ProblemType.BINARY_CLAS
             rt_conf['eval_metric'] = LogLoss()
             print('Binary classification problem detected.')
-        elif target_meta.iloc[0].type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
+        elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
             problem_type = ProblemType.MULTI_CLAS
             rt_conf['eval_metric'] = LogLoss()
             print('Multi class classification problem detected.')
-        elif target_meta.iloc[0].type in [ColType.ORDINAL, ColType.NUMERIC]:
+        elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
             problem_type = ProblemType.REGRESSION
             rt_conf['eval_metric'] = MeanSquaredError()
             print('Regression problem detected.')
