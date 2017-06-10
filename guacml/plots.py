@@ -18,13 +18,20 @@ class Plots:
     def set_model_results(self, model_results):
         self.model_results = model_results
 
-    def target_histogram(self):
+    def target_plot(self):
+        target_type = self.input_data.metadata.loc[self.target].type
         target_data = self.input_data.df[self.target]
-        plt.figure(figsize=(6, 2))
         sns.set(style="white", color_codes=True)
-        ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
-        ax.set_xlim(0)
-        plt.title(target_data.name + ' histogram')
+        if target_type == ColType.BINARY:
+            plt.figure(figsize=(6, 1))
+            sns.barplot(target_data.sum() / target_data.shape[0])
+            plt.xlim([0, 1])
+            plt.title(target_data.name + ' rate')
+        elif target_type == ColType.NUMERIC or target_type == ColType.ORDINAL:
+            plt.figure(figsize=(6, 2))
+            ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
+            ax.set_xlim(target_data.min(), target_data.max())
+            plt.title(target_data.name + ' histogram')
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)

@@ -23,6 +23,9 @@ class Dataset:
         df_hash = joblib.hash(df)
         metadata = Dataset.get_metadata(df)
 
+        if metadata.loc[target].n_na > 0:
+            raise Exception('Target variable contains N/A values.')
+
         return Dataset(df, metadata, df_hash)
 
     @staticmethod
@@ -44,9 +47,9 @@ class Dataset:
     def display_metadata(self):
         meta = self.metadata.copy()
         n_rows = self.df.shape[0]
-        meta['n_unique_%'] = (meta['n_unique'] / n_rows).round()
-        meta['n_na_%'] = (meta['n_na'] / n_rows).round()
-        meta['n_blank_%'] = (meta['n_blank'] / n_rows).round()
+        meta['n_unique_%'] = (100 * meta['n_unique'] / n_rows).round()
+        meta['n_na_%'] = (100 * meta['n_na'] / n_rows).round()
+        meta['n_blank_%'] = (100 * meta['n_blank'] / n_rows).round()
 
         return meta[['type', 'n_unique', 'n_unique_%', 'n_na_%', 'n_blank_%', 'example']]
 
