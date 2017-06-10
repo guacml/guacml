@@ -7,7 +7,9 @@ import unittest
 class TestDataset(unittest.TestCase):
     def load_dataset(self, fixture='titanic', target='Survived', eval_metric=None):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        return GuacMl(dir_path + '/fixtures/' + fixture + '.csv', target, eval_metric=eval_metric)
+        df = pd.read_csv(dir_path + '/fixtures/' + fixture + '.csv')
+        return GuacMl(df, 'Survived', eval_metric=eval_metric)
+
 
     def test_dataset(self):
         ds = self.load_dataset()

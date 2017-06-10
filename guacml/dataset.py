@@ -5,9 +5,8 @@ import joblib
 
 class Dataset:
     @staticmethod
-    def read_csv(data_path, target, exclude_cols, **kwds):
+    def from_df(df, target, exclude_cols, **kwds):
         print('loading data..')
-        df = pd.read_csv(data_path, **kwds)
         print('finished loading data')
 
         if exclude_cols is not None:
@@ -23,7 +22,7 @@ class Dataset:
 
         df_hash = joblib.hash(df)
         metadata = Dataset.get_metadata(df)
-        return Dataset(df, metadata, data_path, df_hash)
+        return Dataset(df, metadata, df_hash)
 
     @staticmethod
     def get_metadata(df):
@@ -36,7 +35,6 @@ class Dataset:
     def __init__(self, df, metadata, data_path=None, df_hash=None):
         self.df = df
         self.metadata = metadata
-        self.data_path = data_path
         self.df_hash = df_hash
 
     def copy(self):

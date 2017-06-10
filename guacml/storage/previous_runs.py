@@ -81,7 +81,6 @@ class PreviousRuns():
         self.run_['model_result_paths'][model_name] = result_path
 
     def store_run(self):
-        print(self.found_matching_run)
         if not self.found_matching_run:
             with open(self.prev_runs_file_, 'w') as file:
                 if self.all_prev_runs_ is None:
