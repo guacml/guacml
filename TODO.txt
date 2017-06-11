@@ -9,3 +9,12 @@ Timeseries:
 
 Charts:
 - better charts for regression problems
+
+Refactoring:
+- Dataset should just be df + metadata about columns
+- models should return dfs, not ndarrays
+- current Dataset => Guac
+- replace long arglists with a Config object
+- re-organize module structure
+- replace prints with logger
+- lint
