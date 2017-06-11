@@ -1,21 +1,12 @@
-Data size:
-- Start an example with a large dataset.
-
 General:
 - xg boost said it's only a single thread version. Instructions in doc/build.md
 
+
 Timeseries:
-- split train, CV, and holdout by timestamp (configurable)
 - configurable backtesting
 
-Charts:
-- better charts for regression problems
-
 Refactoring:
-- Dataset should just be df + metadata about columns
 - models should return dfs, not ndarrays
-- current Dataset => Guac
-- replace long arglists with a Config object
 - re-organize module structure
 - replace prints with logger
 - lint
