@@ -69,9 +69,9 @@ class Plots:
     def predictions_vs_actual(self, model_name, n_bins = 10, **kwargs):
         model_result = self.model_results[model_name]
         if self.problem_type == ProblemType.BINARY_CLAS:
-            predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
+            return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
         elif self.problem_type == ProblemType.REGRESSION:
-            predictions_vs_actual_regression(model_result, model_name, **kwargs)
+            return predictions_vs_actual_regression(model_result, model_name, **kwargs)
         else:
             raise Exception('Not implemented for problem type ' + self.problem_type)
 
@@ -85,7 +85,7 @@ def predictions_vs_actual_classification(model_results, model_name, n_bins, figs
     bin_counts = holdout.groupby(binned)[target].count()
     bin_means = holdout.groupby(binned)[target].mean()
 
-    plt.figure(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
     ax1 = plt.gca()
     ax1.grid(False)
@@ -109,10 +109,11 @@ def predictions_vs_actual_classification(model_results, model_name, n_bins, figs
                         framealpha=0.7)
     frame = legend.get_frame()
     frame.set_facecolor('white')
-    plt.show()
+    return fig
 
 
-def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7), outlier_ratio=None):
+def predictions_vs_actual_regression(model_results, model_name, size=6, bins=None,
+                                     gridsize=30, outlier_ratio=None, **kwargs):
     holdout = model_results.holdout_data
     target = model_results.target
 
@@ -121,10 +122,20 @@ def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7), o
         holdout = utils.remove_outlier_rows(holdout, target, outlier_ratio)
 
     sns.set(style="white", color_codes=True)
-    plt.figure(figsize=figsize)
+
     marginal_kws=dict(hist_kws=dict(edgecolor='black'))
-    sns.jointplot('prediction', target, holdout, 'hexbin',
-                  space=0, marginal_kws=marginal_kws, bins=50)
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
+    grid = sns.jointplot('prediction', target, holdout, 'hexbin', gridsize=gridsize,
+                         size=size, bins=bins, space=0, marginal_kws=marginal_kws, **kwargs)
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # shrink fig so cbar is visible
+    cax = grid.fig.add_axes([.95, .18, .04, .5])  # x, y, width, height
+    color_bar = sns.plt.colorbar(cax=cax)
+
+    if bins is None:
+        color_bar.set_label('count')
+    elif bins == 'log':
+        color_bar.set_label('log_10(count)')
+    return grid
+
 
 
