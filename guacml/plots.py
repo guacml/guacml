@@ -5,6 +5,7 @@ import numpy as np
 
 from guacml.enums import ProblemType
 from guacml.preprocessing.column_analyzer import ColType
+import guacml.utils as utils
 
 
 class Plots:
@@ -111,9 +112,13 @@ def predictions_vs_actual_classification(model_results, model_name, n_bins, figs
     plt.show()
 
 
-def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7)):
+def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7), outlier_ratio=None):
     holdout = model_results.holdout_data
     target = model_results.target
+
+    if outlier_ratio is not None:
+        holdout = utils.remove_outlier_rows(holdout, 'prediction', outlier_ratio)
+        holdout = utils.remove_outlier_rows(holdout, target, outlier_ratio)
 
     sns.set(style="white", color_codes=True)
     plt.figure(figsize=figsize)
