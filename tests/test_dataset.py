@@ -19,7 +19,7 @@ class TestDataset(unittest.TestCase):
         ds.run(1)
         result = ds.model_results
 
-        self.assertEquals(3, len(result))
+        self.assertEqual(3, len(result))
         self.assertAlmostEqual(100, result['random_forest'].training_error, delta=150)
         self.assertAlmostEqual(100, result['random_forest'].cv_error, delta=150)
         ds.clear_prev_runs()
