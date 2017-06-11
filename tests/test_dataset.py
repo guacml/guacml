@@ -5,9 +5,9 @@ import unittest
 
 
 class TestDataset(unittest.TestCase):
-    def load_dataset(self, eval_metric=None):
+    def load_dataset(self, fixture='titanic', target='Survived', eval_metric=None):
         dir_path = os.path.dirname(os.path.realpath(__file__))
-        return GuacMl(dir_path + '/fixtures/titanic.csv', 'Survived', eval_metric=eval_metric)
+        return GuacMl(dir_path + '/fixtures/' + fixture + '.csv', target, eval_metric=eval_metric)
 
     def test_dataset(self):
         ds = self.load_dataset()
@@ -29,3 +29,10 @@ class TestDataset(unittest.TestCase):
         ds.run(1)
         result = ds.model_results
         self.assertAlmostEqual(-0.8, result['random_forest'].holdout_error, delta=0.2)
+
+    def test_boolean_column(self):
+        ds = self.load_dataset('boolean')
+
+        ds.run(1)
+        result = ds.model_results
+        self.assertAlmostEqual(0.5, result['random_forest'].holdout_error, delta=0.2)
