@@ -1,7 +1,7 @@
 import guacml as guac
 
 # wrapper around Pandas + memory about ML models
-ds = guac.Dataset('data/training_set.csv')
+ds = guac.GuacMl('data/training_set.csv')
 
 ds.run_autopilot #?
 ds.preprocess (it describes at the end)

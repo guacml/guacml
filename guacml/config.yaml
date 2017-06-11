@@ -1,0 +1,14 @@
+run_time:
+    problem_type: null
+    exclude_cols: null
+    eval_metic: null
+    target: null
+    hyper_param_iterations: null
+
+cross_validation:
+    holdout_size: 0.2
+    n_folds: 3
+
+pre_processing:
+    max_uniques_for_one_hot: 100
+

@@ -1,3 +1,4 @@
+from guacml.dataset import Dataset
 from guacml.preprocessing.column_analyzer import ColType
 from guacml.step_tree.base_step import BaseStep
 import pandas as pd
@@ -5,9 +6,10 @@ import pandas as pd
 
 class DateSplitter(BaseStep):
 
-    def execute(self, input, metadata):
-        meta = metadata.copy()
-        df = input.copy()
+    def execute(self, data):
+        data = data.copy()
+        df = data.df
+        meta = data.metadata
 
         date_cols = meta[meta.type == ColType.DATETIME].col_name
         for col in date_cols:
@@ -28,7 +30,7 @@ class DateSplitter(BaseStep):
                     'n_na': df[new_col].notnull().sum(),
                     'n_blank': 0
                 })
-            meta = meta.append(pd.DataFrame(to_append))
+            data.metadata = meta.append(pd.DataFrame(to_append))
 
-        return df, meta
+        return data
 

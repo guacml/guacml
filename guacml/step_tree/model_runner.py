@@ -1,16 +1,20 @@
 import pandas as pd
 import numpy as np
 
+from guacml.step_tree.random_splitter import RandomSplitter
+
 
 class ModelRunner():
-    def __init__(self, model, input, target, eval_metric, splitter):
+    def __init__(self, model, data, config):
         self.model = model
-        self.target = target
-        self.eval_metric = eval_metric
-        holdout_train, holdout = splitter.holdout_split(input)
+
+        self.target = config['run_time']['target']
+        self.eval_metric = config['run_time']['eval_metric']
+        self.splitter = RandomSplitter(config['cross_validation'])
+        holdout_train, holdout = self.splitter.holdout_split(data.df)
         self.holdout = holdout.copy()
         self.train_and_cv = holdout_train.copy()
-        self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
+        self.train_and_cv_folds = list(self.splitter.cv_splits(self.train_and_cv))
         self.final_features = None
         self.final_hyper_params = None
 
@@ -45,18 +49,6 @@ class ModelRunner():
         self.model.train(self.train_and_cv[features], self.train_and_cv[self.target], **hyper_params)
         self.train_and_cv['train_prediction'] = self.model.predict(self.train_and_cv[features])
         self.holdout['prediction'] = self.model.predict(self.holdout[features])
-
-    # def train_model(self, features, hyper_params):
-    #     self.features = features
-    #     self.hyper_params = hyper_params
-    #     self.model.train(self.train[features], self.train[self.target], **hyper_params)
-    #     self.train['prediction'] = self.model.predict(self.train[features])
-    #     self.cv['prediction'] = self.model.predict(self.cv[features])
-    #     self.holdout['prediction'] = self.model.predict(self.holdout[features])
-
-    # def train_and_cv(self, features, hyper_params):
-    #     self.train_model(features, hyper_params)
-    #     return self.cv_error()
 
     def cv_error(self):
         return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv.cv_prediction)

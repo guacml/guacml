@@ -1,13 +1,16 @@
+from guacml.dataset import Dataset
 from guacml.preprocessing.column_analyzer import ColType
 from guacml.preprocessing.feature_generation.one_hot_encoder import OneHotEncoder
 import pandas as pd
 import unittest
+import tests.test_util as test_util
 
 
 class TestOneHotEncoder(unittest.TestCase):
 
     def test_encoding(self):
-        enc = OneHotEncoder()
+        config = test_util.load_config()
+        enc = OneHotEncoder(config['pre_processing'])
         input = pd.DataFrame({'a': [3, 1, 2]})
         metadata = pd.DataFrame({
             'col_name': ['a'],
@@ -17,7 +20,10 @@ class TestOneHotEncoder(unittest.TestCase):
             'n_na': [0],
             'n_blank': [0]
         })
-        output, meta_out = enc.execute(input, metadata)
+        dataset = Dataset(input, metadata)
+        data = enc.execute(dataset)
+        output = data.df
+        meta_out = data.metadata
 
         self.assertEquals(output.shape, (3, 4))
         self.assertEquals(output.columns[1], 'a_one_hot_1')

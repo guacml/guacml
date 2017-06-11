@@ -1,4 +1,4 @@
-import guacml as guac
+from guacml import GuacMl
 import os
 import numpy as np
 import unittest
