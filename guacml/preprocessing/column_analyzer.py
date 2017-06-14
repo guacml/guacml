@@ -14,8 +14,6 @@ class ColumnAnalyzer:
         col_data = []
         for col in df.columns:
             ci = self.analyze_col(df, col)
-            if not isinstance(ci, dict):
-                raise Exception('Error analyzing col {0}'.format(col))
             col_data.append(ci)
 
         col_metadata = pd.DataFrame(col_data,
@@ -49,6 +47,11 @@ class ColumnAnalyzer:
         if col.dtype == 'object':
             return self.analyze_object_col(df, col_name, not_null, n_unique_pct, col_info)
 
+        if col.dtype == 'bool':
+            return self.analyze_boolean_col(col_info)
+
+        raise Exception("Cannot analyze column '{}' of dtype '{}'".format(col_name, col.dtype))
+
     @staticmethod
     def analyze_int_col(col, n_unique, n_unique_pct, col_info):
         if col.min() == 0 and col.max() == 1:
@@ -73,6 +76,10 @@ class ColumnAnalyzer:
 
     def analyze_date_col(self, col_info):
         col_info['type'] = ColType.DATETIME
+        return col_info
+
+    def analyze_boolean_col(self, col_info):
+        col_info['type'] = ColType.BINARY
         return col_info
 
     def analyze_object_col(self, df, col_name, not_null, n_unique_pct, col_info):
