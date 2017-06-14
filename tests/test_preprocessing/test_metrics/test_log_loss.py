@@ -1,5 +1,3 @@
-import guacml as guac
-import os
 import numpy as np
 import unittest
 
