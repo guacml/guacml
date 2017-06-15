@@ -20,10 +20,7 @@ class GuacMl:
     def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
-            try:
-                self.config = yaml.load(file)
-            except yaml.YAMLError as exc:
-                print(exc)
+            self.config = yaml.load(file)
 
         self.data = Dataset.read_csv(path, target, exclude_cols, **kwds)
 
@@ -58,17 +55,21 @@ class GuacMl:
         rt_conf['exclude_cols'] = exclude_cols
         self.plots = Plots(rt_conf, self.data)
         self.model_results = None
+        self.runner = None
 
-    def run(self, hyper_param_iterations):
-        self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
+    def run(self, min_hyper_param_iterations):
 
         tree_builder = TreeBuilder(self.config)
         step_tree = StepTree(self.config)
         tree = tree_builder.build(step_tree)
 
-        runner = TreeRunner(self.data, tree)
-        self.model_results = runner.run()
+        self.runner = TreeRunner(self.data, self.config, tree, min_hyper_param_iterations)
+        self.model_results = self.runner.run()
         self.plots.set_model_results(self.model_results)
+
+    def clear_prev_runs(self):
+        if self.runner is not None:
+            self.runner.clear_prev_runs()
 
     def model_overview(self):
         rows = []

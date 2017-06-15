@@ -6,20 +6,19 @@ from guacml.step_tree.model_runner import ModelRunner
 from .base_step import BaseStep
 
 
-class ModelManager(BaseStep):
+class ModelManager():
     def __init__(self, model, config):
         self.model = model
         self.config = config
         self.target = config['run_time']['target']
-        self.splitter = None
 
-    def execute(self, data):
+    def run(self, data, min_hyper_param_iterations):
         model_runner = ModelRunner(self.model, data, self.config)
         features = self.select_features(data.metadata)
         features = features[features != self.target]
 
         hp_optimizer = HyperParameterOptimizer(model_runner, features)
-        all_trials, best_hps = hp_optimizer.optimize(self.config['run_time']['hyper_param_iterations'])
+        all_trials, best_hps = hp_optimizer.optimize(min_hyper_param_iterations)
 
         feature_reducer = FeatureReducer(model_runner, best_hps)
         features = feature_reducer.reduce(features)
@@ -30,8 +29,9 @@ class ModelManager(BaseStep):
         return metadata[metadata.type.isin(self.model.get_valid_types())].col_name
 
     def build_result(self, model_runner, metadata, features, all_trials, best_hps):
-        all_trials = all_trials.sort_values('cv error')
-        best = all_trials.iloc[0]
+        df_trials = HyperParameterOptimizer.trials_to_data_frame(all_trials)
+        df_trials = df_trials.sort_values('cv error')
+        best = df_trials.iloc[0]
 
         model_runner.train_final_model(features, best_hps)
         training_error = model_runner.training_error()
@@ -54,4 +54,4 @@ class ModelManager(BaseStep):
                            holdout,
                            metadata,
                            best,
-                           all_trials)
+                           df_trials)

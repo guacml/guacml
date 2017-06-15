@@ -11,7 +11,7 @@ class ModelResult:
                  holdout_data,
                  metadata,
                  hyper_params,
-                 all_hp_runs):
+                 display_hp_runs):
         self.model = model
         self.features = features
         self.target = target
@@ -22,7 +22,7 @@ class ModelResult:
         self.holdout_data = holdout_data
         self.metadata = metadata
         self.hyper_params = hyper_params
-        self.all_hyper_param_runs = all_hp_runs
+        self.display_hyper_param_runs = display_hp_runs
 
     def to_display_dict(self):
         return {

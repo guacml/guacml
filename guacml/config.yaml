@@ -3,7 +3,6 @@ run_time:
     exclude_cols: null
     eval_metic: null
     target: null
-    hyper_param_iterations: null
 
 cross_validation:
     holdout_size: 0.2

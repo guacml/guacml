@@ -1,7 +1,8 @@
-General:
-- Disk caching
-- xg boost said it's only a single thread version. Instructions in doc/build.md
+Data size:
+- Start an example with a large dataset.
 
+General:
+- xg boost said it's only a single thread version. Instructions in doc/build.md
 
 Timeseries:
 - split train, CV, and holdout by timestamp (configurable)
@@ -18,3 +19,11 @@ Refactoring:
 - re-organize module structure
 - replace prints with logger
 - lint
+
+Disk Caching:
+- Would be great to be able to store some hyper parameter optimization iterations
+ to disk and later add more. But it's not straightforward, as we have two steps of
+ hyper parameter optimization. One before and one after feature selection.
+ We could also make the features part of the hyperparamters and then only
+ do one big hyper parameter optimization. But the implications are hard to foresee.
+

@@ -2,6 +2,7 @@ import pandas as pd
 
 from .preprocessing.column_analyzer import ColumnAnalyzer, ColType
 from IPython.display import clear_output
+import joblib
 
 
 class Dataset:
@@ -22,16 +23,23 @@ class Dataset:
             raise ValueError('The target {0} does not exist as column.\n'
                              'Available columns: {1}'.format(target, df.columns))
 
+        df_hash = joblib.hash(df)
+        metadata = Dataset.get_metadata(df)
+        return Dataset(df, metadata, data_path, df_hash)
+
+    @staticmethod
+    def get_metadata(df):
         print('analyzing columns..')
         col_analyzer = ColumnAnalyzer()
         metadata = col_analyzer.analyze(df)
         clear_output()
+        return metadata
 
-        return Dataset(df, metadata)
-
-    def __init__(self, df, metadata):
+    def __init__(self, df, metadata, data_path=None, df_hash=None):
         self.df = df
         self.metadata = metadata
+        self.data_path = data_path
+        self.df_hash = df_hash
 
     def copy(self):
         return Dataset(self.df.copy(), self.metadata.copy())

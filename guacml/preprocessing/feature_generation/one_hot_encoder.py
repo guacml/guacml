@@ -1,6 +1,5 @@
 import pandas as pd
 
-from guacml.dataset import Dataset
 from guacml.preprocessing.column_analyzer import ColType
 from sklearn.preprocessing import OneHotEncoder as OHE
 from guacml.step_tree.base_step import BaseStep
