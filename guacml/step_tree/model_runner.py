@@ -25,6 +25,8 @@ class ModelRunner():
         prediction = self.train_and_cv['cv_prediction']
         loss = self.eval_metric.error(target, prediction)
         loss_variance = self.bootstrap_errors_(target, prediction).var()
+        if loss is None or loss_variance is None:
+            raise Exception('Could not calculate cv error.')
         return {
             'status': STATUS_OK,
             'loss': loss,

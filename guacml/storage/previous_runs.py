@@ -5,8 +5,9 @@ import joblib
 
 
 class PreviousRuns():
+
     def __init__(self, data, config,
-                 previous_runs_folder='./data/previous_runs'):
+        previous_runs_folder='./data/previous_runs'):
         self.found_matching_run = None
         self.config_ = config
         self.config_hash_ = joblib.hash(config)
@@ -59,10 +60,6 @@ class PreviousRuns():
         if self.found_matching_run is None:
             self.found_matching_run = False
 
-    # def get_model_input(self, model_name):
-    #     data_path = self.run_['model_data_paths'][model_name]
-    #     return pd.read_feather(data_path)
-
     def get_prev_results(self):
         model_results = self.run_['model_result_paths']
         return {name: joblib.load(path) for name, path in model_results.items()}
@@ -78,18 +75,12 @@ class PreviousRuns():
             'model_result_paths': {}
         }
 
-    # def add_model_input(self, model_name, data):
-    #     data_path = os.path.join(self.data_folder_, model_name + '_input.feather')
-    #     data.df.to_feather(data_path)
-    #     self.run_['model_data_paths'][model_name] = data_path
-
     def add_model_result(self, model_name, result):
         result_path = os.path.join(self.data_folder_, model_name + '_result.joblib_dump.gz')
         joblib.dump(result, result_path)
         self.run_['model_result_paths'][model_name] = result_path
 
     def store_run(self):
-        print(self.found_matching_run)
         if not self.found_matching_run:
             with open(self.prev_runs_file_, 'w') as file:
                 if self.all_prev_runs_ is None:

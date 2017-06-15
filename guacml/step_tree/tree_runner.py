@@ -30,6 +30,7 @@ class TreeRunner:
 
         if isinstance(step, ModelManager):
             results[step_name] = self.execute_step_with_timing(step, data)
+
             self.prev_runs.add_model_result(step_name, results[step_name])
         else:
             dataset = self.execute_step_with_timing(step, data)
@@ -50,4 +51,5 @@ class TreeRunner:
         step.runtime = end - start
 
         return result
+
 

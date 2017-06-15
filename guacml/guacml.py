@@ -6,6 +6,7 @@ from guacml.dataset import Dataset
 from guacml.enums import ProblemType, ColType
 from guacml.metrics.accuracy import Accuracy
 from guacml.metrics.log_loss import LogLoss
+from guacml.metrics.mean_absolute_error import MeanAbsoluteError
 from guacml.metrics.mean_squared_error import MeanSquaredError
 from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
 from guacml.plots import Plots
@@ -16,26 +17,25 @@ from guacml.step_tree.tree_runner import TreeRunner
 
 
 class GuacMl:
-
-    def __init__(self, path, target, exclude_cols=None, eval_metric=None, **kwds):
+    def __init__(self, data, target, eval_metric=None, exclude_cols=None, **kwds):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
             self.config = yaml.load(file)
 
-        self.data = Dataset.read_csv(path, target, exclude_cols, **kwds)
+        self.data = Dataset.from_df(data, target, exclude_cols, **kwds)
 
         metadata = self.data.metadata
-        target_meta = metadata[metadata.col_name == target]
+        target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
-        if target_meta.iloc[0].type == ColType.BINARY:
+        if target_meta.type == ColType.BINARY:
             problem_type = ProblemType.BINARY_CLAS
             rt_conf['eval_metric'] = LogLoss()
             print('Binary classification problem detected.')
-        elif target_meta.iloc[0].type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
+        elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
             problem_type = ProblemType.MULTI_CLAS
             rt_conf['eval_metric'] = LogLoss()
             print('Multi class classification problem detected.')
-        elif target_meta.iloc[0].type in [ColType.ORDINAL, ColType.NUMERIC]:
+        elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
             problem_type = ProblemType.REGRESSION
             rt_conf['eval_metric'] = MeanSquaredError()
             print('Regression problem detected.')
@@ -45,8 +45,10 @@ class GuacMl:
         if eval_metric is not None:
             if eval_metric.lower() == 'accuracy':
                 rt_conf['eval_metric'] = Accuracy()
-            elif eval_metric.lower() == 'rmsle':
+            elif eval_metric.lower() == 'rmsle' or eval_metric.lower() == 'root_mean_squared_log_error':
                 rt_conf['eval_metric'] = RootMeanSquaredLogError()
+            elif eval_metric.lower() == 'mae' or eval_metric.lower() == 'mean_absolute_error':
+                rt_conf['eval_metric'] == MeanAbsoluteError()
             else:
                 raise NotImplementedError('Unknown eval metric: ' + eval_metric)
 
@@ -71,9 +73,7 @@ class GuacMl:
 
         self.plots.set_model_results(self.model_results)
 
-    def clear_prev_runs(self):
-        if self.runner is not None:
-            self.runner.clear_prev_runs()
+        return self.model_overview()
 
     def model_overview(self):
         rows = []
@@ -86,6 +86,10 @@ class GuacMl:
         result = pd.DataFrame(rows,
                               columns=columns + ['holdout error numeric'])
         return result.sort_values('holdout error numeric')[columns]
+
+    def clear_previous_runs(self):
+        if self.runner is not None:
+            self.runner.clear_prev_runs()
 
     def hyper_param_runs(self, model_name):
         if model_name in self.model_results:

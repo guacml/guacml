@@ -10,7 +10,7 @@ class DateSplitter(BaseStep):
         df = data.df
         meta = data.metadata
 
-        date_cols = meta[meta.type == ColType.DATETIME].col_name
+        date_cols = meta[meta.type == ColType.DATETIME].index
         for col in date_cols:
             df[col + '_hour'] = df[col].dt.hour
             df[col + '_day'] = df[col].dt.day
@@ -20,16 +20,17 @@ class DateSplitter(BaseStep):
 
             new_cols = [col + '_hour', col + '_day', col + '_month', col + '_year', col + '_day_of_week']
             to_append = []
+            to_append_index = []
             for new_col in new_cols:
+                to_append_index.append(new_col)
                 to_append.append({
-                    'col_name': new_col,
                     'type': ColType.ORDINAL ,
                     'derived_from': col,
                     'n_unique': df[new_col].nunique(),
                     'n_na': df[new_col].notnull().sum(),
                     'n_blank': 0
                 })
-            data.metadata = meta.append(pd.DataFrame(to_append))
+            data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))
 
         return data
 

@@ -5,6 +5,7 @@ import numpy as np
 
 from guacml.enums import ProblemType
 from guacml.preprocessing.column_analyzer import ColType
+import guacml.utils as utils
 
 
 class Plots:
@@ -18,13 +19,20 @@ class Plots:
     def set_model_results(self, model_results):
         self.model_results = model_results
 
-    def target_histogram(self):
+    def target_plot(self):
+        target_type = self.input_data.metadata.loc[self.target].type
         target_data = self.input_data.df[self.target]
-        plt.figure(figsize=(6, 2))
         sns.set(style="white", color_codes=True)
-        ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
-        ax.set_xlim(0)
-        plt.title(target_data.name + ' histogram')
+        if target_type == ColType.BINARY:
+            plt.figure(figsize=(6, 1))
+            sns.barplot(target_data.sum() / target_data.shape[0])
+            plt.xlim([0, 1])
+            plt.title(target_data.name + ' rate')
+        elif target_type == ColType.NUMERIC or target_type == ColType.ORDINAL:
+            plt.figure(figsize=(6, 2))
+            ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
+            ax.set_xlim(target_data.min(), target_data.max())
+            plt.title(target_data.name + ' histogram')
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)
@@ -61,9 +69,9 @@ class Plots:
     def predictions_vs_actual(self, model_name, n_bins = 10, **kwargs):
         model_result = self.model_results[model_name]
         if self.problem_type == ProblemType.BINARY_CLAS:
-            predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
+            return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
         elif self.problem_type == ProblemType.REGRESSION:
-            predictions_vs_actual_regression(model_result, model_name, **kwargs)
+            return predictions_vs_actual_regression(model_result, model_name, **kwargs)
         else:
             raise Exception('Not implemented for problem type ' + self.problem_type)
 
@@ -77,7 +85,7 @@ def predictions_vs_actual_classification(model_results, model_name, n_bins, figs
     bin_counts = holdout.groupby(binned)[target].count()
     bin_means = holdout.groupby(binned)[target].mean()
 
-    plt.figure(figsize=figsize)
+    fig = plt.figure(figsize=figsize)
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
     ax1 = plt.gca()
     ax1.grid(False)
@@ -101,18 +109,33 @@ def predictions_vs_actual_classification(model_results, model_name, n_bins, figs
                         framealpha=0.7)
     frame = legend.get_frame()
     frame.set_facecolor('white')
-    plt.show()
+    return fig
 
 
-def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7)):
+def predictions_vs_actual_regression(model_results, model_name, size=6, bins=None,
+                                     gridsize=30, outlier_ratio=None, **kwargs):
     holdout = model_results.holdout_data
     target = model_results.target
 
+    if outlier_ratio is not None:
+        holdout = utils.remove_outlier_rows(holdout, 'prediction', outlier_ratio)
+        holdout = utils.remove_outlier_rows(holdout, target, outlier_ratio)
+
     sns.set(style="white", color_codes=True)
-    plt.figure(figsize=figsize)
+
     marginal_kws=dict(hist_kws=dict(edgecolor='black'))
-    sns.jointplot('prediction', target, holdout, 'hexbin',
-                  space=0, marginal_kws=marginal_kws, bins=50)
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
+    grid = sns.jointplot('prediction', target, holdout, 'hexbin', gridsize=gridsize,
+                         size=size, bins=bins, space=0, marginal_kws=marginal_kws, **kwargs)
+    plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)  # shrink fig so cbar is visible
+    cax = grid.fig.add_axes([.95, .18, .04, .5])  # x, y, width, height
+    color_bar = sns.plt.colorbar(cax=cax)
+
+    if bins is None:
+        color_bar.set_label('count')
+    elif bins == 'log':
+        color_bar.set_label('log_10(count)')
+    return grid
+
 
 

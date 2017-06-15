@@ -5,9 +5,8 @@ import joblib
 
 class Dataset:
     @staticmethod
-    def read_csv(data_path, target, exclude_cols, **kwds):
+    def from_df(df, target, exclude_cols, **kwds):
         print('loading data..')
-        df = pd.read_csv(data_path, **kwds)
         print('finished loading data')
 
         if exclude_cols is not None:
@@ -23,7 +22,11 @@ class Dataset:
 
         df_hash = joblib.hash(df)
         metadata = Dataset.get_metadata(df)
-        return Dataset(df, metadata, data_path, df_hash)
+
+        if metadata.loc[target].n_na > 0:
+            raise Exception('Target variable contains N/A values.')
+
+        return Dataset(df, metadata, df_hash)
 
     @staticmethod
     def get_metadata(df):
@@ -36,7 +39,6 @@ class Dataset:
     def __init__(self, df, metadata, data_path=None, df_hash=None):
         self.df = df
         self.metadata = metadata
-        self.data_path = data_path
         self.df_hash = df_hash
 
     def copy(self):
@@ -44,10 +46,11 @@ class Dataset:
 
     def display_metadata(self):
         meta = self.metadata.copy()
-        meta['n_unique_%'] = (meta['n_unique'] / meta.shape[0]).round()
-        meta['n_na_%'] = (meta['n_na'] / meta.shape[0]).round()
-        meta['n_blank_%'] = (meta['n_blank'] / meta.shape[0]).round()
+        n_rows = self.df.shape[0]
+        meta['n_unique_%'] = (100 * meta['n_unique'] / n_rows).round()
+        meta['n_na_%'] = (100 * meta['n_na'] / n_rows).round()
+        meta['n_blank_%'] = (100 * meta['n_blank'] / n_rows).round()
 
-        return meta[['col_name', 'type', 'n_unique', 'n_unique_%', 'n_na_%', 'n_blank_%', 'example']]
+        return meta[['type', 'n_unique', 'n_unique_%', 'n_na_%', 'n_blank_%', 'example']]
 
 
