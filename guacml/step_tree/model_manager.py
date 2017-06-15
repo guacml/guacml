@@ -12,7 +12,7 @@ class ModelManager():
         self.config = config
         self.target = config['run_time']['target']
 
-    def run(self, data):
+    def execute(self, data):
         model_runner = ModelRunner(self.model, data, self.config)
         features = self.select_features(data.metadata)
         features = features[features != self.target]

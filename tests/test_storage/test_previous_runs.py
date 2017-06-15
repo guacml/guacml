@@ -28,22 +28,14 @@ class TestPreviousRuns(unittest.TestCase):
         df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
-        prev_runs = PreviousRuns(data, config, 10,
-                                 previous_runs_folder=PREV_RUN_FOLDER)
+        prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         data1 = Dataset(pd.DataFrame({'a': [1]}), None)
         data2 = Dataset(pd.DataFrame({'a': [2]}), None)
-        #prev_runs.add_model_input('model_1', data1)
-        #prev_runs.add_model_input('model_2', data2)
         prev_runs.add_model_result('result_1', pd.DataFrame({'a': [1]}))
         prev_runs.add_model_result('result_2', pd.DataFrame({'a': [2]}))
         prev_runs.store_run()
 
-        prev_runs_2 = PreviousRuns(data, config, 10,
-                                   previous_runs_folder=PREV_RUN_FOLDER)
-        hp_iterations = prev_runs_2.get_hyper_param_iterations()
-        self.assertEqual(hp_iterations, 10)
-        #self.assertEqual(prev_runs_2.get_model_input('model_1').df.['a'].iloc[0], 1)
-        #self.assertEqual(prev_runs_2.get_model_input('model_2').df.['a'].iloc[0], 2)
+        prev_runs_2 = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         model_results = prev_runs_2.get_prev_results()
         self.assertEqual(len(model_results), 2)
         self.assertEqual(model_results['result_2']['a'].iloc[0], 2)
@@ -52,14 +44,12 @@ class TestPreviousRuns(unittest.TestCase):
         df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
-        prev_runs = PreviousRuns(data, config, 10,
-                                 previous_runs_folder=PREV_RUN_FOLDER)
+        prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs.store_run()
 
         df2 = pd.DataFrame({'a':[1, 1], 'b': [2, 3]})
         data2 = Dataset(df2, None, df_hash=joblib.hash(df2))
-        prev_runs_2 = PreviousRuns(data2, config, 10,
-                                   previous_runs_folder=PREV_RUN_FOLDER)
+        prev_runs_2 = PreviousRuns(data2, config, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs_2.store_run()
 
         prev_runs = self.load_prev_runs_yml()
@@ -69,15 +59,13 @@ class TestPreviousRuns(unittest.TestCase):
         df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
-        prev_runs = PreviousRuns(data, config, 10,
-                                 previous_runs_folder=PREV_RUN_FOLDER)
+        prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
 
         prev_runs.store_run()
 
         config2 = test_util.load_config()
         config2['altered'] = True
-        prev_runs_2 = PreviousRuns(data, config2, 10,
-                                   previous_runs_folder=PREV_RUN_FOLDER)
+        prev_runs_2 = PreviousRuns(data, config2, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs_2.store_run()
 
         prev_runs = self.load_prev_runs_yml()

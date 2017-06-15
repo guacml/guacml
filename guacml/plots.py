@@ -8,11 +8,12 @@ from guacml.preprocessing.column_analyzer import ColType
 
 
 class Plots:
-    def __init__(self, run_time_config, input_data):
+    def __init__(self, run_time_config, input_data, step_tree):
         self.model_results = None
         self.problem_type = run_time_config['problem_type']
         self.target = run_time_config['target']
         self.input_data = input_data
+        self.step_tree = step_tree
 
     def set_model_results(self, model_results):
         self.model_results = model_results
@@ -49,6 +50,13 @@ class Plots:
         for col in metadata[metadata.type.isin(low_card_cols)].col_name:
             sns.barplot(x=col, y='error', data=holdout)
             plt.show()
+
+    def tree(self):
+        # render pydot by calling dot, no file saved to disk
+        png_str = self.step_tree.to_pydot().create_png(prog='dot')
+
+        from IPython.core.display import Image
+        return Image(png_str, embed=True)
 
     def predictions_vs_actual(self, model_name, n_bins = 10, **kwargs):
         model_result = self.model_results[model_name]
@@ -106,6 +114,5 @@ def predictions_vs_actual_regression(model_results, model_name, figsize=(8,7)):
     sns.jointplot('prediction', target, holdout, 'hexbin',
                   space=0, marginal_kws=marginal_kws, bins=50)
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
-
 
 

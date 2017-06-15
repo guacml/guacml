@@ -59,9 +59,6 @@ class PreviousRuns():
         if self.found_matching_run is None:
             self.found_matching_run = False
 
-    def get_hyper_param_iterations(self):
-        return self.run_['hyper_param_iterations']
-
     # def get_model_input(self, model_name):
     #     data_path = self.run_['model_data_paths'][model_name]
     #     return pd.read_feather(data_path)

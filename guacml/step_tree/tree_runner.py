@@ -1,5 +1,6 @@
 from guacml.step_tree.model_manager import ModelManager
 from guacml.storage.previous_runs import PreviousRuns
+import time
 
 
 class TreeRunner:
@@ -28,11 +29,10 @@ class TreeRunner:
         step = self.tree.get_step(step_name)
 
         if isinstance(step, ModelManager):
-            results[step_name] = step.run(data)
-            # self.prev_runs.add_model_input(step_name, data)
+            results[step_name] = self.execute_step_with_timing(step, data)
             self.prev_runs.add_model_result(step_name, results[step_name])
         else:
-            dataset = step.execute(data)
+            dataset = self.execute_step_with_timing(step, data)
             for child in children:
                 self.run_step(child, dataset, results)
 
@@ -42,4 +42,12 @@ class TreeRunner:
     def clear_prev_runs(self):
         self.prev_runs.clear()
 
+    @staticmethod
+    def execute_step_with_timing(step, data):
+        start = time.perf_counter()
+        result = step.execute(data)
+        end = time.perf_counter()
+        step.runtime = end - start
+
+        return result
 

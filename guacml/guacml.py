@@ -53,21 +53,20 @@ class GuacMl:
         rt_conf['problem_type'] = problem_type
         rt_conf['target'] = target
         rt_conf['exclude_cols'] = exclude_cols
-        self.plots = Plots(rt_conf, self.data)
+
+        tree_builder = TreeBuilder(self.config)
+        step_tree = StepTree(self.config)
+        self.tree = tree_builder.build()
+        self.plots = Plots(rt_conf, self.data, self.tree)
         self.model_results = None
         self.runner = None
-
 
     def run(self, hyper_param_iterations, date_split_col=None):
         # TODO: we shouldn't be mutating config
         self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
         self.config['run_time']['date_split_col'] = date_split_col
 
-        tree_builder = TreeBuilder(self.config)
-        step_tree = StepTree(self.config)
-        tree = tree_builder.build()
-
-        self.runner = TreeRunner(self.data, self.config, tree)
+        self.runner = TreeRunner(self.data, self.config, self.tree)
         self.model_results = self.runner.run()
 
         self.plots.set_model_results(self.model_results)
