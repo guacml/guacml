@@ -9,8 +9,8 @@ from guacml.metrics.log_loss import LogLoss
 from guacml.metrics.mean_squared_error import MeanSquaredError
 from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
 from guacml.plots import Plots
-
 from guacml.step_tree.step_tree import StepTree
+
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
 
@@ -57,14 +57,19 @@ class GuacMl:
         self.model_results = None
         self.runner = None
 
-    def run(self, min_hyper_param_iterations):
+
+    def run(self, hyper_param_iterations, date_split_col=None):
+        # TODO: we shouldn't be mutating config
+        self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
+        self.config['run_time']['date_split_col'] = date_split_col
 
         tree_builder = TreeBuilder(self.config)
         step_tree = StepTree(self.config)
-        tree = tree_builder.build(step_tree)
+        tree = tree_builder.build()
 
-        self.runner = TreeRunner(self.data, self.config, tree, min_hyper_param_iterations)
+        self.runner = TreeRunner(self.data, self.config, tree)
         self.model_results = self.runner.run()
+
         self.plots.set_model_results(self.model_results)
 
     def clear_prev_runs(self):

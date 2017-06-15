@@ -12,13 +12,14 @@ class ModelManager():
         self.config = config
         self.target = config['run_time']['target']
 
-    def run(self, data, min_hyper_param_iterations):
+    def run(self, data):
         model_runner = ModelRunner(self.model, data, self.config)
         features = self.select_features(data.metadata)
         features = features[features != self.target]
 
         hp_optimizer = HyperParameterOptimizer(model_runner, features)
-        all_trials, best_hps = hp_optimizer.optimize(min_hyper_param_iterations)
+
+        all_trials, best_hps = hp_optimizer.optimize(self.config['run_time']['hyper_param_iterations'])
 
         feature_reducer = FeatureReducer(model_runner, best_hps)
         features = feature_reducer.reduce(features)

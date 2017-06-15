@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
-from guacml.step_tree.random_splitter import RandomSplitter
+
 from hyperopt import STATUS_OK
+from guacml import splitters
 
 
 class ModelRunner():
@@ -10,11 +11,11 @@ class ModelRunner():
 
         self.target = config['run_time']['target']
         self.eval_metric = config['run_time']['eval_metric']
-        self.splitter = RandomSplitter(config['cross_validation'])
-        holdout_train, holdout = self.splitter.holdout_split(data.df)
+        splitter = splitters.create(config)
+        holdout_train, holdout = splitter.holdout_split(data.df)
         self.holdout = holdout.copy()
         self.train_and_cv = holdout_train.copy()
-        self.train_and_cv_folds = list(self.splitter.cv_splits(self.train_and_cv))
+        self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
         self.final_features = None
         self.final_hyper_params = None
 

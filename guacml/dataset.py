@@ -1,9 +1,7 @@
 import pandas as pd
-
-from .preprocessing.column_analyzer import ColumnAnalyzer, ColType
+from guacml.preprocessing.column_analyzer import ColumnAnalyzer
 from IPython.display import clear_output
 import joblib
-
 
 class Dataset:
     @staticmethod

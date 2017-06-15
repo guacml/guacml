@@ -25,11 +25,11 @@ class TestOneHotEncoder(unittest.TestCase):
         output = data.df
         meta_out = data.metadata
 
-        self.assertEquals(output.shape, (3, 4))
-        self.assertEquals(output.columns[1], 'a_one_hot_1')
-        self.assertEquals(output['a_one_hot_1'].iloc[0], 0)
-        self.assertEquals(output['a_one_hot_3'].iloc[0], 1)
+        self.assertEqual(output.shape, (3, 4))
+        self.assertEqual(output.columns[1], 'a_one_hot_1')
+        self.assertEqual(output['a_one_hot_1'].iloc[0], 0)
+        self.assertEqual(output['a_one_hot_3'].iloc[0], 1)
 
-        self.assertEquals(meta_out.shape[0], 4)
-        self.assertEquals(meta_out['col_name'].iloc[1], 'a_one_hot_1')
-        self.assertEquals(meta_out['type'].iloc[1], ColType.BINARY)
+        self.assertEqual(meta_out.shape[0], 4)
+        self.assertEqual(meta_out['col_name'].iloc[1], 'a_one_hot_1')
+        self.assertEqual(meta_out['type'].iloc[1], ColType.BINARY)

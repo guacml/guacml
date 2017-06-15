@@ -5,7 +5,7 @@ import joblib
 
 
 class PreviousRuns():
-    def __init__(self, data, config, hyper_param_iterations,
+    def __init__(self, data, config,
                  previous_runs_folder='./data/previous_runs'):
         self.found_matching_run = None
         self.config_ = config
@@ -30,7 +30,7 @@ class PreviousRuns():
                 os.makedirs(self.data_folder_)
             with open(os.path.join(self.data_folder_, 'config.yaml'), 'w') as config_file:
                 config_file.write(yaml.dump(self.config_, default_flow_style=False))
-            self.create_run_(hyper_param_iterations)
+            self.create_run_()
 
     def get_versioned_folder(self, max_data_version, max_config_version):
         return os.path.join(self.previous_runs_folder,
@@ -70,7 +70,7 @@ class PreviousRuns():
         model_results = self.run_['model_result_paths']
         return {name: joblib.load(path) for name, path in model_results.items()}
 
-    def create_run_(self, hyper_param_iterations):
+    def create_run_(self):
         self.run_ = {
             'input_data_version': self.max_data_version_ + 1,
             'input_data_hash': self.data_.df_hash,
@@ -78,8 +78,7 @@ class PreviousRuns():
             'config_hash': self.config_hash_,
             #'config': self.config_,
             #'model_data_paths': {},
-            'model_result_paths': {},
-            'hyper_param_iterations': hyper_param_iterations
+            'model_result_paths': {}
         }
 
     # def add_model_input(self, model_name, data):
