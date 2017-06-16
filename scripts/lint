@@ -1,4 +1,13 @@
 #!/bin/bash
+
+set -e pipefail
+
 [ -e venv ] && source venv/bin/activate
 
+echo
+echo --- checking requirements.txt
+sort requirements.txt | diff -q - requirements.txt
+
+echo
+echo --- running flake8
 flake8 --exclude=lib/,bin/,venv/,docs/conf.py --max-line-length=100 -j=2 .
