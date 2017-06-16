@@ -38,8 +38,8 @@ class ModelRunner():
         self.train_and_cv['cv_prediction'] = np.nan
         for train_indices, cv_indices in self.train_and_cv_folds:
             self.model.train(self.train_and_cv[features].iloc[train_indices],
-                             self.train_and_cv[self.target].iloc[train_indices]
-                             , **hyper_params)
+                             self.train_and_cv[self.target].iloc[train_indices],
+                             **hyper_params)
             col_idx = self.train_and_cv.columns.get_loc('cv_prediction')
             self.train_and_cv.iloc[cv_indices, col_idx] =\
                 self.model.predict(self.train_and_cv[features].iloc[cv_indices])
@@ -57,15 +57,21 @@ class ModelRunner():
     def train_final_model(self, features, hyper_params):
         self.final_features = features
         self.final_hyper_params = hyper_params
-        self.model.train(self.train_and_cv[features], self.train_and_cv[self.target], **hyper_params)
+        self.model.train(
+                self.train_and_cv[features],
+                self.train_and_cv[self.target],
+                **hyper_params
+            )
         self.train_and_cv['train_prediction'] = self.model.predict(self.train_and_cv[features])
         self.holdout['prediction'] = self.model.predict(self.holdout[features])
 
     def cv_error(self):
-        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv.cv_prediction)
+        return self.eval_metric.error(self.train_and_cv[self.target],
+                                      self.train_and_cv.cv_prediction)
 
     def training_error(self):
-        return self.eval_metric.error(self.train_and_cv[self.target], self.train_and_cv.cv_prediction)
+        return self.eval_metric.error(self.train_and_cv[self.target],
+                                      self.train_and_cv.cv_prediction)
 
     def holdout_error(self):
         return self.eval_metric.error(self.holdout[self.target], self.holdout.prediction)
@@ -77,10 +83,13 @@ class ModelRunner():
         return self.holdout.prediction
 
     def row_wise_holdout_error(self):
-        return self.eval_metric.row_wise_error(self.holdout[self.target], self.holdout_predictions())
+        return self.eval_metric.row_wise_error(self.holdout[self.target],
+                                               self.holdout_predictions())
 
     def holdout_error_interval(self):
-        bs_holdout_errors = self.bootstrap_errors_(self.holdout[self.target], self.holdout_predictions())
+        bs_holdout_errors = self.bootstrap_errors_(self.holdout[self.target],
+                                                   self.holdout_predictions())
+
         return bs_holdout_errors.quantile(0.1), bs_holdout_errors.quantile(0.9)
 
     def bootstrap_cv_errors(self):
@@ -89,14 +98,18 @@ class ModelRunner():
     def bootstrap_errors_(self, truth, predictions, i=200):
         n = len(truth)
         errors = []
+
         for i in range(i):
             resample_indices = np.random.randint(n, size=n)
-            err = self.eval_metric.error(truth.iloc[resample_indices], predictions.iloc[resample_indices])
+            err = self.eval_metric.error(truth.iloc[resample_indices],
+                                         predictions.iloc[resample_indices])
             errors.append(err)
+
         return pd.Series(errors)
 
     def is_cv_error_significantly_worse(self, other_errors):
-        new_bs_errors = self.bootstrap_errors_(self.train_and_cv[self.target], self.cv_predictions())
+        new_bs_errors = self.bootstrap_errors_(self.train_and_cv[self.target],
+                                               self.cv_predictions())
         # error gets larger with probability larger 80%
         return (new_bs_errors > other_errors).mean() > 0.8
 

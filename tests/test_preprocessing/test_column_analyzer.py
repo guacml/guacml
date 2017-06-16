@@ -23,4 +23,3 @@ class TestColumnAnalyzer(unittest.TestCase):
         analyzer = ColumnAnalyzer()
         meta = analyzer.analyze(df)
         self.assertEqual(meta.loc['a'].type, ColType.ORDINAL)
-

@@ -13,4 +13,3 @@ class LogLoss(BaseEvalMetric):
         eps = 1e-15
         prediction = np.clip(prediction, eps, 1 - eps)
         return -1 * (truth * np.log(prediction) + (1 - truth) * np.log(1 - prediction))
-

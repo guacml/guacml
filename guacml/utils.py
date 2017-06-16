@@ -1,6 +1,7 @@
 import hyperopt.pyll.stochastic as py_st
 import pandas as pd
 
+
 def print_hp_distribution(dist, n_samples=200, bins='auto'):
     """
     This plot can help you find the right parameters for specifying
@@ -24,4 +25,3 @@ def remove_outlier_rows(df, column, removal_ratio, side='both'):
         return df[df.colum >= lower]
     else:
         raise ValueError('Unexpected value {} fof side parameter.'.format(side))
-

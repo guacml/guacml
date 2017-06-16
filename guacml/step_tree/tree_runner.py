@@ -51,5 +51,3 @@ class TreeRunner:
         step.runtime = end - start
 
         return result
-
-

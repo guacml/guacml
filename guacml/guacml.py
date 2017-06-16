@@ -10,8 +10,6 @@ from guacml.metrics.mean_absolute_error import MeanAbsoluteError
 from guacml.metrics.mean_squared_error import MeanSquaredError
 from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
 from guacml.plots import Plots
-from guacml.step_tree.step_tree import StepTree
-
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
 
@@ -43,11 +41,13 @@ class GuacMl:
             raise Exception('Can not automatically infer problem type.')
 
         if eval_metric is not None:
-            if eval_metric.lower() == 'accuracy':
+            metric_name = eval_metric.lower()
+
+            if metric_name == 'accuracy':
                 rt_conf['eval_metric'] = Accuracy()
-            elif eval_metric.lower() == 'rmsle' or eval_metric.lower() == 'root_mean_squared_log_error':
+            elif metric_name == 'rmsle' or metric_name == 'root_mean_squared_log_error':
                 rt_conf['eval_metric'] = RootMeanSquaredLogError()
-            elif eval_metric.lower() == 'mae' or eval_metric.lower() == 'mean_absolute_error':
+            elif metric_name == 'mae' or metric_name == 'mean_absolute_error':
                 rt_conf['eval_metric'] == MeanAbsoluteError()
             else:
                 raise NotImplementedError('Unknown eval metric: ' + eval_metric)
@@ -57,7 +57,6 @@ class GuacMl:
         rt_conf['exclude_cols'] = exclude_cols
 
         tree_builder = TreeBuilder(self.config)
-        step_tree = StepTree(self.config)
         self.tree = tree_builder.build()
         self.plots = Plots(rt_conf, self.data, self.tree)
         self.model_results = None
@@ -82,9 +81,9 @@ class GuacMl:
             res_dict['model name'] = name
             rows.append(res_dict)
 
-        columns = ['model name', 'n features', 'holdout error', 'holdout error interval', 'cv error', 'training error']
-        result = pd.DataFrame(rows,
-                              columns=columns + ['holdout error numeric'])
+        columns = ['model name', 'n features', 'holdout error', 'holdout error interval',
+                   'cv error', 'training error']
+        result = pd.DataFrame(rows, columns=columns + ['holdout error numeric'])
         return result.sort_values('holdout error numeric')[columns]
 
     def clear_previous_runs(self):

@@ -11,7 +11,8 @@ class TestOneHotEncoder(unittest.TestCase):
     def test_encoding(self):
         config = test_util.load_config()
         enc = OneHotEncoder(config['pre_processing'])
-        input = pd.DataFrame({'a': [3, 1, 2], 'b': [1.1, 1.2, 1.3]}, index=['row_1', 'row_2', 'row_3'])
+        input = pd.DataFrame({'a': [3, 1, 2], 'b': [1.1, 1.2, 1.3]},
+                             index=['row_1', 'row_2', 'row_3'])
         metadata = pd.DataFrame({
             'type': [ColType.INT_ENCODING, ColType.NUMERIC],
             'derived_from': [None, None],
@@ -54,5 +55,3 @@ class TestOneHotEncoder(unittest.TestCase):
 
         self.assertEqual(output.shape, (3, 1))
         self.assertEqual(meta_out.shape[0], 1)
-
-

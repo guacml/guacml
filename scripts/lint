@@ -1,0 +1,4 @@
+#!/bin/bash
+[ -e venv ] && source venv/bin/activate
+
+flake8 --exclude=lib/,bin/,venv/,docs/conf.py --max-line-length=100 -j=2 .

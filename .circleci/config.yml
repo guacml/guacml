@@ -17,6 +17,9 @@ jobs:
             - venv
             - lib
       - run:
+          name: Linters
+          command: scripts/lint
+      - run:
           shell: /bin/bash
           name: test
           command: |

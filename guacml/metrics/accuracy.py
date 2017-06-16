@@ -15,4 +15,3 @@ class Accuracy(BaseEvalMetric):
     @staticmethod
     def correct(truth, prediction):
         return (prediction >= THRESHOLD) == (truth == 1)
-

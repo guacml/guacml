@@ -1,7 +1,8 @@
-import pandas as pd
+import joblib
+
 from guacml.preprocessing.column_analyzer import ColumnAnalyzer
 from IPython.display import clear_output
-import joblib
+
 
 class Dataset:
     @staticmethod
@@ -11,7 +12,7 @@ class Dataset:
 
         if exclude_cols is not None:
             for col in exclude_cols:
-                if not col in df.columns:
+                if col not in df.columns:
                     raise ValueError('The column to exclude {0} does not exist as column.\n'
                                      'Available columns: {1}'.format(col, df.columns))
                 del df[col]
@@ -52,5 +53,3 @@ class Dataset:
         meta['n_blank_%'] = (100 * meta['n_blank'] / n_rows).round()
 
         return meta[['type', 'n_unique', 'n_unique_%', 'n_na_%', 'n_blank_%', 'example']]
-
-

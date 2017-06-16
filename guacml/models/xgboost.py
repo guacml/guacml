@@ -26,7 +26,7 @@ class XgBoost(BaseModel):
         max_depth = int(max_depth)
         dtrain = xgb.DMatrix(x, y, missing=np.nan)
         params = {
-            'booster' : 'gbtree',
+            'booster': 'gbtree',
             'eta': 0.2,
             'silent': True,
             'max_depth': self.pos_int(max_depth)
@@ -36,7 +36,9 @@ class XgBoost(BaseModel):
         elif self.problem_type == ProblemType.REGRESSION:
             params['objective'] = 'reg:linear'
         else:
-            raise NotImplementedError('Problem type {0} not implemented for XgBoost.'.format(self.problem_type))
+            raise NotImplementedError(
+                'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
+            )
 
         self.model = xgb.train(params, dtrain, self.pos_int(n_rounds))
 

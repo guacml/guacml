@@ -23,5 +23,5 @@ class TestLogLoss(unittest.TestCase):
 
     def test_mix(self):
         logloss = LogLoss()
-        loss = logloss.error(np.array([0,0,1,1]), np.array([0,1,0,1]))
+        loss = logloss.error(np.array([0, 0, 1, 1]), np.array([0, 1, 0, 1]))
         self.assertAlmostEqual(17.269588096, loss, delta=1e-9)

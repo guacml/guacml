@@ -31,12 +31,12 @@ class RandomForest(BaseModel):
 
         if self.problem_type == ProblemType.BINARY_CLAS:
             self.model = RandomForestClassifier(n_estimators,
-                                                   max_depth=max_depth,
-                                                   min_samples_leaf=min_samples_leaf)
+                                                max_depth=max_depth,
+                                                min_samples_leaf=min_samples_leaf)
         elif self.problem_type == ProblemType.REGRESSION:
             self.model = RandomForestRegressor(n_estimators,
-                                                   max_depth=max_depth,
-                                                   min_samples_leaf=min_samples_leaf)
+                                               max_depth=max_depth,
+                                               min_samples_leaf=min_samples_leaf)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
 
@@ -53,4 +53,3 @@ class RandomForest(BaseModel):
     def feature_importances(self, x):
         feat_scores = self.model.feature_importances_
         return pd.Series(list(feat_scores), index=list(x.columns))
-

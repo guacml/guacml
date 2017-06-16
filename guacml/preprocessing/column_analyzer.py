@@ -26,8 +26,8 @@ class ColumnAnalyzer:
             ci = self.analyze_col(df, col)
             col_data.append(ci)
 
-        col_metadata = pd.DataFrame(col_data,
-                            columns=['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example'])
+        columns = ['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example']
+        col_metadata = pd.DataFrame(col_data, columns=columns)
         return col_metadata.set_index('col_name')
 
     def analyze_col(self, df, col_name):
@@ -64,7 +64,8 @@ class ColumnAnalyzer:
             return self.analyze_date_col(col_info)
 
         if col.dtype == 'object':
-            return self.analyze_object_col(df, col_name, not_null, n_null, n_unique, n_unique_pct, col_info)
+            return self.analyze_object_col(df, col_name, not_null, n_null, n_unique, n_unique_pct,
+                                           col_info)
 
         if col.dtype == 'bool':
             return self.analyze_boolean_col(col_info)

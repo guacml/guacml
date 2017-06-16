@@ -40,7 +40,8 @@ class Plots:
         fig.subplots_adjust(hspace=0.2)
         for idx, value in enumerate(self.model_results.items()):
             name, model = value
-            model.holdout_data['error'].hist(bins=bins, figsize=figsize, ax=axes[idx], label=name, edgecolor='black')
+            model.holdout_data['error'].hist(bins=bins, figsize=figsize, ax=axes[idx], label=name,
+                                             edgecolor='black')
             axes[idx].legend()
             axes[idx].set_ylabel('n rows')
             x_max = axes[idx].get_xlim()[1]
@@ -66,7 +67,7 @@ class Plots:
         from IPython.core.display import Image
         return Image(png_str, embed=True)
 
-    def predictions_vs_actual(self, model_name, n_bins = 10, **kwargs):
+    def predictions_vs_actual(self, model_name, n_bins=10, **kwargs):
         model_result = self.model_results[model_name]
         if self.problem_type == ProblemType.BINARY_CLAS:
             return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
@@ -123,7 +124,7 @@ def predictions_vs_actual_regression(model_results, model_name, size=6, bins=Non
 
     sns.set(style="white", color_codes=True)
 
-    marginal_kws=dict(hist_kws=dict(edgecolor='black'))
+    marginal_kws = dict(hist_kws=dict(edgecolor='black'))
     plt.suptitle('{0}: Predictions vs Actual'.format(model_name), fontsize=14)
     grid = sns.jointplot('prediction', target, holdout, 'hexbin', gridsize=gridsize,
                          size=size, bins=bins, space=0, marginal_kws=marginal_kws, **kwargs)
@@ -136,6 +137,3 @@ def predictions_vs_actual_regression(model_results, model_name, size=6, bins=Non
     elif bins == 'log':
         color_bar.set_label('log_10(count)')
     return grid
-
-
-

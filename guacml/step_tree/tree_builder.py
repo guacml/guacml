@@ -8,6 +8,7 @@ from guacml.preprocessing.feature_generation.one_hot_encoder import OneHotEncode
 from guacml.preprocessing.fill_na import FillNa
 from guacml.step_tree.step_tree import StepTree
 
+
 class TreeBuilder:
     def __init__(self, config):
         self.config = config
@@ -23,7 +24,8 @@ class TreeBuilder:
         step_tree.add_step('fill_na', 'split_dates', FillNa())
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))
 
-        step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder(self.config['pre_processing']))
+        step_tree.add_step('one_hot_encode', 'fill_na',
+                           OneHotEncoder(self.config['pre_processing']))
         step_tree.add_model('linear_model', 'one_hot_encode', LinearModel(self.problem_type))
 
         return step_tree
