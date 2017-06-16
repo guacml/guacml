@@ -40,7 +40,3 @@ class LinearModel(BaseModel):
     def feature_importances(self, x):
         importance = np.abs(self.model.coef_) * x.std().values
         return pd.Series(importance.flatten(), index=x.columns)
-
-
-
-

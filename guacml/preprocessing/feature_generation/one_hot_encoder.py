@@ -16,9 +16,11 @@ class OneHotEncoder(BaseStep):
         enc = OHE(sparse=False)
 
         # ToDo: Rather check total number of OneHot columns and define cutoff
-        cols_to_encode = meta[(meta.type == ColType.INT_ENCODING) &
-                              (meta.n_unique > 2) &
-                              (meta.n_unique < self.pre_process_config['max_uniques_for_one_hot'])].index
+        cols_to_encode = meta[
+            (meta.type == ColType.INT_ENCODING) &
+            (meta.n_unique > 2) &
+            (meta.n_unique < self.pre_process_config['max_uniques_for_one_hot'])
+        ].index
 
         for col in cols_to_encode:
             new_cols = enc.fit_transform(data.df[[col]])

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class DateSplitter:
     def __init__(self, config):
         self.config = config
@@ -7,7 +8,8 @@ class DateSplitter:
 
     def holdout_split(self, input):
         series = input[self.date_split_col]
-        split_point = series.quantile(1 - self.config['cross_validation']['holdout_size'], interpolation='lower')
+        split_point = series.quantile(1 - self.config['cross_validation']['holdout_size'],
+                                      interpolation='lower')
         return input[series <= split_point], input[series > split_point]
 
     def cv_splits(self, input):

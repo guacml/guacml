@@ -44,6 +44,3 @@ class TestDataset(unittest.TestCase):
         guac.run(1, 'datetime')
         result = guac.model_results
         self.assertEqual(3, len(result))
-
-
-

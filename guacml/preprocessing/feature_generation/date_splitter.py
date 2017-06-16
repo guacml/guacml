@@ -18,13 +18,19 @@ class DateSplitter(BaseStep):
             df[col + '_year'] = df[col].dt.year
             df[col + '_day_of_week'] = df[col].dt.dayofweek
 
-            new_cols = [col + '_hour', col + '_day', col + '_month', col + '_year', col + '_day_of_week']
+            new_cols = [
+                col + '_hour',
+                col + '_day',
+                col + '_month',
+                col + '_year',
+                col + '_day_of_week'
+            ]
             to_append = []
             to_append_index = []
             for new_col in new_cols:
                 to_append_index.append(new_col)
                 to_append.append({
-                    'type': ColType.ORDINAL ,
+                    'type': ColType.ORDINAL,
                     'derived_from': col,
                     'n_unique': df[new_col].nunique(),
                     'n_na': df[new_col].notnull().sum(),
@@ -33,4 +39,3 @@ class DateSplitter(BaseStep):
             data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))
 
         return data
-

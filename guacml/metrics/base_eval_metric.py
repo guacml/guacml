@@ -6,4 +6,3 @@ class BaseEvalMetric:
     @staticmethod
     def row_wise_error(truth, prediction):
         raise NotImplementedError()
-

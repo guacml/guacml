@@ -6,8 +6,7 @@ import joblib
 
 class PreviousRuns():
 
-    def __init__(self, data, config,
-        previous_runs_folder='./data/previous_runs'):
+    def __init__(self, data, config, previous_runs_folder='./data/previous_runs'):
         self.found_matching_run = None
         self.config_ = config
         self.config_hash_ = joblib.hash(config)
@@ -26,7 +25,7 @@ class PreviousRuns():
 
         if not self.found_matching_run:
             self.data_folder_ = self.get_versioned_folder(self.max_data_version_ + 1,
-                                                         self.max_config_version_ + 1)
+                                                          self.max_config_version_ + 1)
             if not os.path.exists(self.data_folder_):
                 os.makedirs(self.data_folder_)
             with open(os.path.join(self.data_folder_, 'config.yaml'), 'w') as config_file:
@@ -70,8 +69,6 @@ class PreviousRuns():
             'input_data_hash': self.data_.df_hash,
             'config_version': self.max_config_version_ + 1,
             'config_hash': self.config_hash_,
-            #'config': self.config_,
-            #'model_data_paths': {},
             'model_result_paths': {}
         }
 
@@ -91,4 +88,3 @@ class PreviousRuns():
 
     def clear(self):
         shutil.rmtree(self.previous_runs_folder)
-

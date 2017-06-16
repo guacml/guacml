@@ -17,10 +17,10 @@ class HyperParameterOptimizer:
             trials = old_trials
 
         best_hps = fmin(self.to_minimize,
-             hp_info,
-             algo=tpe.suggest,
-             max_evals=hyper_param_iterations,
-             trials=trials)
+                        hp_info,
+                        algo=tpe.suggest,
+                        max_evals=hyper_param_iterations,
+                        trials=trials)
 
         filtered_hps = {}
         for hp in self.model_runner.hyper_parameter_info():

@@ -1,9 +1,7 @@
 from guacml.step_tree.feature_reducer import FeatureReducer
 from guacml.step_tree.hyper_param_optimizer import HyperParameterOptimizer
 from guacml.step_tree.model_result import ModelResult
-
 from guacml.step_tree.model_runner import ModelRunner
-from .base_step import BaseStep
 
 
 class ModelManager():
@@ -18,7 +16,9 @@ class ModelManager():
         features = features[features != self.target]
 
         hp_optimizer = HyperParameterOptimizer(model_runner, features)
-        all_trials, best_hps = hp_optimizer.optimize(self.config['run_time']['hyper_param_iterations'])
+        all_trials, best_hps = hp_optimizer.optimize(
+            self.config['run_time']['hyper_param_iterations']
+        )
 
         feature_reducer = FeatureReducer(model_runner, best_hps)
         features = feature_reducer.reduce(features)

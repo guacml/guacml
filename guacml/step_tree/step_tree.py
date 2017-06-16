@@ -26,7 +26,7 @@ class StepTree:
             raise ValueError('Argument step of type {0} needs to be derived from BaseStep.'
                              .format(type(step)))
         self.steps[step_name] = step
-        if not parent_name is None:
+        if parent_name is not None:
             self.children[parent_name].append(step_name)
 
     def add_model(self, step_name, parent_name, model):
@@ -77,4 +77,3 @@ class StepTree:
             return "%s\n(%.2f sec)" % (step_name, step.runtime)
         else:
             return step_name
-

@@ -25,13 +25,13 @@ class TestPreviousRuns(unittest.TestCase):
             return yaml.load(file)
 
     def test_store_and_load(self):
-        df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
+        df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
-        data1 = Dataset(pd.DataFrame({'a': [1]}), None)
-        data2 = Dataset(pd.DataFrame({'a': [2]}), None)
+        Dataset(pd.DataFrame({'a': [1]}), None)
+        Dataset(pd.DataFrame({'a': [2]}), None)
 
         prev_runs.add_model_result('result_1', pd.DataFrame({'a': [1]}))
         prev_runs.add_model_result('result_2', pd.DataFrame({'a': [2]}))
@@ -44,14 +44,14 @@ class TestPreviousRuns(unittest.TestCase):
         self.assertEqual(model_results['result_2']['a'].iloc[0], 2)
 
     def test_store_and_new_data(self):
-        df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
+        df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs.store_run()
 
-        df2 = pd.DataFrame({'a':[1, 1], 'b': [2, 3]})
+        df2 = pd.DataFrame({'a': [1, 1], 'b': [2, 3]})
         data2 = Dataset(df2, None, df_hash=joblib.hash(df2))
 
         prev_runs_2 = PreviousRuns(data2, config, previous_runs_folder=PREV_RUN_FOLDER)
@@ -61,7 +61,7 @@ class TestPreviousRuns(unittest.TestCase):
         self.assertEqual(len(prev_runs), 2)
 
     def test_store_and_new_config(self):
-        df = pd.DataFrame({'a':[0, 1], 'b': [2, 3]})
+        df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
         config = test_util.load_config()
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
@@ -75,4 +75,3 @@ class TestPreviousRuns(unittest.TestCase):
 
         prev_runs = self.load_prev_runs_yml()
         self.assertEqual(len(prev_runs), 2)
-
