@@ -1,5 +1,9 @@
 General:
 - xg boost said it's only a single thread version. Instructions in doc/build.md
+- rename GuacMl to Guac
+- replace label encoder with pandas categoricals
+- use single type "numeric" for ints and floats
+- fix column analyzer to re-run analysis if column dtype has changed (e.g. categorical converts to strings)
 
 Timeseries:
 - configurable backtesting
@@ -8,7 +12,6 @@ Refactoring:
 - models should return dfs, not ndarrays
 - re-organize module structure
 - replace prints with logger
-- lint
 
 Disk Caching:
 - Would be great to be able to store some hyper parameter optimization iterations
@@ -16,4 +19,7 @@ Disk Caching:
  hyper parameter optimization. One before and one after feature selection.
  We could also make the features part of the hyperparamters and then only
  do one big hyper parameter optimization. But the implications are hard to foresee.
+- cache `data` directory shouldn't be persisted across test runs
 
+Ideas:
+- bundle trained xgboost as a dockerized web service (xgboost4j)
