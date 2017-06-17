@@ -4,6 +4,7 @@ General:
 - replace label encoder with pandas categoricals
 - use single type "numeric" for ints and floats
 - fix column analyzer to re-run analysis if column dtype has changed (e.g. categorical converts to strings)
+- don't mutate df in Dataset.from_df (exclude_cols)
 
 Timeseries:
 - configurable backtesting
