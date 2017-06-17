@@ -4,6 +4,9 @@ class FeatureReducer():
         self.hyper_params = hyper_params
 
     def reduce(self, features):
+        if len(features) == 1:
+            return features
+
         self.model_runner.train_for_cv(features, self.hyper_params, True)
         cv_bs_errors = self.model_runner.bootstrap_cv_errors()
 

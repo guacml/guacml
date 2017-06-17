@@ -44,3 +44,17 @@ class TestDataset(unittest.TestCase):
         guac.run(1, 'datetime')
         result = guac.model_results
         self.assertEqual(3, len(result))
+
+    def test_timeseries(self):
+        guac = self.load_dataset(fixture='timeseries', target='Sales')
+        guac.run(1, 'Date')
+        result = guac.model_results
+        self.assertEqual(3, len(result))
+
+    def test_dataset_with_non_canonical_index(self):
+        df = pd.DataFrame({'a': range(100), 'b': [x + 0.5 for x in range(100)]},
+                          index=range(100, 200))
+        guac = GuacMl(df, 'b')
+        guac.clear_previous_runs()
+        guac.run(1)
+        self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-6)

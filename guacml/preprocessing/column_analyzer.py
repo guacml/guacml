@@ -41,6 +41,8 @@ class ColumnAnalyzer:
             example = not_null.iloc[0]
         else:
             example = None
+
+        # ToDo: Rerun analysis when data type of column gets converted
         col_info = {
             'col_name': col_name,
             'n_unique': n_unique,
@@ -50,7 +52,7 @@ class ColumnAnalyzer:
         }
 
         if col.dtype == 'int64':
-            return self.analyze_int_col(col, n_unique, n_unique_pct, col_info)
+            return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
 
         if col.dtype == 'float64':
             if (np.mod(not_null, 1) != 0).any():
@@ -58,7 +60,7 @@ class ColumnAnalyzer:
             else:
                 if n_null == 0:
                     df[col_name] = col.astype(int)
-                return self.analyze_int_col(col, n_unique, n_unique_pct, col_info)
+                return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
 
         if col.dtype == 'datetime64[ns]':
             return self.analyze_date_col(col_info)
@@ -73,7 +75,8 @@ class ColumnAnalyzer:
         raise Exception("Cannot analyze column '{}' of dtype '{}'".format(col_name, col.dtype))
 
     @staticmethod
-    def analyze_int_col(col, n_unique, n_unique_pct, col_info):
+    def analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info):
+        col = df[col_name]
         if col.min() == 0 and col.max() == 1:
             col_info['type'] = ColType.BINARY
             return col_info
@@ -88,7 +91,9 @@ class ColumnAnalyzer:
                 col_info['type'] = ColType.INT_ENCODING
                 return col_info
             else:
+
                 col_info['type'] = ColType.CATEGORICAL
+                df[col_name] = col.astype('str')
                 return col_info
 
         col_info['type'] = ColType.ORDINAL
@@ -136,7 +141,7 @@ class ColumnAnalyzer:
 
         if found_types == {bool, int}:
             df[col_name] = col.astype(int)
-            return self.analyze_int_col(col, n_unique, n_unique_pct, col_info)
+            return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
 
         if found_types.issubset({bool, int, float}):
             df[col_name] = col.astype(float)
@@ -164,7 +169,7 @@ class ColumnAnalyzer:
         if to_check.str.isdecimal().all():
             try:
                 df[col_name] = col.astype(int)
-                return self.analyze_int_col(col, n_unique_pct, col_info)
+                return self.analyze_int_col(df, col_name, n_unique_pct, col_info)
             except ValueError:
                 pass
         elif to_check.str.isnumeric().all():
@@ -177,7 +182,7 @@ class ColumnAnalyzer:
             try:
                 df[col_name] = pd.to_datetime(col)
                 return self.analyze_date_col(col_info)
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
 
         word_counts = not_null.str.count('[ ,;]')
@@ -196,4 +201,5 @@ class ColumnAnalyzer:
             return col_info
         else:
             col_info['type'] = ColType.CATEGORICAL
+            df[col_name] = col.astype('str')
             return col_info

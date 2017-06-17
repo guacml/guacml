@@ -9,6 +9,7 @@ from guacml.metrics.log_loss import LogLoss
 from guacml.metrics.mean_absolute_error import MeanAbsoluteError
 from guacml.metrics.mean_squared_error import MeanSquaredError
 from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
+from guacml.metrics.root_mean_squared_percentage_error import RootMeanSquaredPercentageError
 from guacml.plots import Plots
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
@@ -49,6 +50,8 @@ class GuacMl:
                 rt_conf['eval_metric'] = RootMeanSquaredLogError()
             elif metric_name == 'mae' or metric_name == 'mean_absolute_error':
                 rt_conf['eval_metric'] == MeanAbsoluteError()
+            elif metric_name == 'rmspe' or metric_name == 'root_mean_square_percentage_error':
+                rt_conf['eval_metric'] == RootMeanSquaredPercentageError()
             else:
                 raise NotImplementedError('Unknown eval metric: ' + eval_metric)
 
@@ -63,6 +66,10 @@ class GuacMl:
         self.runner = None
 
     def run(self, hyper_param_iterations, date_split_col=None):
+        if date_split_col is not None and date_split_col not in self.data.df.columns:
+            raise Exception('The date_split_col {} was not in the columns of the data set {}'
+                            .format(date_split_col, self.data.df.columns))
+
         # TODO: we shouldn't be mutating config
         self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
         self.config['run_time']['date_split_col'] = date_split_col
@@ -85,6 +92,9 @@ class GuacMl:
                    'cv error', 'training error']
         result = pd.DataFrame(rows, columns=columns + ['holdout error numeric'])
         return result.sort_values('holdout error numeric')[columns]
+
+    def info(self):
+        return self.data.display_metadata()
 
     def clear_previous_runs(self):
         if self.runner is not None:

@@ -23,3 +23,10 @@ class TestColumnAnalyzer(unittest.TestCase):
         analyzer = ColumnAnalyzer()
         meta = analyzer.analyze(df)
         self.assertEqual(meta.loc['a'].type, ColType.ORDINAL)
+
+    def test_mixed_int_str_col(self):
+        df = pd.DataFrame({'a': [0, '0', 'a']})
+        analyzer = ColumnAnalyzer()
+        meta = analyzer.analyze(df)
+        self.assertEqual(meta.loc['a'].type, ColType.CATEGORICAL)
+        self.assertEqual(df.drop_duplicates().shape[0], 2)

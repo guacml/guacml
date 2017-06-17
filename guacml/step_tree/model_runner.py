@@ -25,7 +25,7 @@ class ModelRunner():
         prediction = self.train_and_cv['cv_prediction']
         loss = self.eval_metric.error(target, prediction)
         loss_variance = self.bootstrap_errors_(target, prediction).var()
-        if loss is None or loss_variance is None:
+        if loss is None or np.isnan(loss) or loss_variance is None or np.isnan(loss_variance):
             raise Exception('Could not calculate cv error.')
         return {
             'status': STATUS_OK,
@@ -37,12 +37,16 @@ class ModelRunner():
         feature_importances = []
         self.train_and_cv['cv_prediction'] = np.nan
         for train_indices, cv_indices in self.train_and_cv_folds:
-            self.model.train(self.train_and_cv[features].iloc[train_indices],
-                             self.train_and_cv[self.target].iloc[train_indices],
+
+            self.model.train(self.train_and_cv[features].loc[train_indices],
+                             self.train_and_cv[self.target].loc[train_indices],
                              **hyper_params)
-            col_idx = self.train_and_cv.columns.get_loc('cv_prediction')
-            self.train_and_cv.iloc[cv_indices, col_idx] =\
-                self.model.predict(self.train_and_cv[features].iloc[cv_indices])
+
+            self.train_and_cv.loc[cv_indices, 'cv_prediction'] =\
+                self.model.predict(self.train_and_cv[features].loc[cv_indices])
+
+            if self.train_and_cv.loc[cv_indices, 'cv_prediction'].isnull().any():
+                raise Exception('Some predictions where N/A')
 
             if with_feature_importances:
                 feat_importance = self.model.feature_importances(self.train_and_cv[features])
