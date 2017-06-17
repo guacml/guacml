@@ -1,7 +1,7 @@
 run_time:
     problem_type: null
     exclude_cols: null
-    eval_metic: null
+    eval_metric: null
     target: null
 
 cross_validation:

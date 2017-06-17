@@ -37,7 +37,7 @@ class Dataset:
         clear_output()
         return metadata
 
-    def __init__(self, df, metadata, data_path=None, df_hash=None):
+    def __init__(self, df, metadata, df_hash=None):
         self.df = df
         self.metadata = metadata
         self.df_hash = df_hash

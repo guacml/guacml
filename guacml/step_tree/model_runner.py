@@ -23,6 +23,9 @@ class ModelRunner():
         self.train_for_cv(features, hyper_params)
         target = self.train_and_cv[self.target]
         prediction = self.train_and_cv['cv_prediction']
+        if prediction.isnull().any():
+            Exception('Some predictions where N/A.')
+
         loss = self.eval_metric.error(target, prediction)
         loss_variance = self.bootstrap_errors_(target, prediction).var()
         if loss is None or np.isnan(loss) or loss_variance is None or np.isnan(loss_variance):

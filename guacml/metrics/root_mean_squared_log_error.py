@@ -4,7 +4,9 @@ from guacml.metrics.base_eval_metric import BaseEvalMetric
 
 
 def _row_error(truth, prediction):
-    return (np.log1p(np.maximum(prediction, 0)) - np.log1p(truth)) ** 2
+    if (truth == 0).any():
+        raise Exception('Can not compute rmsle, when there are zeros in the target column.')
+    return (np.log(np.maximum(prediction, 0)) - np.log(truth)) ** 2
 
 
 class RootMeanSquaredLogError(BaseEvalMetric):

@@ -49,9 +49,9 @@ class GuacMl:
             elif metric_name == 'rmsle' or metric_name == 'root_mean_squared_log_error':
                 rt_conf['eval_metric'] = RootMeanSquaredLogError()
             elif metric_name == 'mae' or metric_name == 'mean_absolute_error':
-                rt_conf['eval_metric'] == MeanAbsoluteError()
+                rt_conf['eval_metric'] = MeanAbsoluteError()
             elif metric_name == 'rmspe' or metric_name == 'root_mean_square_percentage_error':
-                rt_conf['eval_metric'] == RootMeanSquaredPercentageError()
+                rt_conf['eval_metric'] = RootMeanSquaredPercentageError()
             else:
                 raise NotImplementedError('Unknown eval metric: ' + eval_metric)
 
