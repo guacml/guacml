@@ -25,14 +25,14 @@ class TestOneHotEncoder(unittest.TestCase):
         output = data.df
         meta_out = data.metadata
 
-        self.assertEquals(output.shape, (3, 5))
-        self.assertEquals(output.columns[2], 'a_one_hot_1')
-        self.assertEquals(output['a_one_hot_1'].iloc[0], 0)
-        self.assertEquals(output['a_one_hot_3'].iloc[0], 1)
+        self.assertEqual(output.shape, (3, 5))
+        self.assertEqual(output.columns[2], 'a_one_hot_1')
+        self.assertEqual(output['a_one_hot_1'].iloc[0], 0)
+        self.assertEqual(output['a_one_hot_3'].iloc[0], 1)
 
-        self.assertEquals(meta_out.shape[0], 5)
-        self.assertEquals(meta_out.index[2], 'a_one_hot_1')
-        self.assertEquals(meta_out['type'].iloc[2], ColType.BINARY)
+        self.assertEqual(meta_out.shape[0], 5)
+        self.assertEqual(meta_out.index[2], 'a_one_hot_1')
+        self.assertEqual(meta_out['type'].iloc[2], ColType.BINARY)
 
     def test_single_zero_column(self):
         """ This was causing an exception in the One-Hot-Encoder."""
