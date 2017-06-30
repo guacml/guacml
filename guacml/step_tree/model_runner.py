@@ -11,6 +11,7 @@ class ModelRunner():
 
         self.target = config['run_time']['target']
         self.eval_metric = config['run_time']['eval_metric']
+        self.prediction_range = config['run_time']['prediction_range']
         splitter = splitters.create(config)
         holdout_train, holdout = splitter.holdout_split(data.df)
         self.holdout = holdout.copy()
@@ -25,6 +26,12 @@ class ModelRunner():
         prediction = self.train_and_cv['cv_prediction']
         if prediction.isnull().any():
             Exception('Some predictions where N/A.')
+        if self.prediction_range is not None:
+            pred_min, pred_max = self.prediction_range
+            if pred_min is not None:
+                self.train_and_cv.loc[prediction < pred_min, 'cv_prediction'] = pred_min
+            if pred_max is not None:
+                self.train_and_cv.loc[prediction > pred_max, 'cv_prediction'] = pred_max
 
         loss = self.eval_metric.error(target, prediction)
         loss_variance = self.bootstrap_errors_(target, prediction).var()
@@ -45,11 +52,10 @@ class ModelRunner():
                              self.train_and_cv[self.target].loc[train_indices],
                              **hyper_params)
 
-            self.train_and_cv.loc[cv_indices, 'cv_prediction'] =\
-                self.model.predict(self.train_and_cv[features].loc[cv_indices])
-
-            if self.train_and_cv.loc[cv_indices, 'cv_prediction'].isnull().any():
+            prediction = self.model.predict(self.train_and_cv[features].loc[cv_indices])
+            if prediction.isnull().any():
                 raise Exception('Some predictions where N/A')
+            self.train_and_cv.loc[cv_indices, 'cv_prediction'] = prediction
 
             if with_feature_importances:
                 feat_importance = self.model.feature_importances(self.train_and_cv[features])
@@ -69,8 +75,15 @@ class ModelRunner():
                 self.train_and_cv[self.target],
                 **hyper_params
             )
-        self.train_and_cv['train_prediction'] = self.model.predict(self.train_and_cv[features])
-        self.holdout['prediction'] = self.model.predict(self.holdout[features])
+
+        train_prediction = self.model.predict(self.train_and_cv[features])
+        if train_prediction.isnull().any():
+            raise Exception('Some predictions where N/A')
+        self.train_and_cv['train_prediction'] = train_prediction
+        holdout_prediction = self.model.predict(self.holdout[features])
+        if holdout_prediction.isnull().any():
+            raise Exception('Some predictions where N/A')
+        self.holdout['prediction'] = holdout_prediction
 
     def cv_error(self):
         return self.eval_metric.error(self.train_and_cv[self.target],

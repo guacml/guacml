@@ -169,7 +169,7 @@ class ColumnAnalyzer:
         if to_check.str.isdecimal().all():
             try:
                 df[col_name] = col.astype(int)
-                return self.analyze_int_col(df, col_name, n_unique_pct, col_info)
+                return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
             except ValueError:
                 pass
         elif to_check.str.isnumeric().all():

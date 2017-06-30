@@ -44,7 +44,8 @@ class XgBoost(BaseModel):
 
     def predict(self, x):
         dfeatures = xgb.DMatrix(x, missing=np.nan)
-        return self.model.predict(dfeatures)
+        prediction = self.model.predict(dfeatures)
+        return pd.Series(prediction, index=x.index)
 
     def feature_importances(self, x):
         feat_scores = self.model.get_fscore()

@@ -16,12 +16,12 @@ from guacml.step_tree.tree_runner import TreeRunner
 
 
 class GuacMl:
-    def __init__(self, data, target, eval_metric=None, exclude_cols=None, **kwds):
+    def __init__(self, data, target, eval_metric=None, exclude_cols=None):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
             self.config = yaml.load(file)
 
-        self.data = Dataset.from_df(data, target, exclude_cols, **kwds)
+        self.data = Dataset.from_df(data, target, exclude_cols)
 
         metadata = self.data.metadata
         target_meta = metadata.loc[target]
@@ -64,15 +64,39 @@ class GuacMl:
         self.plots = Plots(rt_conf, self.data, self.tree)
         self.model_results = None
         self.runner = None
+        self.is_time_series = False
 
-    def run(self, hyper_param_iterations, date_split_col=None):
-        if date_split_col is not None and date_split_col not in self.data.df.columns:
-            raise Exception('The date_split_col {} was not in the columns of the data set {}'
+    def make_time_series(self, date_split_col, series_key_cols=None,
+                         prediction_length=1, prediction_range=None):
+        if date_split_col not in self.data.df.columns:
+            raise Exception('The date_split_col {} was not in the columns of the data set {}.'
                             .format(date_split_col, self.data.df.columns))
+        if series_key_cols is None:
+            series_key_cols = []
+        elif not isinstance(series_key_cols, list):
+            series_key_cols = [series_key_cols]
+        for key_col in series_key_cols:
+            if key_col not in self.data.df.columns:
+                raise Exception('The time series key column {} was not in the columns of the data set {}.'
+                                .format(key_col, self.data.df.columns))
+        if not isinstance(prediction_length, int) and prediction_length > 0:
+            raise Exception('Prediction length must be positive integer, but was {}'.format(prediction_length))
+
+        self.config['run_time']['prediction_range'] = prediction_range
+        self.config['run_time']['date_split_col'] = date_split_col
+        self.config['run_time']['prediction_length'] = prediction_length
+        self.config['run_time']['series_key_cols'] = series_key_cols
+
+        self.plots.is_time_series = True
+        self.is_time_series = True
+
+    def run(self, hyper_param_iterations):
+        if not isinstance(hyper_param_iterations, int) and hyper_param_iterations > 0:
+            raise Exception('Number of hyper parameter iteratioons must be positive integer,'
+                            ' but was {}'.format(hyper_param_iterations))
 
         # TODO: we shouldn't be mutating config
         self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
-        self.config['run_time']['date_split_col'] = date_split_col
 
         self.runner = TreeRunner(self.data, self.config, self.tree)
         self.model_results = self.runner.run()

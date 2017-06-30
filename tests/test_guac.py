@@ -41,13 +41,15 @@ class TestDataset(unittest.TestCase):
 
     def test_date_splitter(self):
         guac = self.load_dataset(fixture='bike_sharing', target='count')
-        guac.run(1, 'datetime')
+        guac.make_time_series('datetime')
+        guac.run(1)
         result = guac.model_results
         self.assertEqual(3, len(result))
 
     def test_timeseries(self):
         guac = self.load_dataset(fixture='timeseries', target='Sales')
-        guac.run(1, 'Date')
+        guac.make_time_series('Date', prediction_length=2)
+        guac.run(1)
         result = guac.model_results
         self.assertEqual(3, len(result))
 

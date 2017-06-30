@@ -5,7 +5,12 @@ from guacml.metrics.base_eval_metric import BaseEvalMetric
 
 def _row_error(truth, prediction):
     if (truth == 0).any():
-        raise Exception('Can not compute rmsle, when there are zeros in the target column.')
+        raise ValueError('Can not compute rmsle, when there are zeros in the target column.')
+    if (truth < 0).any():
+        raise ValueError('Can not compute rmsle, when there are negative values in the target column.')
+    if (prediction < 0).any():
+        raise ValueError('Can not compute rmsle, when there are negative values in the predictions.')
+
     return (np.log(np.maximum(prediction, 0)) - np.log(truth)) ** 2
 
 

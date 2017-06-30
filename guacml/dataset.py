@@ -6,7 +6,7 @@ from IPython.display import clear_output
 
 class Dataset:
     @staticmethod
-    def from_df(df, target, exclude_cols, **kwds):
+    def from_df(df, target, exclude_cols):
         print('loading data..')
         print('finished loading data')
 

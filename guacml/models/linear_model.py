@@ -31,11 +31,13 @@ class LinearModel(BaseModel):
 
     def predict(self, x):
         if self.problem_type == ProblemType.BINARY_CLAS:
-            return self.model.predict_proba(x)[:, 1]
+            prediction = self.model.predict_proba(x)[:, 1]
         elif self.problem_type == ProblemType.REGRESSION:
-            return self.model.predict(x)
+            prediction = self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
+
+        return pd.Series(prediction, index=x.index)
 
     def feature_importances(self, x):
         importance = np.abs(self.model.coef_) * x.std().values

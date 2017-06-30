@@ -13,8 +13,10 @@ class Plots:
         self.model_results = None
         self.problem_type = run_time_config['problem_type']
         self.target = run_time_config['target']
+        self.run_time_config = run_time_config
         self.input_data = input_data
         self.step_tree = step_tree
+        self.is_time_series = False
 
     def set_model_results(self, model_results):
         self.model_results = model_results
@@ -23,16 +25,55 @@ class Plots:
         target_type = self.input_data.metadata.loc[self.target].type
         target_data = self.input_data.df[self.target]
         sns.set(style="white", color_codes=True)
-        if target_type == ColType.BINARY:
-            plt.figure(figsize=(6, 1))
-            sns.barplot(target_data.sum() / target_data.shape[0])
-            plt.xlim([0, 1])
-            plt.title(target_data.name + ' rate')
-        elif target_type == ColType.NUMERIC or target_type == ColType.ORDINAL:
-            plt.figure(figsize=(6, 2))
-            ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
-            ax.set_xlim(target_data.min(), target_data.max())
-            plt.title(target_data.name + ' histogram')
+        if not self.is_time_series:
+            if target_type == ColType.BINARY:
+                plt.figure(figsize=(6, 1))
+                sns.barplot(target_data.sum() / target_data.shape[0])
+                plt.xlim([0, 1])
+                plt.title(target_data.name + ' rate')
+            elif target_type == ColType.NUMERIC or target_type == ColType.ORDINAL:
+                plt.figure(figsize=(6, 2))
+                ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
+                ax.set_xlim(target_data.min(), target_data.max())
+                plt.title(target_data.name + ' histogram')
+        else:
+            self.time_series_target_plot()
+
+    def time_series_target_plot(self):
+        date_col = self.run_time_config['date_split_col']
+        series_key_cols = self.run_time_config['series_key_cols']
+        df = self.input_data.df
+
+        # ToDo: Maybe there is an elegant way to combine the two plotting parts. I didn't manage quickly (DT).
+        if len(series_key_cols) == 0:
+            fig, ax = plt.subplots(1, 2, figsize=(12, 3),
+                                   gridspec_kw={'width_ratios':[5, 2]})
+            time_series = df.copy()
+            time_series = time_series.set_index(date_col)
+            time_series[self.target].plot(ax=ax[0])
+            short_range_min = -5 * self.run_time_config['prediction_length']
+            last_dates = time_series.index[short_range_min:]
+            time_series.loc[last_dates, self.target].plot(ax=ax[1])
+
+        else:
+            key_combinations = df[series_key_cols].drop_duplicates()
+            keys_sample = key_combinations.sample(min(5, key_combinations.shape[0]))
+
+            n_key_combs = keys_sample.shape[0]
+            fig, ax = plt.subplots(n_key_combs, 2, figsize=(12, 3 * n_key_combs),
+                         gridspec_kw={'width_ratios':[5, 2]})
+
+            for i, pair in enumerate(keys_sample.iterrows()):
+                keys = pair[1]
+                time_series = df[(df[series_key_cols] == keys).all(axis=1)]
+                time_series = time_series.set_index(date_col)
+                time_series[self.target].plot(ax=ax[i, 0])
+                ax[i, 0].set_title(dict(keys))
+                short_range_min = -5 * self.run_time_config['prediction_length']
+                last_dates = time_series.index[short_range_min:]
+                time_series.loc[last_dates, self.target].plot(ax=ax[i, 1])
+
+        fig.tight_layout()
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)

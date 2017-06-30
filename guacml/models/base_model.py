@@ -13,6 +13,9 @@ class BaseModel:
         raise NotImplementedError()
 
     def predict(self, x):
+        """
+        :return: Prediction as a pandas Series with the index of x.
+        """
         raise NotImplementedError()
 
     def feature_importances(self, x):
