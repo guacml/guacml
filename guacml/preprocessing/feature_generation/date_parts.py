@@ -3,7 +3,7 @@ from guacml.step_tree.base_step import BaseStep
 import pandas as pd
 
 
-class DateSplitter(BaseStep):
+class DateParts(BaseStep):
 
     def execute(self, data):
         data = data.copy()

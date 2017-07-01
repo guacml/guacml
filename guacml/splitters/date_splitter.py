@@ -5,8 +5,8 @@ class DateSplitter:
     def __init__(self, config):
         self.config = config
         rt_conf = self.config['run_time']
-        self.date_split_col = rt_conf['date_split_col']
-        self.prediction_length = rt_conf['prediction_length']
+        self.date_split_col = rt_conf['time_series']['date_split_col']
+        self.prediction_length = rt_conf['time_series']['prediction_length']
         self.n_folds = self.config['cross_validation']['n_folds']
 
     def holdout_split(self, input):

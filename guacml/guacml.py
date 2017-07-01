@@ -64,15 +64,16 @@ class GuacMl:
         self.plots = Plots(rt_conf, self.data, self.tree)
         self.model_results = None
         self.runner = None
-        self.is_time_series = False
 
-    def make_time_series(self, date_split_col, series_key_cols=None,
-                         prediction_length=1, prediction_range=None):
+    def make_time_series(self, date_split_col, series_key_cols=None, prediction_length=1):
         if date_split_col not in self.data.df.columns:
             raise Exception('The date_split_col {} was not in the columns of the data set {}.'
                             .format(date_split_col, self.data.df.columns))
         if series_key_cols is None:
-            series_key_cols = []
+            series_key_cols = ['guac_time_series_key']
+            # this hack makes the whole code that groups by time series key reusable for the case of a single time series.
+            # it's omitted in the metadata
+            self.data.df['guac_time_series_key'] = True
         elif not isinstance(series_key_cols, list):
             series_key_cols = [series_key_cols]
         for key_col in series_key_cols:
@@ -82,21 +83,25 @@ class GuacMl:
         if not isinstance(prediction_length, int) and prediction_length > 0:
             raise Exception('Prediction length must be positive integer, but was {}'.format(prediction_length))
 
-        self.config['run_time']['prediction_range'] = prediction_range
-        self.config['run_time']['date_split_col'] = date_split_col
-        self.config['run_time']['prediction_length'] = prediction_length
-        self.config['run_time']['series_key_cols'] = series_key_cols
+        rt_conf = self.config['run_time']
+        rt_conf['is_time_series'] = True
+        rt_conf['time_series']['date_split_col'] = date_split_col
+        rt_conf['time_series']['series_key_cols'] = series_key_cols
+        rt_conf['time_series']['prediction_length'] = prediction_length
 
-        self.plots.is_time_series = True
-        self.is_time_series = True
+        # ToDo: this is duplicated from the guac constructor
+        tree_builder = TreeBuilder(self.config)
+        self.tree = tree_builder.build()
+        self.plots = Plots(rt_conf, self.data, self.tree)
 
-    def run(self, hyper_param_iterations):
+    def run(self, hyper_param_iterations, prediction_range=None):
         if not isinstance(hyper_param_iterations, int) and hyper_param_iterations > 0:
             raise Exception('Number of hyper parameter iteratioons must be positive integer,'
                             ' but was {}'.format(hyper_param_iterations))
 
         # TODO: we shouldn't be mutating config
         self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
+        self.config['run_time']['prediction_range'] = prediction_range
 
         self.runner = TreeRunner(self.data, self.config, self.tree)
         self.model_results = self.runner.run()

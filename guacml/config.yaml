@@ -3,6 +3,12 @@ run_time:
     exclude_cols: null
     eval_metric: null
     target: null
+    is_time_series: False
+    prediction_range: null
+    time_series:
+        date_split_col: null
+        series_key_cols: null
+        prediction_length: null
 
 cross_validation:
     date_split_col: null
