@@ -18,12 +18,12 @@ class TreeBuilder:
     def build(self):
         step_tree = StepTree(self.config)
         step_tree.add_step('clean_columns', None, ColumnCleaner())
-
-        last_node = 'encode_labels'
-        step_tree.add_step(last_node, 'clean_columns', LabelEncoder())
+        step_tree.add_step('encode_labels', 'clean_columns', LabelEncoder())
+        last_node = 'date_parts'
+        step_tree.add_step('date_parts', 'encode_labels', DateParts())
 
         if self.config['run_time']['is_time_series']:
-            step_tree.add_step('date_parts', 'encode_labels', DateParts())
+
             step_tree.add_step('historical_medians', 'date_parts', HistoricalMedians(self.config['run_time']))
             last_node = 'historical_medians'
 

@@ -43,36 +43,35 @@ class Plots:
         series_key_cols = self.run_time_config['time_series']['series_key_cols']
         df = self.input_data.df
 
-        # ToDo: Maybe there is an elegant way to combine the two plotting parts. I didn't manage quickly (DT).
-        if df[series_key_cols].drop_duplicates().shape[0] <= 1:
-            fig, ax = plt.subplots(1, 2, figsize=(12, 3),
-                                   gridspec_kw={'width_ratios':[5, 2]})
-            time_series = df.copy()
+        keys_sample = self._get_time_series_key_sample()
+
+        n_key_combs = keys_sample.shape[0]
+        fig, axes = plt.subplots(n_key_combs, 2, figsize=(12, 3 * n_key_combs),
+                     gridspec_kw={'width_ratios':[5, 2]})
+
+        for i, pair in enumerate(keys_sample.iterrows()):
+            if len(axes.shape) == 1:
+                ax_row = axes
+            else:
+                ax_row = axes[i]
+
+            keys = pair[1]
+            time_series = df[(df[series_key_cols] == keys).all(axis=1)]
             time_series = time_series.set_index(date_col)
-            time_series[self.target].plot(ax=ax[0])
+            time_series[self.target].plot(ax=ax_row[0])
+            ax_row[0].set_title(dict(keys))
             short_range_min = -5 * self.run_time_config['time_series']['prediction_length']
             last_dates = time_series.index[short_range_min:]
-            time_series.loc[last_dates, self.target].plot(ax=ax[1])
-
-        else:
-            key_combinations = df[series_key_cols].drop_duplicates()
-            keys_sample = key_combinations.sample(min(5, key_combinations.shape[0]))
-
-            n_key_combs = keys_sample.shape[0]
-            fig, ax = plt.subplots(n_key_combs, 2, figsize=(12, 3 * n_key_combs),
-                         gridspec_kw={'width_ratios':[5, 2]})
-
-            for i, pair in enumerate(keys_sample.iterrows()):
-                keys = pair[1]
-                time_series = df[(df[series_key_cols] == keys).all(axis=1)]
-                time_series = time_series.set_index(date_col)
-                time_series[self.target].plot(ax=ax[i, 0])
-                ax[i, 0].set_title(dict(keys))
-                short_range_min = -5 * self.run_time_config['time_series']['prediction_length']
-                last_dates = time_series.index[short_range_min:]
-                time_series.loc[last_dates, self.target].plot(ax=ax[i, 1])
+            time_series.loc[last_dates, self.target].plot(ax=ax_row[1])
 
         fig.tight_layout()
+
+    def _get_time_series_key_sample(self):
+        if not hasattr(self, 'ts_key_sample'):
+            series_key_cols = self.run_time_config['time_series']['series_key_cols']
+            key_combinations = self.input_data.df[series_key_cols].drop_duplicates()
+            self.ts_key_sample = key_combinations.sample(min(5, key_combinations.shape[0]))
+        return self.ts_key_sample
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)
@@ -109,12 +108,41 @@ class Plots:
 
     def predictions_vs_actual(self, model_name, n_bins=10, **kwargs):
         model_result = self.model_results[model_name]
-        if self.problem_type == ProblemType.BINARY_CLAS:
-            return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
-        elif self.problem_type == ProblemType.REGRESSION:
-            return predictions_vs_actual_regression(model_result, model_name, **kwargs)
+        if not self.run_time_config['is_time_series']:
+            if self.problem_type == ProblemType.BINARY_CLAS:
+                return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
+            elif self.problem_type == ProblemType.REGRESSION:
+                return predictions_vs_actual_regression(model_result, model_name, **kwargs)
+            else:
+                raise Exception('Not implemented for problem type ' + self.problem_type)
         else:
-            raise Exception('Not implemented for problem type ' + self.problem_type)
+            self.predictions_vs_actual_time_series(model_result, model_name, self.run_time_config, **kwargs)
+
+    def predictions_vs_actual_time_series(self, model_results, model_name,  size=6, **kwargs):
+        date_col = self.run_time_config['time_series']['date_split_col']
+        series_key_cols = self.run_time_config['time_series']['series_key_cols']
+        keys_sample = self._get_time_series_key_sample()
+
+        holdout = model_results.holdout_data
+        target = model_results.target
+
+        n_key_combs = keys_sample.shape[0]
+        fig, axes = plt.subplots(n_key_combs, 1, figsize=(12, 3 * n_key_combs))
+
+        for i, pair in enumerate(keys_sample.iterrows()):
+            if isinstance(axes, np.ndarray):
+                ax= axes[i]
+            else:
+                ax= axes
+
+            keys = pair[1]
+            time_series = holdout[(holdout[series_key_cols] == keys).all(axis=1)]
+            time_series = time_series.set_index(date_col)
+            time_series['prediction'].plot(ax=ax, figsize=(12, 3 * n_key_combs))
+            time_series[self.target].plot(ax=ax)
+            ax.set_title(dict(keys))
+
+        fig.tight_layout()
 
 
 def predictions_vs_actual_classification(model_results, model_name, n_bins, figsize=(7, 3)):
@@ -177,3 +205,8 @@ def predictions_vs_actual_regression(model_results, model_name, size=6, bins=Non
     elif bins == 'log':
         color_bar.set_label('log_10(count)')
     return grid
+
+
+
+
+

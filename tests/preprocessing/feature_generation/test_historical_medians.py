@@ -8,10 +8,12 @@ class TestHistoricalMedians(unittest.TestCase):
 
     def test_medians(self):
         guac = test_util.load_dataset('timeseries', target='Sales')
-        guac.make_time_series('Date', prediction_length=2)
+        guac.make_time_series('Date', series_key_cols='Store', prediction_length=2)
 
         medians = HistoricalMedians(guac.config['run_time'])
         out = medians.execute(guac.data)
+
+        print(out.df.sort_values(['Store', 'Date']))
 
         self.assertTrue(np.isnan(out.df['median_2'].iloc[0]))
         self.assertTrue(np.isnan(out.df['median_2'].iloc[1]))

@@ -1,16 +1,19 @@
+Bugs:
+- Disk caching seems broken
+
 General:
+- split out holdout target values before preprocessing pipeline to avoid accidental data leaks
 - xg boost said it's only a single thread version. Instructions in doc/build.md
 - rename GuacMl to Guac
 - replace label encoder with pandas categoricals
-- use single type "numeric" for ints and floats
+(- use single type "numeric" for ints and floats) (have doubts about this DT)
 - fix column analyzer to re-run analysis if column dtype has changed (e.g. categorical converts to strings)
 - don't mutate df in Dataset.from_df (exclude_cols)
 
 Timeseries:
-- configurable backtesting
+- solve problem of predicting far in the future. missing median values.
 
 Refactoring:
-- models should return dfs, not ndarrays
 - re-organize module structure
 - replace prints with logger
 

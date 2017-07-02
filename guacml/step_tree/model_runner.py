@@ -13,7 +13,9 @@ class ModelRunner():
         self.eval_metric = config['run_time']['eval_metric']
         self.prediction_range = config['run_time']['prediction_range']
         splitter = splitters.create(config)
+
         holdout_train, holdout = splitter.holdout_split(data.df)
+
         self.holdout = holdout.copy()
         self.train_and_cv = holdout_train.copy()
         self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
@@ -26,12 +28,7 @@ class ModelRunner():
         prediction = self.train_and_cv['cv_prediction']
         if prediction.isnull().any():
             Exception('Some predictions where N/A.')
-        if self.prediction_range is not None:
-            pred_min, pred_max = self.prediction_range
-            if pred_min is not None:
-                self.train_and_cv.loc[prediction < pred_min, 'cv_prediction'] = pred_min
-            if pred_max is not None:
-                self.train_and_cv.loc[prediction > pred_max, 'cv_prediction'] = pred_max
+        self._truncate_predictions(self.train_and_cv, 'cv_prediction')
 
         loss = self.eval_metric.error(target, prediction)
         loss_variance = self.bootstrap_errors_(target, prediction).var()
@@ -42,6 +39,14 @@ class ModelRunner():
             'loss': loss,
             'loss_variance': loss_variance
         }
+
+    def _truncate_predictions(self, data, prediction_col):
+        if self.prediction_range is not None:
+            pred_min, pred_max = self.prediction_range
+            if pred_min is not None:
+                data.loc[data[prediction_col] < pred_min, prediction_col] = pred_min
+            if pred_max is not None:
+                data.loc[data[prediction_col] > pred_max, prediction_col] = pred_max
 
     def train_for_cv(self, features, hyper_params, with_feature_importances=False):
         feature_importances = []
@@ -63,6 +68,8 @@ class ModelRunner():
                     raise Exception('Error computing feature importances.')
                 feature_importances.append(feat_importance)
 
+        self._truncate_predictions(self.train_and_cv, 'cv_prediction')
+
         if with_feature_importances:
             feature_importances = pd.DataFrame(feature_importances)
             self.cv_feature_importances = feature_importances.mean()
@@ -80,10 +87,12 @@ class ModelRunner():
         if train_prediction.isnull().any():
             raise Exception('Some predictions where N/A')
         self.train_and_cv['train_prediction'] = train_prediction
+        self._truncate_predictions(self.train_and_cv, 'train_prediction')
         holdout_prediction = self.model.predict(self.holdout[features])
         if holdout_prediction.isnull().any():
             raise Exception('Some predictions where N/A')
         self.holdout['prediction'] = holdout_prediction
+        self._truncate_predictions(self.holdout, 'prediction')
 
     def cv_error(self):
         return self.eval_metric.error(self.train_and_cv[self.target],
