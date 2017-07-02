@@ -57,7 +57,7 @@ class Plots:
 
             keys = pair[1]
             time_series = df[(df[series_key_cols] == keys).all(axis=1)]
-            time_series = time_series.set_index(date_col)
+            time_series = time_series.set_index(date_col).sort_index()
             time_series[self.target].plot(ax=ax_row[0])
             ax_row[0].set_title(dict(keys))
             short_range_min = -5 * self.run_time_config['time_series']['prediction_length']
