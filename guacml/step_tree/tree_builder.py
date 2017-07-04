@@ -27,7 +27,7 @@ class TreeBuilder:
             step_tree.add_step('historical_medians', 'date_parts', HistoricalMedians(self.config['run_time']))
             last_node = 'historical_medians'
 
-        step_tree.add_model('xg_boost', last_node, XgBoost(self.problem_type))
+        step_tree.add_model('xg_boost', last_node, XgBoost(self.problem_type, self.config['models']['xgboost']))
 
         step_tree.add_step('fill_na', last_node, FillNa())
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))

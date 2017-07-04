@@ -16,10 +16,13 @@ from guacml.step_tree.tree_runner import TreeRunner
 
 
 class GuacMl:
-    def __init__(self, data, target, eval_metric=None, exclude_cols=None):
+    def __init__(self, data, target, eval_metric=None, exclude_cols=None, config=None):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
             self.config = yaml.load(file)
+
+        if config is not None:
+            self.config.update(config) # TODO: don't replace whole nested dicts
 
         self.data = Dataset.from_df(data, target, exclude_cols)
 

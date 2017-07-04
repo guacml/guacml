@@ -10,6 +10,9 @@ from hyperopt import hp
 
 
 class XgBoost(BaseModel):
+    def __init__(self, problem_type, config=None):
+        super().__init__(problem_type)
+        self.config = config
 
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
@@ -31,14 +34,19 @@ class XgBoost(BaseModel):
             'silent': True,
             'max_depth': self.pos_int(max_depth)
         }
-        if self.problem_type == ProblemType.BINARY_CLAS:
-            params['objective'] = 'reg:logistic'
-        elif self.problem_type == ProblemType.REGRESSION:
-            params['objective'] = 'reg:linear'
-        else:
-            raise NotImplementedError(
-                'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
-            )
+
+        if self.config is not None:
+            params.update(self.config)
+
+        if 'objective' not in params:
+            if self.problem_type == ProblemType.BINARY_CLAS:
+                params['objective'] = 'reg:logistic'
+            elif self.problem_type == ProblemType.REGRESSION:
+                params['objective'] = 'reg:linear'
+            else:
+                raise NotImplementedError(
+                    'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
+                )
 
         self.model = xgb.train(params, dtrain, self.pos_int(n_rounds))
 
