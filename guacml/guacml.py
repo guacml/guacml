@@ -96,7 +96,7 @@ class GuacMl:
 
     def run(self, hyper_param_iterations, prediction_range=None):
         if not isinstance(hyper_param_iterations, int) and hyper_param_iterations > 0:
-            raise Exception('Number of hyper parameter iteratioons must be positive integer,'
+            raise Exception('Number of hyper parameter iterations must be positive integer,'
                             ' but was {}'.format(hyper_param_iterations))
 
         # TODO: we shouldn't be mutating config
