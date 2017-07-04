@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 import pandas as pd
 
 from guacml.enums import ColType
@@ -30,3 +31,15 @@ class TestColumnAnalyzer(unittest.TestCase):
         meta = analyzer.analyze(df)
         self.assertEqual(meta.loc['a'].type, ColType.CATEGORICAL)
         self.assertEqual(df.drop_duplicates().shape[0], 2)
+
+    def test_int8(self):
+        df = pd.DataFrame({'a': [0, 5, 2]}, dtype=np.int8)
+        analyzer = ColumnAnalyzer()
+        meta = analyzer.analyze(df)
+        self.assertEqual(meta.loc['a'].type, ColType.ORDINAL)
+
+    def test_float16(self):
+        df = pd.DataFrame({'a': [0.1, 2.3]}, dtype=np.float16)
+        analyzer = ColumnAnalyzer()
+        meta = analyzer.analyze(df)
+        self.assertEqual(meta.loc['a'].type, ColType.NUMERIC)

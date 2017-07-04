@@ -51,10 +51,10 @@ class ColumnAnalyzer:
             'example': example
         }
 
-        if col.dtype == 'int64':
+        if col.dtype.kind == 'i':
             return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
 
-        if col.dtype == 'float64':
+        if col.dtype.kind == 'f':
             if (np.mod(not_null, 1) != 0).any():
                 return self.analyze_float_col(col_info)
             else:

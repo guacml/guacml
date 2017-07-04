@@ -3,7 +3,7 @@ from guacml.splitters.date_splitter import DateSplitter
 
 
 def create(config):
-    if 'date_split_col' not in config['run_time']['time_series']:
-        return RandomSplitter(config['cross_validation'])
-    else:
+    if config['run_time']['time_series'].get('date_split_col') is not None:
         return DateSplitter(config)
+    else:
+        return RandomSplitter(config['cross_validation'])
