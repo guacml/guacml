@@ -5,10 +5,11 @@ from guacml.step_tree.model_runner import ModelRunner
 
 
 class ModelManager():
-    def __init__(self, model, config):
+    def __init__(self, model, config, logger):
         self.model = model
         self.config = config
         self.target = config['run_time']['target']
+        self.logger = logger
 
     def execute(self, data):
         model_runner = ModelRunner(self.model, data, self.config)
@@ -20,7 +21,7 @@ class ModelManager():
             self.config['run_time']['hyper_param_iterations']
         )
 
-        feature_reducer = FeatureReducer(model_runner, best_hps)
+        feature_reducer = FeatureReducer(model_runner, best_hps, self.logger)
         features = feature_reducer.reduce(features)
 
         return self.build_result(model_runner, data.metadata, features, all_trials, best_hps)

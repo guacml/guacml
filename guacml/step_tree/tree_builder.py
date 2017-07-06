@@ -11,12 +11,13 @@ from guacml.step_tree.step_tree import StepTree
 
 
 class TreeBuilder:
-    def __init__(self, config):
+    def __init__(self, config, logger):
         self.config = config
         self.problem_type = config['run_time']['problem_type']
+        self.logger = logger
 
     def build(self):
-        step_tree = StepTree(self.config)
+        step_tree = StepTree(self.config, self.logger)
         step_tree.add_step('clean_columns', None, ColumnCleaner())
         step_tree.add_step('encode_labels', 'clean_columns', LabelEncoder())
         last_node = 'date_parts'

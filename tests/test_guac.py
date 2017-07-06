@@ -52,4 +52,4 @@ class TestDataset(unittest.TestCase):
         guac = GuacMl(df, 'b')
         guac.clear_previous_runs()
         guac.run(1)
-        self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-6)
+        self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-5)

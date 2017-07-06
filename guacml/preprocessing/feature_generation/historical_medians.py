@@ -5,6 +5,7 @@ import pandas as pd
 
 class HistoricalMedians(BaseStep):
     def __init__(self, run_time_config):
+        super().__init__()
         self.run_time_config = run_time_config
 
     def execute(self, data):

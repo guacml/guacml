@@ -15,7 +15,6 @@ Timeseries:
 
 Refactoring:
 - re-organize module structure
-- replace prints with logger
 
 Disk Caching:
 - Would be great to be able to store some hyper parameter optimization iterations

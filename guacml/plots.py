@@ -92,7 +92,6 @@ class Plots:
     def model_error_by_feature(self, model_name):
         model_results = self.model_results[model_name]
         metadata = model_results.metadata
-        print(metadata)
         holdout = model_results.holdout_data
         low_card_cols = [ColType.CATEGORICAL, ColType.ORDINAL]
         for col in metadata[metadata.type.isin(low_card_cols)].col_name:

@@ -13,8 +13,6 @@ class TestHistoricalMedians(unittest.TestCase):
         medians = HistoricalMedians(guac.config['run_time'])
         out = medians.execute(guac.data)
 
-        print(out.df.sort_values(['Store', 'Date']))
-
         self.assertTrue(np.isnan(out.df['median_2'].iloc[0]))
         self.assertTrue(np.isnan(out.df['median_2'].iloc[1]))
         self.assertAlmostEqual(out.df['median_2'].iloc[2], 43552444.5, delta=1)

@@ -3,7 +3,7 @@ from guacml.step_tree.base_step import BaseStep
 
 class ColumnCleaner(BaseStep):
     def execute(self, data):
-        message = 'Replaced {0} blank values with None for column {1}:.'
+        message = 'Replaced %d blank values with None for column %s:.'
 
         data = data.copy()
         for _, col_desc in data.metadata.iterrows():
@@ -11,6 +11,6 @@ class ColumnCleaner(BaseStep):
                 col = col_desc.col_name
                 data.df[col].replace('', None, inplace=True)
                 col_desc.n_blank = 0
-                print(message.format(col_desc.n_blanks, col))
+                self.logger.info(message, col_desc.n_blanks, col)
 
         return data

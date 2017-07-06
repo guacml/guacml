@@ -7,9 +7,6 @@ from IPython.display import clear_output
 class Dataset:
     @staticmethod
     def from_df(df, target, exclude_cols):
-        print('loading data..')
-        print('finished loading data')
-
         if exclude_cols is not None:
             for col in exclude_cols:
                 if col not in df.columns:
@@ -31,7 +28,6 @@ class Dataset:
 
     @staticmethod
     def get_metadata(df):
-        print('analyzing columns..')
         col_analyzer = ColumnAnalyzer()
         metadata = col_analyzer.analyze(df)
         clear_output()

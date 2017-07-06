@@ -1,6 +1,7 @@
 import os
 import yaml
 import pandas as pd
+import logging
 
 from guacml.dataset import Dataset
 from guacml.enums import ProblemType, ColType
@@ -26,21 +27,24 @@ class GuacMl:
 
         self.data = Dataset.from_df(data, target, exclude_cols)
 
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+
         metadata = self.data.metadata
         target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
         if target_meta.type == ColType.BINARY:
             problem_type = ProblemType.BINARY_CLAS
             rt_conf['eval_metric'] = LogLoss()
-            print('Binary classification problem detected.')
+            self.logger.info('Binary classification problem detected.')
         elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
             problem_type = ProblemType.MULTI_CLAS
             rt_conf['eval_metric'] = LogLoss()
-            print('Multi class classification problem detected.')
+            self.logger.info('Multi class classification problem detected.')
         elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
             problem_type = ProblemType.REGRESSION
             rt_conf['eval_metric'] = MeanSquaredError()
-            print('Regression problem detected.')
+            self.logger.info('Regression problem detected.')
         else:
             raise Exception('Can not automatically infer problem type.')
 
@@ -62,7 +66,7 @@ class GuacMl:
         rt_conf['target'] = target
         rt_conf['exclude_cols'] = exclude_cols
 
-        tree_builder = TreeBuilder(self.config)
+        tree_builder = TreeBuilder(self.config, self.logger)
         self.tree = tree_builder.build()
         self.plots = Plots(rt_conf, self.data, self.tree)
         self.model_results = None
@@ -93,7 +97,7 @@ class GuacMl:
         rt_conf['time_series']['prediction_length'] = prediction_length
 
         # ToDo: this is duplicated from the guac constructor
-        tree_builder = TreeBuilder(self.config)
+        tree_builder = TreeBuilder(self.config, self.logger)
         self.tree = tree_builder.build()
         self.plots = Plots(rt_conf, self.data, self.tree)
 
@@ -106,7 +110,7 @@ class GuacMl:
         self.config['run_time']['hyper_param_iterations'] = hyper_param_iterations
         self.config['run_time']['prediction_range'] = prediction_range
 
-        self.runner = TreeRunner(self.data, self.config, self.tree)
+        self.runner = TreeRunner(self.data, self.config, self.tree, self.logger)
         self.model_results = self.runner.run()
 
         self.plots.set_model_results(self.model_results)
