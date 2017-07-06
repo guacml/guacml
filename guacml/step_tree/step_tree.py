@@ -7,11 +7,12 @@ from .model_manager import ModelManager
 
 
 class StepTree:
-    def __init__(self, config):
+    def __init__(self, config, logger):
         self.steps = {}
         self.children = defaultdict(list)
         self.config = config
         self.root_name = None
+        self.logger = logger
 
     def add_step(self, step_name, parent_name, step):
         if parent_name is None:
@@ -32,7 +33,7 @@ class StepTree:
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
             raise ValueError('The model parameter should inherit from BaseModel')
-        self.add_step(step_name, parent_name, ModelManager(model, self.config))
+        self.add_step(step_name, parent_name, ModelManager(model, self.config, self.logger))
 
     def get_step(self, name):
         return self.steps[name]

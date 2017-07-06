@@ -1,7 +1,8 @@
 class FeatureReducer():
-    def __init__(self, model_runner, hyper_params):
+    def __init__(self, model_runner, hyper_params, logger):
         self.model_runner = model_runner
         self.hyper_params = hyper_params
+        self.logger = logger
 
     def reduce(self, features):
         if len(features) == 1:
@@ -26,7 +27,7 @@ class FeatureReducer():
             if self.model_runner.is_cv_error_significantly_worse(cv_bs_errors):
                 break
             else:
-                print('    Dropped features {0}'.format(set(features) - set(reduced_feats)))
+                self.logger.info('Dropped features %s', set(features) - set(reduced_feats))
                 features = reduced_feats
                 if len(reduced_feats) == 1:
                     break
@@ -39,7 +40,7 @@ class FeatureReducer():
                 reduced_feats.remove(to_drop)
                 self.model_runner.train_for_cv(reduced_feats, self.hyper_params)
                 if not self.model_runner.is_cv_error_significantly_worse(cv_bs_errors):
-                    print('    Dropped feature {0}'.format(to_drop))
+                    self.logger.info('Dropped feature %s', to_drop)
                     features = reduced_feats
                     break
 

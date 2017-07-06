@@ -7,7 +7,7 @@ from guacml.step_tree.base_step import BaseStep
 class TestStepTree(unittest.TestCase):
     def _new_empty_tree(self):
         empty_conf = {}
-        return StepTree(empty_conf)
+        return StepTree(empty_conf, None)
 
     def _step_with_runtime(self, runtime):
         step = BaseStep()

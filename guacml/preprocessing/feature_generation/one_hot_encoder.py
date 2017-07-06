@@ -7,6 +7,7 @@ from guacml.step_tree.base_step import BaseStep
 
 class OneHotEncoder(BaseStep):
     def __init__(self, preprocess_config):
+        super().__init__()
         self.pre_process_config = preprocess_config
 
     def execute(self, data):

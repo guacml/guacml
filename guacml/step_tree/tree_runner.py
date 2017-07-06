@@ -4,11 +4,12 @@ import time
 
 
 class TreeRunner:
-    def __init__(self, data, config, tree):
+    def __init__(self, data, config, tree, logger):
         self.data = data
         self.config = config
         self.tree = tree
         self.prev_runs = PreviousRuns(data, config)
+        self.logger = logger
 
     def run(self):
         """
@@ -24,7 +25,7 @@ class TreeRunner:
             return self.load_previous()
 
     def run_step(self, step_name, data, results):
-        print('Running step ' + step_name)
+        self.logger.info('Running step %s', step_name)
         children = self.tree.get_children(step_name)
         step = self.tree.get_step(step_name)
 
