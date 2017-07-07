@@ -25,7 +25,7 @@ class ColumnAnalyzer:
         col_data = []
         for col in df.columns:
             ci = self.analyze_col(df, col)
-            self.logger.info('Analyzed column {} as {}'.format(col, ci['type']))
+            self.logger.info('Analyzed column %s as %s', col, ci['type'])
             col_data.append(ci)
 
         columns = ['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example']
