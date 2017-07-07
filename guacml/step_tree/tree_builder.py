@@ -28,13 +28,13 @@ class TreeBuilder:
             step_tree.add_step('historical_medians', 'date_parts', HistoricalMedians(self.config['run_time']))
             last_node = 'historical_medians'
 
-        step_tree.add_model('xg_boost', last_node, XgBoost(self.problem_type, self.config['models']['xgboost']))
+        step_tree.add_model('xg_boost', last_node, XgBoost(self.problem_type, self.logger, self.config['models']['xgboost']))
 
         step_tree.add_step('fill_na', last_node, FillNa())
-        step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type))
+        step_tree.add_model('random_forest', 'fill_na', RandomForest(self.problem_type, self.logger))
 
         step_tree.add_step('one_hot_encode', 'fill_na',
                            OneHotEncoder(self.config['pre_processing']))
-        step_tree.add_model('linear_model', 'one_hot_encode', LinearModel(self.problem_type))
+        step_tree.add_model('linear_model', 'one_hot_encode', LinearModel(self.problem_type, self.logger))
 
         return step_tree

@@ -1,6 +1,7 @@
 class BaseModel:
-    def __init__(self, problem_type):
+    def __init__(self, problem_type, logger):
         self.problem_type = problem_type
+        self.logger = logger
 
     def get_valid_types(self):
         raise NotImplementedError()

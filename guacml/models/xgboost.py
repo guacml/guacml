@@ -10,8 +10,8 @@ from hyperopt import hp
 
 
 class XgBoost(BaseModel):
-    def __init__(self, problem_type, config=None):
-        super().__init__(problem_type)
+    def __init__(self, problem_type, logger, config=None):
+        super().__init__(problem_type, logger)
         self.config = config
 
     def get_valid_types(self):
@@ -25,7 +25,7 @@ class XgBoost(BaseModel):
         }
 
     def train(self, x, y, n_rounds=100, max_depth=5):
-        n_rounds = int(n_rounds)
+        n_rounds = self.pos_int(n_rounds)
         max_depth = int(max_depth)
         dtrain = xgb.DMatrix(x, y, missing=np.nan)
         params = {
@@ -48,7 +48,8 @@ class XgBoost(BaseModel):
                     'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
                 )
 
-        self.model = xgb.train(params, dtrain, self.pos_int(n_rounds))
+        self.logger.info('About to train %d iterations of xgboost using %s', n_rounds, params)
+        self.model = xgb.train(params, dtrain, n_rounds)
 
     def predict(self, x):
         dfeatures = xgb.DMatrix(x, missing=np.nan)
