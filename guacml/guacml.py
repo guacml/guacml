@@ -25,10 +25,10 @@ class GuacMl:
         if config is not None:
             self.config.update(config) # TODO: don't replace whole nested dicts
 
-        self.data = Dataset.from_df(data, target, exclude_cols)
-
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+
+        self.data = Dataset.from_df(data, target, exclude_cols, self.logger)
 
         metadata = self.data.metadata
         target_meta = metadata.loc[target]

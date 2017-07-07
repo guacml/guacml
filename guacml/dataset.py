@@ -5,7 +5,7 @@ from guacml.preprocessing.column_analyzer import ColumnAnalyzer
 
 class Dataset:
     @staticmethod
-    def from_df(df, target, exclude_cols):
+    def from_df(df, target, exclude_cols, logger):
         if exclude_cols is not None:
             for col in exclude_cols:
                 if col not in df.columns:
@@ -18,7 +18,7 @@ class Dataset:
                              'Available columns: {1}'.format(target, df.columns))
 
         df_hash = joblib.hash(df)
-        metadata = Dataset.get_metadata(df)
+        metadata = Dataset.get_metadata(df, logger)
 
         if metadata.loc[target].n_na > 0:
             raise Exception('Target variable contains N/A values.')
@@ -26,8 +26,8 @@ class Dataset:
         return Dataset(df, metadata, df_hash)
 
     @staticmethod
-    def get_metadata(df):
-        col_analyzer = ColumnAnalyzer()
+    def get_metadata(df, logger):
+        col_analyzer = ColumnAnalyzer(logger)
         metadata = col_analyzer.analyze(df)
         return metadata
 

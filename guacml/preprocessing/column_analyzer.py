@@ -13,8 +13,9 @@ class ColumnAnalyzer:
     type `ColType.BINARY` or `ColType.ORDINAL` can contain nulls and will be stored
     as numpy float columns.
     """
-    def __init__(self, type_check_samples=None):
+    def __init__(self, logger, type_check_samples=None):
         self.type_check_samples = type_check_samples
+        self.logger = logger
 
     def analyze(self, df):
         """Creates metadata about the columns and might change object columns
@@ -24,6 +25,7 @@ class ColumnAnalyzer:
         col_data = []
         for col in df.columns:
             ci = self.analyze_col(df, col)
+            self.logger.info('Analyzed column {} as {}'.format(col, ci['type']))
             col_data.append(ci)
 
         columns = ['col_name', 'type', 'derived_from', 'n_unique', 'n_na', 'n_blank', 'example']
