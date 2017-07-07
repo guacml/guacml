@@ -5,7 +5,7 @@ import pandas as pd
 
 from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
-from guacml.preprocessing.column_analyzer import ColType
+from guacml.enums import ColType
 from hyperopt import hp
 
 

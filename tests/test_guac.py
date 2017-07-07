@@ -53,3 +53,14 @@ class TestDataset(unittest.TestCase):
         guac.clear_previous_runs()
         guac.run(1)
         self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-5)
+
+    def test_disabled_feature_reduction(self):
+        guac = load_dataset()
+        without_feature_reduction = load_dataset(config={'model_manager': {'reduce_features': False}})
+
+        guac.run(1)
+        without_feature_reduction.run(1)
+        guac_result = guac.model_results
+        wofr_result = without_feature_reduction.model_results
+
+        self.assertLess(len(guac_result['linear_model'].features), len(wofr_result['linear_model'].features))

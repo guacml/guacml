@@ -4,10 +4,10 @@ import pandas as pd
 from guacml import GuacMl
 
 
-def load_dataset(fixture='titanic', target='Survived', eval_metric=None):
+def load_dataset(fixture='titanic', target='Survived', eval_metric=None, config=None):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     df = pd.read_csv('{0}/fixtures/{1}.csv'.format(dir_path, fixture))
-    guac = GuacMl(df, target, eval_metric=eval_metric)
+    guac = GuacMl(df, target, eval_metric=eval_metric, config=config)
     guac.clear_previous_runs()
     return guac
 
