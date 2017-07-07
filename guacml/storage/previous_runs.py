@@ -74,7 +74,9 @@ class PreviousRuns():
 
     def add_model_result(self, model_name, result):
         result_path = os.path.join(self.data_folder_, model_name + '_result.joblib_dump.gz')
+        logger, result.model.logger = result.model.logger, None
         joblib.dump(result, result_path)
+        result.model.logger = logger
         self.run_['model_result_paths'][model_name] = result_path
 
     def store_run(self):

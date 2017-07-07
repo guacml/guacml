@@ -8,6 +8,8 @@ import yaml
 import tests.test_util as test_util
 from guacml.storage.previous_runs import PreviousRuns
 from guacml.dataset import Dataset
+from guacml.step_tree.model_result import ModelResult
+from guacml.models.base_model import BaseModel
 
 # danger: this folder gets deleted after the tests. only change to folders that may be deleted.
 PREV_RUN_FOLDER = './data/test_storage_data/previous_runs'
@@ -30,18 +32,19 @@ class TestPreviousRuns(unittest.TestCase):
         config = test_util.load_config()
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
-        Dataset(pd.DataFrame({'a': [1]}), None)
-        Dataset(pd.DataFrame({'a': [2]}), None)
 
-        prev_runs.add_model_result('result_1', pd.DataFrame({'a': [1]}))
-        prev_runs.add_model_result('result_2', pd.DataFrame({'a': [2]}))
+        model = BaseModel(None, None)
+        result_1 = ModelResult(model, ['a'], None, None, None, None, None, None, None, None, None)
+        result_2 = ModelResult(model, ['b'], None, None, None, None, None, None, None, None, None)
+        prev_runs.add_model_result('result_1', result_1)
+        prev_runs.add_model_result('result_2', result_2)
         prev_runs.store_run()
 
         prev_runs_2 = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
 
         model_results = prev_runs_2.get_prev_results()
-        self.assertEqual(len(model_results), 2)
-        self.assertEqual(model_results['result_2']['a'].iloc[0], 2)
+        self.assertEqual(2, len(model_results))
+        self.assertEqual(['b'], model_results['result_2'].features)
 
     def test_store_and_new_data(self):
         df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
