@@ -1,7 +1,6 @@
 import joblib
 
 from guacml.preprocessing.column_analyzer import ColumnAnalyzer
-from IPython.display import clear_output
 
 
 class Dataset:
@@ -30,7 +29,6 @@ class Dataset:
     def get_metadata(df):
         col_analyzer = ColumnAnalyzer()
         metadata = col_analyzer.analyze(df)
-        clear_output()
         return metadata
 
     def __init__(self, df, metadata, df_hash=None):
