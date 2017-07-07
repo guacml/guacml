@@ -21,8 +21,9 @@ class ModelManager():
             self.config['run_time']['hyper_param_iterations']
         )
 
-        feature_reducer = FeatureReducer(model_runner, best_hps, self.logger)
-        features = feature_reducer.reduce(features)
+        if self.config['model_manager']['reduce_features'] is True:
+            feature_reducer = FeatureReducer(model_runner, best_hps, self.logger)
+            features = feature_reducer.reduce(features)
 
         return self.build_result(model_runner, data.metadata, features, all_trials, best_hps)
 
