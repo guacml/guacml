@@ -4,21 +4,29 @@ import pandas as pd
 class DateSplitter:
     def __init__(self, config):
         self.config = config
-        rt_conf = self.config['run_time']
-        self.date_split_col = rt_conf['time_series']['date_split_col']
-        self.prediction_length = rt_conf['time_series']['prediction_length']
-        self.n_folds = self.config['cross_validation']['n_folds']
+        self.n_folds = config['cross_validation']['n_folds']
+        ts_conf = config['run_time']['time_series']
+        self.date_split_col = ts_conf['date_split_col']
+        self.prediction_length = ts_conf['prediction_length']
+        self.frequency = ts_conf['frequency']
+        self.n_offset_models = ts_conf['n_offset_models']
+
 
     def holdout_split(self, input):
+        """
+        In the case of several models to predict different offsets in the future,
+        we do cross validation on the length of a single model. Only for the holdout
+        set we use the full length and predict with many models.
+        """
         dates = input[self.date_split_col]
-        split_point = dates.max() - pd.Timedelta(days=self.prediction_length)
+        split_point = dates.max() - (self.frequency * self.prediction_length * self.n_offset_models)
         return input[dates < split_point], input[dates >= split_point]
 
     def cv_splits(self, input):
         dates = input[self.date_split_col]
         left = dates.max()
         split_points = []
-        for i in range(self.prediction_length):
+        for i in range(self.n_folds):
             right = left
             left = left - pd.Timedelta(days=self.prediction_length)
             split_points.append((left, right))

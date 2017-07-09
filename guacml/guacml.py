@@ -73,7 +73,15 @@ class GuacMl:
         self.model_results = None
         self.runner = None
 
-    def make_time_series(self, date_split_col, series_key_cols=None, prediction_length=1):
+    def make_time_series(self, date_split_col, series_key_cols=None, prediction_length=1,
+                         frequency=pd.DateOffset(days=1), n_offset_models=1):
+        """
+        :param date_split_col: Name of the date column.
+        :param series_key_cols: If many time series, these are the keys for the time series
+        :param prediction_length: Time steps an individual model should predict into the future
+        :param frequency: Frequency of the time series
+        :param n_offset_models: Number of models for predicting further into the future
+        """
         if date_split_col not in self.data.df.columns:
             raise Exception('The date_split_col {} was not in the columns of the data set {}.'
                             .format(date_split_col, self.data.df.columns))
@@ -92,10 +100,13 @@ class GuacMl:
             raise Exception('Prediction length must be positive integer, but was {}'.format(prediction_length))
 
         rt_conf = self.config['run_time']
+        ts_conf = rt_conf['time_series']
         rt_conf['is_time_series'] = True
-        rt_conf['time_series']['date_split_col'] = date_split_col
-        rt_conf['time_series']['series_key_cols'] = series_key_cols
-        rt_conf['time_series']['prediction_length'] = prediction_length
+        ts_conf['date_split_col'] = date_split_col
+        ts_conf['series_key_cols'] = series_key_cols
+        ts_conf['prediction_length'] = prediction_length
+        ts_conf['frequency'] = frequency
+        ts_conf['n_offset_models'] = n_offset_models
 
         # ToDo: this is duplicated from the guac constructor
         tree_builder = TreeBuilder(self.config, self.logger)

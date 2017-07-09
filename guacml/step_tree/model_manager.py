@@ -2,6 +2,7 @@ from guacml.step_tree.feature_reducer import FeatureReducer
 from guacml.step_tree.hyper_param_optimizer import HyperParameterOptimizer
 from guacml.step_tree.model_result import ModelResult
 from guacml.step_tree.model_runner import ModelRunner
+from guacml.step_tree.lagged_target_handler import LaggedTargetHandler
 
 
 class ModelManager():
@@ -10,12 +11,15 @@ class ModelManager():
         self.config = config
         self.target = config['run_time']['target']
         self.logger = logger
+        self.lagged_target_features = None
 
     def execute(self, data):
-        model_runner = ModelRunner(self.model, data, self.config, self.logger)
         features = self.select_features(data.metadata)
         features = features[features != self.target]
+        if self.config['run_time']['is_time_series'] and self.config['run_time']['time_series']['n_offset_models'] > 1:
+            data.df, features = LaggedTargetHandler.select_offset_features(data.df, data.metadata, features, offset=0)
 
+        model_runner = ModelRunner(self.model, data, self.config, self.logger)
         hp_optimizer = HyperParameterOptimizer(model_runner, features)
         all_trials, best_hps = hp_optimizer.optimize(
             self.config['run_time']['hyper_param_iterations']
@@ -35,8 +39,13 @@ class ModelManager():
         df_trials = df_trials.sort_values('cv error')
         best = df_trials.iloc[0]
 
-        model_runner.train_final_model(features, best_hps)
-        training_error = model_runner.training_error()
+        if not self.config['run_time']['is_time_series']:
+            model_runner.train_and_predict_with_holdout_model(features, best_hps)
+            training_error = model_runner.training_error()
+        else:
+            model_runner.train_and_predict_with_offset_models(features, best_hps)
+            training_error = None
+
         holdout_predictions = model_runner.holdout_predictions()
         holdout_error = model_runner.holdout_error()
         holdout_error_interval = model_runner.holdout_error_interval()
