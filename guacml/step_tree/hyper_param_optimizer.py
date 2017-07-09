@@ -20,9 +20,10 @@ class HyperParameterOptimizer:
 
         if hp_info.get('fixed') is True:
             del hp_info['fixed']
+            result = self.model_runner.train_and_cv_error(self.features, hp_info)
             trials.trials.append({
-                'result': {'loss': np.nan, 'status': None},
-                'misc': {'tid': None, 'vals': hp_info},
+                'result': result,
+                'misc': {'tid': 0, 'vals': hp_info},
             })
 
             return trials, hp_info
@@ -58,15 +59,12 @@ class HyperParameterOptimizer:
             param_vals = trial['misc']['vals']
             for key in param_vals:
                 value_list = param_vals[key]
-                try:
-                    if len(value_list) == 1:
-                        unpacked[key] = value_list[0]
-                    elif len(value_list) == 0:
-                        unpacked[key] = None
-                    else:
-                        raise Exception('Unexpected number of hyper parameter results.')
-                except TypeError:
-                    unpacked[key] = value_list
+                if len(value_list) == 1:
+                    unpacked[key] = value_list[0]
+                elif len(value_list) == 0:
+                    unpacked[key] = None
+                else:
+                    raise Exception('Unexpected number of hyper parameter results.')
             all_trials.append(unpacked)
 
         return pd.DataFrame(all_trials)
