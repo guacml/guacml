@@ -52,7 +52,7 @@ class TestDataset(unittest.TestCase):
         guac = GuacMl(df, 'b')
         guac.clear_previous_runs()
         guac.run(1)
-        self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-5)
+        self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-4)
 
     def test_disabled_feature_reduction(self):
         guac = load_dataset()
