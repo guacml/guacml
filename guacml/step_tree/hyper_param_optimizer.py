@@ -59,12 +59,15 @@ class HyperParameterOptimizer:
             param_vals = trial['misc']['vals']
             for key in param_vals:
                 value_list = param_vals[key]
-                if len(value_list) == 1:
-                    unpacked[key] = value_list[0]
-                elif len(value_list) == 0:
-                    unpacked[key] = None
-                else:
-                    raise Exception('Unexpected number of hyper parameter results.')
+                try:
+                    if len(value_list) == 1:
+                        unpacked[key] = value_list[0]
+                    elif len(value_list) == 0:
+                        unpacked[key] = None
+                    else:
+                        raise Exception('Unexpected number of hyper parameter results.')
+                except TypeError:
+                    unpacked[key] = value_list
             all_trials.append(unpacked)
 
         return pd.DataFrame(all_trials)
