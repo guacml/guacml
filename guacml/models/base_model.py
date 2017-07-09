@@ -6,8 +6,7 @@ class BaseModel:
     def get_valid_types(self):
         raise NotImplementedError()
 
-    @staticmethod
-    def hyper_parameter_info():
+    def hyper_parameter_info(self):
         raise NotImplementedError()
 
     def train(self, x, y, **kwargs):

@@ -12,8 +12,7 @@ class RandomForest(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
-    @staticmethod
-    def hyper_parameter_info():
+    def hyper_parameter_info(self):
         return {
             'n_estimators': hp.qlognormal('n_estimators', 4, 1, 1),
             'max_depth': hp.choice('use_max_depth',

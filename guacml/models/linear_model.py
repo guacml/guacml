@@ -13,8 +13,7 @@ class LinearModel(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
-    @staticmethod
-    def hyper_parameter_info():
+    def hyper_parameter_info(self):
         return {
             'alpha': hp.loguniform('alpha', -12, 3)
         }

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from hyperopt import Trials
 from hyperopt import fmin, tpe
 
@@ -11,10 +12,20 @@ class HyperParameterOptimizer:
 
     def optimize(self, hyper_param_iterations, old_trials=None):
         hp_info = self.model_runner.hyper_parameter_info()
+
         if old_trials is None:
             trials = Trials()
         else:
             trials = old_trials
+
+        if hp_info.get('fixed') is True:
+            del hp_info['fixed']
+            trials.trials.append({
+                'result': {'loss': np.nan, 'status': None},
+                'misc': {'tid': None, 'vals': hp_info},
+            })
+
+            return trials, hp_info
 
         best_hps = fmin(self.to_minimize,
                         hp_info,
@@ -47,12 +58,15 @@ class HyperParameterOptimizer:
             param_vals = trial['misc']['vals']
             for key in param_vals:
                 value_list = param_vals[key]
-                if len(value_list) == 1:
-                    unpacked[key] = value_list[0]
-                elif len(value_list) == 0:
-                    unpacked[key] = None
-                else:
-                    raise Exception('Unexpected number of hyper parameter results.')
+                try:
+                    if len(value_list) == 1:
+                        unpacked[key] = value_list[0]
+                    elif len(value_list) == 0:
+                        unpacked[key] = None
+                    else:
+                        raise Exception('Unexpected number of hyper parameter results.')
+                except TypeError:
+                    unpacked[key] = value_list
             all_trials.append(unpacked)
 
         return pd.DataFrame(all_trials)

@@ -17,8 +17,12 @@ class XgBoost(BaseModel):
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
-    @staticmethod
-    def hyper_parameter_info():
+    def hyper_parameter_info(self):
+        if 'hyper_parameters' in self.config:
+            hps = self.config['hyper_parameters'].copy()
+            hps['fixed'] = True
+            return hps
+
         return {
             'n_rounds': hp.qlognormal('n_rounds', 4, 1, 1),
             'max_depth': hp.qlognormal('max_depth', 1.6, 0.3, 1)
