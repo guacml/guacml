@@ -3,16 +3,21 @@ import numpy as np
 
 from hyperopt import STATUS_OK
 from guacml import splitters
+from guacml.step_tree.lagged_target_handler import LaggedTargetHandler
 
 
 class ModelRunner():
     def __init__(self, model, data, config, logger):
         self.model = model
         self.logger = logger
+        self.metadata = data.metadata
+        rt_conf = config['run_time']
+        self.target = rt_conf['target']
+        self.eval_metric = rt_conf['eval_metric']
+        self.prediction_range = rt_conf['prediction_range']
+        self.ts_config = rt_conf['time_series']
+        self.n_offset_models = self.ts_config['n_offset_models']
 
-        self.target = config['run_time']['target']
-        self.eval_metric = config['run_time']['eval_metric']
-        self.prediction_range = config['run_time']['prediction_range']
         splitter = splitters.create(config)
 
         holdout_train, holdout = splitter.holdout_split(data.df)
@@ -20,8 +25,8 @@ class ModelRunner():
         self.holdout = holdout.copy()
         self.train_and_cv = holdout_train.copy()
         self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
-        self.final_features = None
-        self.final_hyper_params = None
+        self.holdout_features = None
+        self.holdout_hyper_params = None
 
     def train_and_cv_error(self, features, hyper_params):
         self.train_for_cv(features, hyper_params)
@@ -80,25 +85,41 @@ class ModelRunner():
             feature_importances = pd.DataFrame(feature_importances)
             self.cv_feature_importances = feature_importances.mean()
 
-    def train_final_model(self, features, hyper_params):
-        self.final_features = features
-        self.final_hyper_params = hyper_params
-        self.logger.info('Training final model %s on features %s using %s', self.model.name(), features, hyper_params)
-        self.model.train(
-                self.train_and_cv[features],
-                self.train_and_cv[self.target],
-                **hyper_params
-            )
+    def train_and_predict_with_holdout_model(self, features, hyper_params):
+        self.holdout_features = features
+        self.holdout_hyper_params = hyper_params
+        self.logger.info('Training holdout model %s on features %s using %s', self.model.name(), features, hyper_params)
 
-        train_prediction = self.model.predict(self.train_and_cv[features])
-        if train_prediction.isnull().any():
+        self.model.train(
+            self.train_and_cv[features],
+            self.train_and_cv[self.target],
+            **hyper_params
+        )
+        self.predict_with_holdout_model(self.holdout, features, 'prediction')
+
+    def predict_with_holdout_model(self, data, features, prediction_col):
+        prediction = self.model.predict(data[features])
+        if prediction.isnull().any():
             raise Exception('Some predictions where N/A')
-        self.train_and_cv['train_prediction'] = train_prediction
-        self._truncate_predictions(self.train_and_cv, 'train_prediction')
-        holdout_prediction = self.model.predict(self.holdout[features])
-        if holdout_prediction.isnull().any():
-            raise Exception('Some predictions where N/A')
-        self.holdout['prediction'] = holdout_prediction
+        data[prediction_col] = prediction
+        self._truncate_predictions(data, prediction_col)
+
+    def train_and_predict_with_offset_models(self, features, hyper_params):
+        self.holdout_features = features
+        self.holdout_hyper_params = hyper_params
+
+        for i_offset in range(self.n_offset_models):
+            train = self.train_and_cv
+            train, features = LaggedTargetHandler.select_offset_features(train, self.metadata, features, offset=0)
+            self.model.train(train[features], train[self.target], **hyper_params)
+
+            offset_labels = LaggedTargetHandler.holdout_offset_labels(self.ts_config, self.holdout, i_offset)
+
+            prediction = self.model.predict(self.holdout.loc[offset_labels, features])
+            if prediction.isnull().any():
+                raise Exception('Some predictions where N/A')
+            self.holdout.loc[offset_labels, 'prediction'] = prediction
+
         self._truncate_predictions(self.holdout, 'prediction')
 
     def cv_error(self):

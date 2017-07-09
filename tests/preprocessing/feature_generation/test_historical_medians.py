@@ -13,9 +13,10 @@ class TestHistoricalMedians(unittest.TestCase):
         medians = HistoricalMedians(guac.config)
         out = medians.execute(guac.data)
 
-        self.assertTrue(np.isnan(out.df['median_2'].iloc[0]))
-        self.assertTrue(np.isnan(out.df['median_2'].iloc[1]))
-        self.assertAlmostEqual(out.df['median_2'].iloc[2], 43552444.5, delta=1)
+        self.assertTrue(np.isnan(out.df['Sales_median_2'].iloc[0]))
+        self.assertTrue(np.isnan(out.df['Sales_median_2'].iloc[1]))
+        self.assertTrue(np.isnan(out.df['Sales_median_2'].iloc[2]))
+        self.assertAlmostEqual(out.df['Sales_median_2'].iloc[3], 43552444.5, delta=1)
 
     def test_medians_no_group_keys(self):
         guac = test_util.load_dataset('bike_sharing', target='count')
@@ -24,7 +25,7 @@ class TestHistoricalMedians(unittest.TestCase):
         medians = HistoricalMedians(guac.config)
         out = medians.execute(guac.data)
 
-        self.assertTrue(np.isnan(out.df['median_1'].iloc[0]))
-        self.assertAlmostEqual(out.df['median_1'].iloc[1], 16, delta=1)
+        self.assertTrue(np.isnan(out.df['count_median_1'].iloc[0]))
+        self.assertAlmostEqual(out.df['count_median_1'].iloc[1], 16, delta=1)
 
     #ToDo: test the metadata

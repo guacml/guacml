@@ -25,6 +25,11 @@ class ModelResult:
         self.display_hyper_param_runs = display_hp_runs
 
     def to_display_dict(self):
+        if self.training_error is None:
+            training_error_str = ''
+        else:
+            training_error_str = '{:.4g}'.format(self.training_error)
+
         return {
             'n features': len(self.features),
             'holdout error numeric': self.holdout_error,
@@ -32,6 +37,9 @@ class ModelResult:
             'holdout error interval': '{:.4g}, {:.4g}'.format(self.holdout_error_interval[0],
                                                               self.holdout_error_interval[1]),
             'cv error': '{:.4g}'.format(self.cv_error),
-            'training error': '{:.4g}'.format(self.training_error),
+            'training error': training_error_str,
             'hyper_params': self.hyper_params
         }
+
+
+
