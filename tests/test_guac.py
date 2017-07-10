@@ -2,10 +2,10 @@ from guacml import GuacMl
 import pandas as pd
 import unittest
 
-from tests.test_util import load_dataset
+from tests.test_util import load_dataset, load_config
 
 
-class TestDataset(unittest.TestCase):
+class TestGuac(unittest.TestCase):
     def test_dataset(self):
         ds = load_dataset()
         self.assertIsInstance(ds.data.df, pd.DataFrame)
@@ -64,3 +64,13 @@ class TestDataset(unittest.TestCase):
         wofr_result = without_feature_reduction.model_results
 
         self.assertLess(len(guac_result['linear_model'].features), len(wofr_result['linear_model'].features))
+
+    def test_inplace(self):
+        config = load_config()
+        config['run_time']['inplace'] = True
+        guac = load_dataset(config=config)
+        initial_column_count = guac.data.df.shape[1]
+        initial_metadata_column_count = guac.data.metadata.shape[0]
+        guac.run(1)
+        self.assertLess(initial_column_count, guac.data.df.shape[1])
+        self.assertLess(initial_metadata_column_count, guac.data.metadata.shape[0])

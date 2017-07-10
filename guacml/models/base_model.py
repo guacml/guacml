@@ -1,6 +1,7 @@
 class BaseModel:
-    def __init__(self, problem_type, logger):
-        self.problem_type = problem_type
+    def __init__(self, config, logger):
+        self.config = config
+        self.problem_type = config['run_time']['problem_type']
         self.logger = logger
 
     def get_valid_types(self):

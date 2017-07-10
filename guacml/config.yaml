@@ -3,6 +3,7 @@ run_time:
     exclude_cols: null
     eval_metric: null
     target: null
+    inplace: False
     is_time_series: False
     prediction_range: null
     time_series:

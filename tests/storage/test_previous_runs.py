@@ -33,7 +33,7 @@ class TestPreviousRuns(unittest.TestCase):
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
 
-        model = BaseModel(None, None)
+        model = BaseModel(test_util.load_config(), None)
         result_1 = ModelResult(model, ['a'], None, None, None, None, None, None, None, None, None)
         result_2 = ModelResult(model, ['b'], None, None, None, None, None, None, None, None, None)
         prev_runs.add_model_result('result_1', result_1)

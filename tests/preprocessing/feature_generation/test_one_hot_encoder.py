@@ -10,7 +10,7 @@ class TestOneHotEncoder(unittest.TestCase):
 
     def test_encoding(self):
         config = test_util.load_config()
-        enc = OneHotEncoder(config['pre_processing'])
+        enc = OneHotEncoder(config)
         input = pd.DataFrame({'a': [3, 1, 2], 'b': [1.1, 1.2, 1.3]},
                              index=['row_1', 'row_2', 'row_3'])
         metadata = pd.DataFrame({
@@ -37,7 +37,7 @@ class TestOneHotEncoder(unittest.TestCase):
     def test_single_zero_column(self):
         """ This was causing an exception in the One-Hot-Encoder."""
         config = test_util.load_config()
-        enc = OneHotEncoder(config['pre_processing'])
+        enc = OneHotEncoder(config)
         input = pd.DataFrame({'a': [0.0, 0.0, 0.0]})
         metadata = pd.DataFrame({
             'col_name': ['a'],

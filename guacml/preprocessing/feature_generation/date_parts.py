@@ -5,8 +5,7 @@ import pandas as pd
 
 class DateParts(BaseStep):
 
-    def execute(self, data):
-        data = data.copy()
+    def execute_inplace(self, data):
         df = data.df
         meta = data.metadata
 
@@ -37,5 +36,3 @@ class DateParts(BaseStep):
                     'n_blank': 0
                 })
             data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))
-
-        return data

@@ -10,7 +10,7 @@ class TestStepTree(unittest.TestCase):
         return StepTree(empty_conf, None)
 
     def _step_with_runtime(self, runtime):
-        step = BaseStep()
+        step = BaseStep(None)
         step.runtime = runtime
         return step
 

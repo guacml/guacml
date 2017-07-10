@@ -4,16 +4,13 @@ import pandas as pd
 
 
 class HistoricalMedians(BaseStep):
-    def __init__(self, run_time_config):
-        super().__init__()
-        self.run_time_config = run_time_config
 
-    def execute(self, data):
-        date_split_col = self.run_time_config['time_series']['date_split_col']
-        series_key_cols = self.run_time_config['time_series']['series_key_cols']
-        prediction_length = self.run_time_config['time_series']['prediction_length']
-        target = self.run_time_config['target']
-        data = data.copy()
+    def execute_inplace(self, data):
+        run_time_config = self.config['run_time']
+        date_split_col = run_time_config['time_series']['date_split_col']
+        series_key_cols = run_time_config['time_series']['series_key_cols']
+        prediction_length = run_time_config['time_series']['prediction_length']
+        target = run_time_config['target']
         df = data.df
         meta = data.metadata
 
@@ -42,5 +39,3 @@ class HistoricalMedians(BaseStep):
                 'n_blank': 0
             })
         data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))
-
-        return data

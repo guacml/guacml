@@ -10,16 +10,17 @@ from hyperopt import hp
 
 
 class XgBoost(BaseModel):
-    def __init__(self, problem_type, logger, config=None):
-        super().__init__(problem_type, logger)
-        self.config = config
+
+    def __init__(self, config, logger):
+        super().__init__(config, logger)
+        self.model_config = config['models']['xgboost']
 
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 
     def hyper_parameter_info(self):
-        if 'hyper_parameters' in self.config:
-            hps = self.config['hyper_parameters'].copy()
+        if 'hyper_parameters' in self.model_config:
+            hps = self.model_config['hyper_parameters'].copy()
             hps['fixed'] = True
             return hps
 
@@ -39,8 +40,7 @@ class XgBoost(BaseModel):
             'max_depth': self.pos_int(max_depth)
         }
 
-        if self.config is not None:
-            params.update(self.config)
+        params.update(self.model_config)
 
         if 'objective' not in params:
             if self.problem_type == ProblemType.BINARY_CLAS:

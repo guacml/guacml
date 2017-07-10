@@ -9,6 +9,7 @@ import pandas as pd
 
 
 class RandomForest(BaseModel):
+
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 

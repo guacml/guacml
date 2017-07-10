@@ -10,6 +10,7 @@ import numpy as np
 
 
 class LinearModel(BaseModel):
+
     def get_valid_types(self):
         return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
 

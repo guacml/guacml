@@ -10,7 +10,7 @@ class TestHistoricalMedians(unittest.TestCase):
         guac = test_util.load_dataset('timeseries', target='Sales')
         guac.make_time_series('Date', series_key_cols='Store', prediction_length=2)
 
-        medians = HistoricalMedians(guac.config['run_time'])
+        medians = HistoricalMedians(guac.config)
         out = medians.execute(guac.data)
 
         self.assertTrue(np.isnan(out.df['median_2'].iloc[0]))
@@ -21,7 +21,7 @@ class TestHistoricalMedians(unittest.TestCase):
         guac = test_util.load_dataset('bike_sharing', target='count')
         guac.make_time_series('datetime', prediction_length=1)
 
-        medians = HistoricalMedians(guac.config['run_time'])
+        medians = HistoricalMedians(guac.config)
         out = medians.execute(guac.data)
 
         self.assertTrue(np.isnan(out.df['median_1'].iloc[0]))

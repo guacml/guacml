@@ -1,12 +1,11 @@
 from guacml.step_tree.base_step import BaseStep
-from ..column_analyzer import ColType
+from guacml.preprocessing.column_analyzer import ColType
 from sklearn.preprocessing import LabelEncoder as LE
 
 
 class LabelEncoder(BaseStep):
 
-    def execute(self, data):
-        data = data.copy()
+    def execute_inplace(self, data):
         df = data.df
         meta = data.metadata
 
@@ -17,4 +16,3 @@ class LabelEncoder(BaseStep):
             df[col] = df[col].astype(float)
             meta.loc[col, 'type'] = ColType.INT_ENCODING
             meta.loc[col, 'derived_from'] = col
-        return data

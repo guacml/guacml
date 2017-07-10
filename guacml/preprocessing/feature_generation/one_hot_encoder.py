@@ -6,12 +6,8 @@ from guacml.step_tree.base_step import BaseStep
 
 
 class OneHotEncoder(BaseStep):
-    def __init__(self, preprocess_config):
-        super().__init__()
-        self.pre_process_config = preprocess_config
 
-    def execute(self, data):
-        data = data.copy()
+    def execute_inplace(self, data):
         meta = data.metadata
 
         enc = OHE(sparse=False)
@@ -20,7 +16,7 @@ class OneHotEncoder(BaseStep):
         cols_to_encode = meta[
             (meta.type == ColType.INT_ENCODING) &
             (meta.n_unique > 2) &
-            (meta.n_unique < self.pre_process_config['max_uniques_for_one_hot'])
+            (meta.n_unique < self.config['pre_processing']['max_uniques_for_one_hot'])
         ].index
 
         for col in cols_to_encode:
@@ -39,5 +35,3 @@ class OneHotEncoder(BaseStep):
                 'n_blank': [0] * n_new
             }, index=new_col_names)
             data.metadata = meta.append(to_append)
-
-        return data
