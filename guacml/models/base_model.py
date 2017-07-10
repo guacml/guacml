@@ -4,6 +4,9 @@ class BaseModel:
         self.problem_type = config['run_time']['problem_type']
         self.logger = logger
 
+    def name(self):
+        return self.__class__.__name__
+
     def get_valid_types(self):
         raise NotImplementedError()
 

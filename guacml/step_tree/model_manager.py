@@ -12,7 +12,7 @@ class ModelManager():
         self.logger = logger
 
     def execute(self, data):
-        model_runner = ModelRunner(self.model, data, self.config)
+        model_runner = ModelRunner(self.model, data, self.config, self.logger)
         features = self.select_features(data.metadata)
         features = features[features != self.target]
 

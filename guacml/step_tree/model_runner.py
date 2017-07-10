@@ -6,8 +6,9 @@ from guacml import splitters
 
 
 class ModelRunner():
-    def __init__(self, model, data, config):
+    def __init__(self, model, data, config, logger):
         self.model = model
+        self.logger = logger
 
         self.target = config['run_time']['target']
         self.eval_metric = config['run_time']['eval_metric']
@@ -51,11 +52,14 @@ class ModelRunner():
     def train_for_cv(self, features, hyper_params, with_feature_importances=False):
         feature_importances = []
         self.train_and_cv['cv_prediction'] = np.nan
-        for train_indices, cv_indices in self.train_and_cv_folds:
+        self.logger.info('Training %s on %d folds', self.model.name(), len(self.train_and_cv_folds))
+        fold_number = 1
 
-            self.model.train(self.train_and_cv[features].loc[train_indices],
-                             self.train_and_cv[self.target].loc[train_indices],
-                             **hyper_params)
+        for train_indices, cv_indices in self.train_and_cv_folds:
+            x = self.train_and_cv[features].loc[train_indices]
+            y = self.train_and_cv[self.target].loc[train_indices]
+            self.logger.info('Training %s fold #%d on %d rows', self.model.name(), fold_number, x.shape[0])
+            self.model.train(x, y, **hyper_params)
 
             prediction = self.model.predict(self.train_and_cv[features].loc[cv_indices])
             if prediction.isnull().any():
@@ -68,6 +72,8 @@ class ModelRunner():
                     raise Exception('Error computing feature importances.')
                 feature_importances.append(feat_importance)
 
+            fold_number += 1
+
         self._truncate_predictions(self.train_and_cv, 'cv_prediction')
 
         if with_feature_importances:
@@ -77,6 +83,7 @@ class ModelRunner():
     def train_final_model(self, features, hyper_params):
         self.final_features = features
         self.final_hyper_params = hyper_params
+        self.logger.info('Training final model %s on features %s using %s', self.model.name(), features, hyper_params)
         self.model.train(
                 self.train_and_cv[features],
                 self.train_and_cv[self.target],
