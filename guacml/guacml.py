@@ -14,6 +14,7 @@ from guacml.metrics.root_mean_squared_percentage_error import RootMeanSquaredPer
 from guacml.plots import Plots
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
+from guacml.util import deep_update
 
 
 class GuacMl:
@@ -23,7 +24,7 @@ class GuacMl:
             self.config = yaml.load(file)
 
         if config is not None:
-            self.config.update(config) # TODO: don't replace whole nested dicts
+            deep_update(self.config, config)
 
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
