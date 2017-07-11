@@ -21,6 +21,7 @@ cross_validation:
     date_split_col: null
     holdout_size: 0.2
     n_folds: 3
+    cv_size: 0.1
 
 pre_processing:
     max_uniques_for_one_hot: 100
