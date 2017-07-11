@@ -1,9 +1,9 @@
 import pydot
 
 from guacml.models.base_model import BaseModel
-from .base_step import BaseStep
+from guacml.step_tree.base_step import BaseStep
 from collections import defaultdict
-from .model_manager import ModelManager
+from guacml.step_tree.model_manager import ModelManager
 
 
 class StepTree:
