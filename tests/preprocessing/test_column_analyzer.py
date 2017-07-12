@@ -3,14 +3,18 @@ import numpy as np
 import pandas as pd
 import logging
 
+from tests.test_util import load_config
 from guacml.enums import ColType
 from guacml.preprocessing.column_analyzer import ColumnAnalyzer
 
 
 class TestColumnAnalyzer(unittest.TestCase):
-    def build_analyzer(self):
+    def build_analyzer(self, more_config={}):
+        config = load_config()
+        config.update(more_config)
         logger = logging.getLogger(__name__)
-        return ColumnAnalyzer(logger)
+
+        return ColumnAnalyzer(config, logger)
 
     def test_float_column_only_bool(self):
         df = pd.DataFrame({'a': [0, 1, None]})
@@ -48,3 +52,9 @@ class TestColumnAnalyzer(unittest.TestCase):
         analyzer = self.build_analyzer()
         meta = analyzer.analyze(df)
         self.assertEqual(meta.loc['a'].type, ColType.NUMERIC)
+
+    def test_override_column_type(self):
+        df = pd.DataFrame({'a': ['b', 'c']})
+        analyzer = self.build_analyzer({'column_types': {'a': ColType.TEXT}})
+        meta = analyzer.analyze(df)
+        self.assertEqual(meta.loc['a'].type, ColType.TEXT)

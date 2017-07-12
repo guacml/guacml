@@ -29,7 +29,7 @@ class GuacMl:
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
 
-        self.data = Dataset.from_df(data, target, exclude_cols, self.logger)
+        self.data = Dataset.from_df(data, self.config, target, exclude_cols, self.logger)
 
         metadata = self.data.metadata
         target_meta = metadata.loc[target]

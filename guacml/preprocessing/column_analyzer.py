@@ -13,8 +13,9 @@ class ColumnAnalyzer:
     type `ColType.BINARY` or `ColType.ORDINAL` can contain nulls and will be stored
     as numpy float columns.
     """
-    def __init__(self, logger, type_check_samples=None):
+    def __init__(self, config, logger, type_check_samples=None):
         self.type_check_samples = type_check_samples
+        self.config = config
         self.logger = logger
 
     def analyze(self, df):
@@ -52,6 +53,10 @@ class ColumnAnalyzer:
             'n_blank': 0,
             'example': example
         }
+
+        if col_name in self.config['column_types']:
+            col_info['type'] = self.config['column_types'][col_name]
+            return col_info
 
         if col.dtype.kind == 'i':
             return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
