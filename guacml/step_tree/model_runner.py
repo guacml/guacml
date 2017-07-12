@@ -15,8 +15,9 @@ class ModelRunner():
         self.target = rt_conf['target']
         self.eval_metric = rt_conf['eval_metric']
         self.prediction_range = rt_conf['prediction_range']
-        self.ts_config = rt_conf['time_series']
-        self.n_offset_models = self.ts_config['n_offset_models']
+        if rt_conf['is_time_series']:
+            self.ts_config = rt_conf['time_series']
+            self.n_offset_models = self.ts_config['n_offset_models']
 
         splitter = splitters.create(config)
 
