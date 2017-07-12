@@ -47,7 +47,7 @@ class Plots:
 
         n_key_combs = keys_sample.shape[0]
         fig, axes = plt.subplots(n_key_combs, 2, figsize=(12, 3 * n_key_combs),
-                     gridspec_kw={'width_ratios':[5, 2]})
+                                 gridspec_kw={'width_ratios': [5, 2]})
 
         for i, pair in enumerate(keys_sample.iterrows()):
             if len(axes.shape) == 1:
@@ -109,30 +109,33 @@ class Plots:
         model_result = self.model_results[model_name]
         if not self.run_time_config['is_time_series']:
             if self.problem_type == ProblemType.BINARY_CLAS:
-                return predictions_vs_actual_classification(model_result, model_name, n_bins, **kwargs)
+                return predictions_vs_actual_classification(model_result,
+                                                            model_name,
+                                                            n_bins,
+                                                            **kwargs)
             elif self.problem_type == ProblemType.REGRESSION:
                 return predictions_vs_actual_regression(model_result, model_name, **kwargs)
             else:
                 raise Exception('Not implemented for problem type ' + self.problem_type)
         else:
-            self.predictions_vs_actual_time_series(model_result, model_name, self.run_time_config, **kwargs)
+            self.predictions_vs_actual_time_series(model_result,
+                                                   model_name,
+                                                   self.run_time_config,
+                                                   **kwargs)
 
     def predictions_vs_actual_time_series(self, model_results, model_name,  size=6, **kwargs):
         date_col = self.run_time_config['time_series']['date_split_col']
         series_key_cols = self.run_time_config['time_series']['series_key_cols']
         keys_sample = self._get_time_series_key_sample()
-
         holdout = model_results.holdout_data
-        target = model_results.target
-
         n_key_combs = keys_sample.shape[0]
         fig, axes = plt.subplots(n_key_combs, 1, figsize=(12, 3 * n_key_combs))
 
         for i, pair in enumerate(keys_sample.iterrows()):
             if isinstance(axes, np.ndarray):
-                ax= axes[i]
+                ax = axes[i]
             else:
-                ax= axes
+                ax = axes
 
             keys = pair[1]
             time_series = holdout[(holdout[series_key_cols] == keys).all(axis=1)]
@@ -204,8 +207,3 @@ def predictions_vs_actual_regression(model_results, model_name, size=6, bins=Non
     elif bins == 'log':
         color_bar.set_label('log_10(count)')
     return grid
-
-
-
-
-

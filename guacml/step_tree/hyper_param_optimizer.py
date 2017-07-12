@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from hyperopt import Trials
 from hyperopt import fmin, tpe
 

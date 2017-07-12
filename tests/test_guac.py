@@ -56,14 +56,16 @@ class TestGuac(unittest.TestCase):
 
     def test_disabled_feature_reduction(self):
         guac = load_dataset()
-        without_feature_reduction = load_dataset(config={'model_manager': {'reduce_features': False}})
+        without_feature_reduction = \
+            load_dataset(config={'model_manager': {'reduce_features': False}})
 
         guac.run(1)
         without_feature_reduction.run(1)
         guac_result = guac.model_results
         wofr_result = without_feature_reduction.model_results
 
-        self.assertLess(len(guac_result['linear_model'].features), len(wofr_result['linear_model'].features))
+        self.assertLess(len(guac_result['linear_model'].features),
+                        len(wofr_result['linear_model'].features))
 
     def test_inplace(self):
         guac = load_dataset(config={'run_time': {'inplace': True}})

@@ -25,4 +25,3 @@ class TestRootMeanSquaredLogError(unittest.TestCase):
         rsmle = RootMeanSquaredLogError()
         with self.assertRaises(ValueError):
             rsmle.error(np.ones(1), -np.ones(1))
-

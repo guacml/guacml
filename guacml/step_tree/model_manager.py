@@ -16,8 +16,12 @@ class ModelManager():
     def execute(self, data):
         features = self.select_features(data.metadata)
         features = features[features != self.target]
-        if self.config['run_time']['is_time_series'] and self.config['run_time']['time_series']['n_offset_models'] > 1:
-            data.df, features = LaggedTargetHandler.select_offset_features(data.df, data.metadata, features, offset=0)
+        if self.config['run_time']['is_time_series'] and\
+           self.config['run_time']['time_series']['n_offset_models'] > 1:
+            data.df, features = LaggedTargetHandler.select_offset_features(data.df,
+                                                                           data.metadata,
+                                                                           features,
+                                                                           offset=0)
 
         model_runner = ModelRunner(self.model, data, self.config, self.logger)
         hp_optimizer = HyperParameterOptimizer(model_runner, features)

@@ -8,4 +8,5 @@ class ColumnCleaner(BaseStep):
                 col = col_desc.col_name
                 data.df[col].replace('', None, inplace=True)
                 col_desc.n_blank = 0
-                self.logger.info('Replaced %d blank values with None for column %s', col_desc.n_blanks, col)
+                self.logger.info('Replaced %d blank values with None for column %s',
+                                 col_desc.n_blanks, col)

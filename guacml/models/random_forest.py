@@ -46,7 +46,7 @@ class RandomForest(BaseModel):
         if self.problem_type == ProblemType.BINARY_CLAS:
             prediction = self.model.predict_proba(x)[:, 1]
         elif self.problem_type == ProblemType.REGRESSION:
-            prediction =  self.model.predict(x)
+            prediction = self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
 

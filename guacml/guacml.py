@@ -87,17 +87,20 @@ class GuacMl:
                             .format(date_split_col, self.data.df.columns))
         if series_key_cols is None:
             series_key_cols = ['guac_time_series_key']
-            # this hack makes the whole code that groups by time series key reusable for the case of a single time series.
+            # this hack makes the whole code that groups by time series key
+            # reusable for the case of a single time series.
             # it's omitted in the metadata
             self.data.df['guac_time_series_key'] = True
         elif not isinstance(series_key_cols, list):
             series_key_cols = [series_key_cols]
         for key_col in series_key_cols:
             if key_col not in self.data.df.columns:
-                raise Exception('The time series key column {} was not in the columns of the data set {}.'
+                raise Exception('The time series key column {} was not in the'
+                                ' columns of the data set {}.'
                                 .format(key_col, self.data.df.columns))
         if not isinstance(prediction_length, int) and prediction_length > 0:
-            raise Exception('Prediction length must be positive integer, but was {}'.format(prediction_length))
+            raise Exception('Prediction length must be positive integer, but was {}'
+                            .format(prediction_length))
 
         rt_conf = self.config['run_time']
         ts_conf = rt_conf['time_series']
