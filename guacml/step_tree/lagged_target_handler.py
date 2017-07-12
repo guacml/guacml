@@ -3,8 +3,8 @@ class LaggedTargetHandler:
     def select_offset_features(df, meta, features, offset):
         """
         When predicting time series many steps into the future, we are using several models for
-        different numbers of steps in the future (offsets), because a model that predicts a month in the
-        future can only use aggregations of the target that are at least a month old.
+        different numbers of steps in the future (offsets), because a model that predicts a month
+        in the future can only use aggregations of the target that are at least a month old.
 
         We only do hyper parameter optimization and feature selection once. For the feature
         selection we map the selected aggregations for different offsets to the same column name.
@@ -20,7 +20,8 @@ class LaggedTargetHandler:
         for idx, lagged_feat_row in lagged_features.iterrows():
             df[lagged_feat_row['lagged_target_shared_name']] = df[lagged_feat_row.name]
 
-        features = non_lagged_features.index.tolist() + lagged_features['lagged_target_shared_name'].tolist()
+        features = non_lagged_features.index.tolist() +\
+            lagged_features['lagged_target_shared_name'].tolist()
         return df, features
 
     @staticmethod
@@ -33,6 +34,3 @@ class LaggedTargetHandler:
         lower = dates.min() + (frequency * (prediction_length * offset))
         upper = dates.min() + (frequency * (prediction_length * (offset + 1) - 1))
         return holdout[dates.between(lower, upper)].index
-
-
-

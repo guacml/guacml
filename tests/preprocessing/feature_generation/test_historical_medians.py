@@ -28,4 +28,4 @@ class TestHistoricalMedians(unittest.TestCase):
         self.assertTrue(np.isnan(out.df['count_median_1'].iloc[0]))
         self.assertAlmostEqual(out.df['count_median_1'].iloc[1], 16, delta=1)
 
-    #ToDo: test the metadata
+    # ToDo: test the metadata

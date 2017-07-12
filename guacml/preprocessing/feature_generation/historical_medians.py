@@ -37,7 +37,9 @@ class HistoricalMedians(BaseStep):
         for i_offset in range(self.n_offset_models):
             for median_win in median_windows:
                 col_name, _ = self.col_name(target, median_win, i_offset)
-                df[col_name] = grouped.rolling(median_win).median().shift((i_offset + 1) * prediction_length)
+                df[col_name] = grouped.rolling(median_win)\
+                                      .median()\
+                                      .shift((i_offset + 1) * prediction_length)
 
         data.df = df.reset_index().set_index('index')
         to_append = []
@@ -65,4 +67,3 @@ class HistoricalMedians(BaseStep):
         else:
             col_name = '{}_offset_{}'.format(shared_name, i_offset)
             return col_name, shared_name
-

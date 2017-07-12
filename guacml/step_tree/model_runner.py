@@ -63,7 +63,8 @@ class ModelRunner():
         for train_indices, cv_indices in self.train_and_cv_folds:
             x = self.train_and_cv[features].loc[train_indices]
             y = self.train_and_cv[self.target].loc[train_indices]
-            self.logger.info('Training %s fold #%d on %d rows', self.model.name(), fold_number, x.shape[0])
+            self.logger.info('Training %s fold #%d on %d rows',
+                             self.model.name(), fold_number, x.shape[0])
             self.model.train(x, y, **hyper_params)
 
             prediction = self.model.predict(self.train_and_cv[features].loc[cv_indices])
@@ -88,7 +89,8 @@ class ModelRunner():
     def train_and_predict_with_holdout_model(self, features, hyper_params):
         self.holdout_features = features
         self.holdout_hyper_params = hyper_params
-        self.logger.info('Training holdout model %s on features %s using %s', self.model.name(), features, hyper_params)
+        self.logger.info('Training holdout model %s on features %s using %s',
+                         self.model.name(), features, hyper_params)
 
         self.model.train(
             self.train_and_cv[features],
@@ -110,10 +112,15 @@ class ModelRunner():
 
         for i_offset in range(self.n_offset_models):
             train = self.train_and_cv
-            train, features = LaggedTargetHandler.select_offset_features(train, self.metadata, features, offset=0)
+            train, features = LaggedTargetHandler.select_offset_features(train,
+                                                                         self.metadata,
+                                                                         features,
+                                                                         offset=0)
             self.model.train(train[features], train[self.target], **hyper_params)
 
-            offset_labels = LaggedTargetHandler.holdout_offset_labels(self.ts_config, self.holdout, i_offset)
+            offset_labels = LaggedTargetHandler.holdout_offset_labels(self.ts_config,
+                                                                      self.holdout,
+                                                                      i_offset)
 
             prediction = self.model.predict(self.holdout.loc[offset_labels, features])
             if prediction.isnull().any():

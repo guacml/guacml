@@ -40,6 +40,3 @@ class ModelResult:
             'training error': training_error_str,
             'hyper_params': self.hyper_params
         }
-
-
-

@@ -11,7 +11,6 @@ class DateSplitter:
         self.frequency = ts_conf['frequency']
         self.n_offset_models = ts_conf['n_offset_models']
 
-
     def holdout_split(self, input):
         """
         In the case of several models to predict different offsets in the future,
@@ -19,7 +18,8 @@ class DateSplitter:
         set we use the full length and predict with many models.
         """
         dates = input[self.date_split_col]
-        split_point = dates.max() - (self.frequency * self.prediction_length * self.n_offset_models)
+        split_point = dates.max() -\
+            (self.frequency * self.prediction_length * self.n_offset_models)
         return input[dates < split_point], input[dates >= split_point]
 
     def cv_splits(self, input):
