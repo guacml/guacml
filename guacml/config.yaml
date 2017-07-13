@@ -11,6 +11,9 @@ run_time:
         series_key_cols: null
         prediction_length: null
 
+caching:
+    enabled: True
+
 column_types: {}
 
 model_manager:

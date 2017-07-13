@@ -12,9 +12,7 @@ def load_dataset(fixture='titanic', target='Survived', eval_metric=None, config=
     if config is not None:
         deep_update(default_config, config)
 
-    guac = GuacMl(df, target, eval_metric=eval_metric, config=default_config)
-    guac.clear_previous_runs()
-    return guac
+    return GuacMl(df, target, eval_metric=eval_metric, config=default_config)
 
 
 def load_config():

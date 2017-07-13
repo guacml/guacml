@@ -5,7 +5,7 @@ import shutil
 import os
 import yaml
 
-import tests.test_util as test_util
+from tests.test_util import load_config
 from guacml.storage.previous_runs import PreviousRuns
 from guacml.dataset import Dataset
 from guacml.step_tree.model_result import ModelResult
@@ -26,14 +26,20 @@ class TestPreviousRuns(unittest.TestCase):
         with open(PREV_RUNS_FILE, 'r') as file:
             return yaml.load(file)
 
+    def get_config(self):
+        config = load_config()
+        config['caching']['enabled'] = True
+
+        return config
+
     def test_store_and_load(self):
         df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
-        config = test_util.load_config()
+        config = self.get_config()
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
 
-        model = BaseModel(test_util.load_config(), None)
+        model = BaseModel(config, None)
         result_1 = ModelResult(model, ['a'], None, None, None, None, None, None, None, None, None)
         result_2 = ModelResult(model, ['b'], None, None, None, None, None, None, None, None, None)
         prev_runs.add_model_result('result_1', result_1)
@@ -49,7 +55,7 @@ class TestPreviousRuns(unittest.TestCase):
     def test_store_and_new_data(self):
         df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
-        config = test_util.load_config()
+        config = self.get_config()
 
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs.store_run()
@@ -66,11 +72,11 @@ class TestPreviousRuns(unittest.TestCase):
     def test_store_and_new_config(self):
         df = pd.DataFrame({'a': [0, 1], 'b': [2, 3]})
         data = Dataset(df, None, df_hash=joblib.hash(df))
-        config = test_util.load_config()
+        config = self.get_config()
         prev_runs = PreviousRuns(data, config, previous_runs_folder=PREV_RUN_FOLDER)
         prev_runs.store_run()
 
-        config2 = test_util.load_config()
+        config2 = self.get_config()
         config2['altered'] = True
 
         prev_runs_2 = PreviousRuns(data, config2, previous_runs_folder=PREV_RUN_FOLDER)

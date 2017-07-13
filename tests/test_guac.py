@@ -50,7 +50,6 @@ class TestGuac(unittest.TestCase):
         df = pd.DataFrame({'a': range(100), 'b': [x + 0.5 for x in range(100)]},
                           index=range(100, 200))
         guac = GuacMl(df, 'b', config=load_config())
-        guac.clear_previous_runs()
         guac.run(1)
         self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-4)
 

@@ -9,6 +9,10 @@ class PreviousRuns():
     def __init__(self, data, config, previous_runs_folder='./data/previous_runs'):
         self.found_matching_run = None
         self.config_ = config
+
+        if self._is_disabled():
+            return
+
         self.config_hash_ = joblib.hash(config)
         self.data_ = data
         self.run_ = None
@@ -60,6 +64,9 @@ class PreviousRuns():
             self.found_matching_run = False
 
     def get_prev_results(self):
+        if self._is_disabled():
+            raise Exception('Cannot get previous results when caching is disabled')
+
         model_results = self.run_['model_result_paths']
         return {name: joblib.load(path) for name, path in model_results.items()}
 
@@ -73,6 +80,9 @@ class PreviousRuns():
         }
 
     def add_model_result(self, model_name, result):
+        if self._is_disabled():
+            return
+
         result_path = os.path.join(self.data_folder_, model_name + '_result.joblib_dump.gz')
         logger, result.model.logger = result.model.logger, None
         joblib.dump(result, result_path)
@@ -80,6 +90,9 @@ class PreviousRuns():
         self.run_['model_result_paths'][model_name] = result_path
 
     def store_run(self):
+        if self._is_disabled():
+            return
+
         if not self.found_matching_run:
             with open(self.prev_runs_file_, 'w') as file:
                 if self.all_prev_runs_ is None:
@@ -89,4 +102,10 @@ class PreviousRuns():
                 file.write(yaml.dump(self.all_prev_runs_, default_flow_style=False))
 
     def clear(self):
+        if self._is_disabled():
+            return
+
         shutil.rmtree(self.previous_runs_folder)
+
+    def _is_disabled(self):
+        return self.config_['caching']['enabled'] is False
