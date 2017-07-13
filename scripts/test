@@ -1,5 +1,4 @@
 #!/bin/bash
 [ -e venv ] && source venv/bin/activate
 
-rm -rf data
 python3 -m nose -v "$@"
