@@ -2,13 +2,20 @@ from guacml.enums import ColType
 from guacml.step_tree.base_step import BaseStep
 import pandas as pd
 
+from guacml.util.time_series_util import analyze_frequency_for_group
+
 
 class HistoricalMedians(BaseStep):
 
-    def __init__(self, config):
+    def __init__(self, hist_length_factors, config, group_keys=None):
         super().__init__(config)
         self.run_time_config = config['run_time']
         self.n_offset_models = self.run_time_config['time_series']['n_offset_models']
+        self.hist_length_factors = hist_length_factors
+        if group_keys is not None and\
+           not (isinstance(group_keys, list) or isinstance(group_keys, str)):
+            raise Exception('Argument group_keys must be an instance of list or string.')
+        self.group_keys = group_keys
 
     def execute_inplace(self, data):
         """
@@ -23,23 +30,42 @@ class HistoricalMedians(BaseStep):
         date_split_col = ts_conf['date_split_col']
         series_key_cols = ts_conf['series_key_cols']
         prediction_length = ts_conf['prediction_length']
-
         target = self.run_time_config['target']
+
+        if self.group_keys is None:
+            group_keys = series_key_cols
+        else:
+            if isinstance(self.group_keys, str):
+                group_keys = series_key_cols + [self.group_keys]
+            else:
+                group_keys = series_key_cols + self.group_keys
 
         df = data.df
         meta = data.metadata
 
-        df = df.reset_index().set_index(date_split_col).sort_index()
-        grouped = df.groupby(series_key_cols)[target]
-        df = df.reset_index().set_index(series_key_cols + [date_split_col]).sort_index()
+        group_frequency = analyze_frequency_for_group(df, date_split_col, group_keys)
+        df = df.reset_index().set_index(date_split_col)
+        without_gaps = df.groupby(group_keys)['index', target]\
+                         .resample(group_frequency)\
+                         .asfreq()\
+                         .reset_index(group_keys)
 
-        median_windows = [prediction_length, 5 * prediction_length, 20 * prediction_length]
+        grouped = without_gaps.sort_index().groupby(group_keys)[target]
+        df = df.reset_index().set_index(group_keys + [date_split_col])
+        median_windows = [length_factor * prediction_length
+                          for length_factor in self.hist_length_factors]
         for i_offset in range(self.n_offset_models):
             for median_win in median_windows:
                 col_name, _ = self.col_name(target, median_win, i_offset)
-                df[col_name] = grouped.rolling(median_win)\
-                                      .median()\
-                                      .shift((i_offset + 1) * prediction_length)
+                # ToDo: replace the rolling and shift here with a DateOffset
+                # ToDo: (already tried for some hours, but lead to much trouble)
+                medians = grouped.rolling(median_win, min_periods=1)\
+                                 .median()\
+                                 .reset_index(group_keys)
+                medians[target] = medians.groupby(group_keys)[target]\
+                                         .shift((i_offset + 1) * prediction_length)
+                df[col_name] = medians.reset_index()\
+                                      .set_index(group_keys + [date_split_col])
 
         data.df = df.reset_index().set_index('index')
         to_append = []
@@ -61,7 +87,10 @@ class HistoricalMedians(BaseStep):
         data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))
 
     def col_name(self, target, median_win, i_offset):
-        shared_name = '{}_median_{}'.format(target, median_win)
+        if self.group_keys is None:
+            shared_name = '{}_median_{}'.format(target, median_win)
+        else:
+            shared_name = '{}_median_{}_by_{}'.format(target, median_win, self.group_keys)
         if self.n_offset_models == 1:
             return shared_name, shared_name
         else:

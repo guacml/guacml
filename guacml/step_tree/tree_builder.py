@@ -23,7 +23,9 @@ class TreeBuilder:
         step_tree.add_step('date_parts', 'encode_labels', DateParts(self.config))
 
         if self.config['run_time']['is_time_series']:
-            step_tree.add_step('historical_medians', 'date_parts', HistoricalMedians(self.config))
+            step_tree.add_step('historical_medians',
+                               'date_parts',
+                               HistoricalMedians([1, 5, 20], self.config))
             last_node = 'historical_medians'
 
         step_tree.add_model('xg_boost', last_node, XgBoost(self.config, self.logger))

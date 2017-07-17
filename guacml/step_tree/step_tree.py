@@ -9,31 +9,82 @@ from guacml.step_tree.model_manager import ModelManager
 class StepTree:
     def __init__(self, config, logger):
         self.steps = {}
+        self.parents = {}
         self.children = defaultdict(list)
         self.config = config
         self.root_name = None
         self.logger = logger
 
     def add_step(self, step_name, parent_name, step):
+        if step_name in self.steps:
+            raise ValueError('Step {} alrady present.'.format(step_name))
         if parent_name is None:
             if len(self.steps) > 0:
                 raise Exception('Parent can only be empty for the first node added.')
             self.root_name = step_name
         elif parent_name not in self.steps:
-            raise ValueError('Parent {0} not present.'.format(parent_name))
-        if step_name in self.steps:
-            raise ValueError('Step {0} alrady present.'.format(step_name))
+            raise ValueError('Parent {} not present.'.format(parent_name))
         if not (isinstance(step, BaseStep) or isinstance(step, ModelManager)):
-            raise ValueError('Argument step of type {0} needs to be derived from BaseStep.'
-                             .format(type(step)))
+            raise ValueError('Argument step of type {} needs to be derived from'
+                             ' BaseStep or ModelManager.'.format(type(step)))
         self.steps[step_name] = step
         if parent_name is not None:
-            self.children[parent_name].append(step_name)
+            self.add_parent_child_relation(parent_name, step_name)
+
+    def add_parent_child_relation(self, parent, child):
+        self.children[parent].append(child)
+        self.parents[child] = parent
 
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
             raise ValueError('The model parameter should inherit from BaseModel')
         self.add_step(step_name, parent_name, ModelManager(model, self.config, self.logger))
+
+    def insert_step_before(self, step_name, insert_point, step):
+        if step_name in self.steps:
+            raise ValueError('Step {} alrady present.'.format(step_name))
+        if insert_point not in self.steps:
+            raise ValueError('Insert point {} not present.'.format(insert_point))
+        if not isinstance(step, BaseStep):
+            raise ValueError('Argument step of type {} needs to be derived from BaseStep.'
+                             .format(type(step)))
+
+        if insert_point == self.root_name:
+            self.root_name = step_name
+        else:
+            parent = self.parents[insert_point]
+            self.delete_parent_child(parent, insert_point)
+            self.add_parent_child_relation(parent, step_name)
+
+        self.add_parent_child_relation(step_name, insert_point)
+        self.steps[step_name] = step
+
+    def insert_step_after(self, step_name, insert_point, step):
+        if step_name in self.steps:
+            raise ValueError('Step {} alrady present.'.format(step_name))
+        if insert_point not in self.steps:
+            raise ValueError('Insert point {} not present.'.format(insert_point))
+        if not isinstance(step, BaseStep):
+            raise ValueError('Argument step of type {} needs to be derived from BaseStep.'
+                             .format(type(step)))
+
+        children = self.children[insert_point].copy()
+        for child in children:
+            self.delete_parent_child(insert_point, child)
+            self.add_parent_child_relation(step_name, child)
+
+        self.add_parent_child_relation(insert_point, step_name)
+        self.steps[step_name] = step
+
+    def delete_parent_child(self, parent, child):
+        children = self.children[parent]
+        if len(children) > 1:
+            self.children[parent].remove(child)
+        elif len(children) == 1:
+            del self.children[parent]
+        else:
+            raise Exception('There should never be a children entry without items.')
+        del self.parents[child]
 
     def get_step(self, name):
         return self.steps[name]
@@ -47,12 +98,14 @@ class StepTree:
         return leaf_names
 
     def get_children_or_leaf_(self, step_name, leaf_names):
-        for child_step_name in self.get_children(step_name):
-            child_step = self.steps[child_step_name]
-            if isinstance(child_step, BaseModel):
-                leaf_names.append(child_step_name)
-            else:
-                self.get_children_or_leaf_(step_name, leaf_names)
+        children = self.get_children(step_name)
+        if len(children) == 0:
+            leaf_names.append(step_name)
+
+        for child_step_name in children:
+            self.get_children_or_leaf_(child_step_name, leaf_names)
+
+        return leaf_names
 
     def to_pydot(self):
         """Return a pydot digraph from a StepTree."""

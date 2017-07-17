@@ -15,6 +15,7 @@ from guacml.plots import Plots
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
 from guacml.util import deep_update
+from guacml.util.time_series_util import analyze_frequency
 
 
 class GuacMl:
@@ -74,7 +75,7 @@ class GuacMl:
         self.runner = None
 
     def make_time_series(self, date_split_col, series_key_cols=None, prediction_length=1,
-                         frequency=pd.DateOffset(days=1), n_offset_models=1):
+                         frequency=None, n_offset_models=1):
         """
         :param date_split_col: Name of the date column.
         :param series_key_cols: If many time series, these are the keys for the time series
@@ -108,8 +109,12 @@ class GuacMl:
         ts_conf['date_split_col'] = date_split_col
         ts_conf['series_key_cols'] = series_key_cols
         ts_conf['prediction_length'] = prediction_length
-        ts_conf['frequency'] = frequency
         ts_conf['n_offset_models'] = n_offset_models
+
+        if frequency is None:
+            frequency = analyze_frequency(self.data.df, ts_conf)
+            self.logger.info('Inferred time series frquency of %s', frequency)
+        ts_conf['frequency'] = frequency
 
         # ToDo: this is duplicated from the guac constructor
         tree_builder = TreeBuilder(self.config, self.logger)

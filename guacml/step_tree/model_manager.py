@@ -16,7 +16,7 @@ class ModelManager():
     def execute(self, data):
         features = self.select_features(data.metadata)
         features = features[features != self.target]
-        if self.config['run_time']['is_time_series'] and\
+        if self.config['run_time']['is_time_series'] and \
            self.config['run_time']['time_series']['n_offset_models'] > 1:
             data.df, features = LaggedTargetHandler.select_offset_features(data.df,
                                                                            data.metadata,
@@ -43,7 +43,8 @@ class ModelManager():
         df_trials = df_trials.sort_values('cv error')
         best = df_trials.iloc[0]
 
-        if not self.config['run_time']['is_time_series']:
+        if not self.config['run_time']['is_time_series'] or \
+                self.config['run_time']['time_series']['n_offset_models'] == 1:
             model_runner.train_and_predict_with_holdout_model(features, best_hps)
             training_error = model_runner.training_error()
         else:

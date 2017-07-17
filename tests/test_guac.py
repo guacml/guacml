@@ -6,6 +6,12 @@ from tests.test_util import load_dataset, load_config
 
 
 class TestGuac(unittest.TestCase):
+
+    def tearDown(self):
+        if hasattr(self, 'guac'):
+            self.guac.clear_previous_runs()
+            del self.guac
+
     def test_dataset(self):
         ds = load_dataset()
         self.assertIsInstance(ds.data.df, pd.DataFrame)
@@ -41,7 +47,7 @@ class TestGuac(unittest.TestCase):
 
     def test_timeseries(self):
         guac = load_dataset(fixture='timeseries', target='Sales')
-        guac.make_time_series('Date', prediction_length=2)
+        guac.make_time_series('Date', prediction_length=2, series_key_cols='Store')
         guac.run(1)
         result = guac.model_results
         self.assertEqual(3, len(result))
@@ -50,6 +56,7 @@ class TestGuac(unittest.TestCase):
         df = pd.DataFrame({'a': range(100), 'b': [x + 0.5 for x in range(100)]},
                           index=range(100, 200))
         guac = GuacMl(df, 'b', config=load_config())
+        guac.clear_previous_runs()
         guac.run(1)
         self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-4)
 
@@ -76,5 +83,4 @@ class TestGuac(unittest.TestCase):
 
     def test_nested_config(self):
         guac = load_dataset(config={'run_time': {'inplace': True}, 'foo': {'bar': True}})
-
         self.assertTrue('target' in guac.config['run_time'])
