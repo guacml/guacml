@@ -7,8 +7,8 @@ from guacml.util.time_series_util import analyze_frequency_for_group
 
 class HistoricalMedians(BaseStep):
 
-    def __init__(self, hist_length_factors, config, group_keys=None):
-        super().__init__(config)
+    def __init__(self, hist_length_factors, config, logger, group_keys=None):
+        super().__init__(config, logger)
         self.run_time_config = config['run_time']
         self.n_offset_models = self.run_time_config['time_series']['n_offset_models']
         self.hist_length_factors = hist_length_factors

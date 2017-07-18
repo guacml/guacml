@@ -13,7 +13,7 @@ class TestStepTree(unittest.TestCase):
         return StepTree(empty_conf, None)
 
     def _step_with_runtime(self, runtime):
-        step = BaseStep(None)
+        step = BaseStep(None, None)
         step.runtime = runtime
         return step
 
@@ -67,19 +67,19 @@ class TestStepTree(unittest.TestCase):
 
     def test_add_step(self):
         tree = StepTree(None, None)
-        tree.add_step('step_1', None, BaseStep(self.config))
-        tree.add_step('step_2', 'step_1', BaseStep(self.config))
-        tree.add_step('step_3', 'step_1', BaseStep(self.config))
+        tree.add_step('step_1', None, BaseStep(self.config, None))
+        tree.add_step('step_2', 'step_1', BaseStep(self.config, None))
+        tree.add_step('step_3', 'step_1', BaseStep(self.config, None))
 
         self.assertListEqual(tree.get_children('step_1'), ['step_2', 'step_3'])
         self.assertListEqual(tree.get_leaf_names(), ['step_2', 'step_3'])
 
     def test_insert_step_before_root(self):
         tree = StepTree(None, None)
-        tree.add_step('step_0', None, BaseStep(self.config))
-        tree.add_step('step_1', 'step_0', BaseStep(self.config))
+        tree.add_step('step_0', None, BaseStep(self.config, None))
+        tree.add_step('step_1', 'step_0', BaseStep(self.config, None))
 
-        inserted_step = BaseStep(self.config)
+        inserted_step = BaseStep(self.config, None)
         tree.insert_step_before('inserted', 'step_0', inserted_step)
 
         self.assertEqual(tree.get_step('inserted'), inserted_step)
@@ -89,10 +89,10 @@ class TestStepTree(unittest.TestCase):
 
     def test_insert_step_before(self):
         tree = StepTree(None, None)
-        tree.add_step('step_0', None, BaseStep(self.config))
-        tree.add_step('step_1', 'step_0', BaseStep(self.config))
+        tree.add_step('step_0', None, BaseStep(self.config, None))
+        tree.add_step('step_1', 'step_0', BaseStep(self.config, None))
 
-        inserted_step = BaseStep(self.config)
+        inserted_step = BaseStep(self.config, None)
         tree.insert_step_before('inserted', 'step_1', inserted_step)
 
         self.assertEqual(tree.get_step('inserted'), inserted_step)
@@ -102,11 +102,11 @@ class TestStepTree(unittest.TestCase):
 
     def test_insert_step_after(self):
         tree = StepTree(None, None)
-        tree.add_step('step_0', None, BaseStep(self.config))
-        tree.add_step('step_1', 'step_0', BaseStep(self.config))
-        tree.add_step('step_2', 'step_0', BaseStep(self.config))
+        tree.add_step('step_0', None, BaseStep(self.config, None))
+        tree.add_step('step_1', 'step_0', BaseStep(self.config, None))
+        tree.add_step('step_2', 'step_0', BaseStep(self.config, None))
 
-        inserted_step = BaseStep(self.config)
+        inserted_step = BaseStep(self.config, None)
         tree.insert_step_after('inserted', 'step_0', inserted_step)
 
         self.assertEqual(tree.get_step('inserted'), inserted_step)

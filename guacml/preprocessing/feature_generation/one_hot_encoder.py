@@ -34,4 +34,5 @@ class OneHotEncoder(BaseStep):
                 'n_na': [0] * n_new,
                 'n_blank': [0] * n_new
             }, index=new_col_names)
+            self.logger.info('OneHotEncoder: generated %d columns from %s', n_new, col)
             data.metadata = meta.append(to_append)

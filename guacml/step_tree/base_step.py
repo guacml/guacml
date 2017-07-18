@@ -1,6 +1,8 @@
 class BaseStep:
-    def __init__(self, config):
+
+    def __init__(self, config, logger):
         self.config = config
+        self.logger = logger
         self.runtime = None
 
     def execute(self, data):

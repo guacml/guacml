@@ -35,4 +35,6 @@ class DateParts(BaseStep):
                     'n_na': df[new_col].notnull().sum(),
                     'n_blank': 0
                 })
+                self.logger.info('DateParts: generated column %s', new_col)
+
             data.metadata = meta.append(pd.DataFrame(to_append, index=to_append_index))

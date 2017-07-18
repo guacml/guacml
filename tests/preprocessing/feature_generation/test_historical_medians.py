@@ -12,7 +12,7 @@ class TestHistoricalMedians(unittest.TestCase):
         guac = test_util.load_dataset('timeseries', target='Sales')
         guac.make_time_series('Date', series_key_cols='Store', prediction_length=2)
 
-        medians = HistoricalMedians([1], guac.config)
+        medians = HistoricalMedians([1], guac.config, guac.logger)
         out = medians.execute(guac.data)
 
         out.df = out.df.sort_values(['Store', 'Date'])
@@ -25,7 +25,7 @@ class TestHistoricalMedians(unittest.TestCase):
         guac = test_util.load_dataset('bike_sharing', target='count')
         guac.make_time_series('datetime', prediction_length=1, frequency=pd.DateOffset(hours=1))
 
-        medians = HistoricalMedians([1], guac.config)
+        medians = HistoricalMedians([1], guac.config, guac.logger)
         out = medians.execute(guac.data)
 
         out.df = out.df.sort_values('datetime')
@@ -41,7 +41,7 @@ class TestHistoricalMedians(unittest.TestCase):
         df = df.iloc[[0, 2, 3, 4, 5]]
         guac = GuacMl(df, 'value')
         guac.make_time_series('date', prediction_length=1)
-        medians = HistoricalMedians([3], guac.config)
+        medians = HistoricalMedians([3], guac.config, guac.logger)
         out = medians.execute(guac.data)
         self.assertTrue(np.isnan(out.df['value_median_3'].iloc[0]))
         self.assertEqual(out.df['value_median_3'].iloc[1], 0)
@@ -60,7 +60,7 @@ class TestHistoricalMedians(unittest.TestCase):
         })
         guac = GuacMl(df, 'value')
         guac.make_time_series('date', prediction_length=1, series_key_cols='series_key')
-        medians = HistoricalMedians([2], guac.config, group_keys='group_key')
+        medians = HistoricalMedians([2], guac.config, guac.logger, group_keys='group_key')
         out = medians.execute(guac.data)
 
         out.df = out.df.sort_values(['series_key', 'group_key', 'date'])
@@ -77,7 +77,7 @@ class TestHistoricalMedians(unittest.TestCase):
         guac.make_time_series('Date', series_key_cols='Store', prediction_length=2)
 
         guac.data.df['weekday'] = guac.data.df['Date'].dt.weekday
-        medians = HistoricalMedians([1], guac.config, group_keys='weekday')
+        medians = HistoricalMedians([1], guac.config, guac.logger, group_keys='weekday')
         out = medians.execute(guac.data)
 
         out.df = out.df.sort_values(['Store', 'weekday', 'Date'])
