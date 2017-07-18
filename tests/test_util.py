@@ -4,6 +4,7 @@ import pandas as pd
 from guacml import GuacMl
 from guacml.util import deep_update
 
+
 def load_dataset(fixture='titanic', target='Survived', eval_metric=None, config=None):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     df = pd.read_csv('{0}/fixtures/{1}.csv'.format(dir_path, fixture))
