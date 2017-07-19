@@ -11,9 +11,9 @@ class TestFeatureWhitelist(unittest.TestCase):
 
     def setUp(self):
         self.config = load_config()
-        self.config['run_time']['target'] = 't'
+        self.config['run_time']['target'] = 'tt'
         self.logger = logging.getLogger(__name__)
-        self.data = Dataset.from_df(pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6], 't': [7, 8, 9]}),
+        self.data = Dataset.from_df(pd.DataFrame({'aa': [1, 2, 3], 'bb': [4, 5, 6], 'tt': [7, 8, 9]}),
                                     self.config,
                                     self.config['run_time']['target'], None, self.logger)
 
@@ -21,13 +21,13 @@ class TestFeatureWhitelist(unittest.TestCase):
         step = FeatureWhitelist(self.config, self.logger)
         step.execute_inplace(self.data)
 
-        self.assertEqual(['a', 'b', 't'], self.data.df.columns.tolist())
-        self.assertEqual(['a', 'b', 't'], self.data.metadata.index.tolist())
+        self.assertEqual(['aa', 'bb', 'tt'], self.data.df.columns.tolist())
+        self.assertEqual(['aa', 'bb', 'tt'], self.data.metadata.index.tolist())
 
     def test_whitelisting_enabled(self):
-        self.config['pre_processing']['feature_whitelist'] = ['a']
+        self.config['pre_processing']['feature_whitelist'] = ['aa']
         step = FeatureWhitelist(self.config, self.logger)
         step.execute_inplace(self.data)
 
-        self.assertEqual(['a', 't'], self.data.df.columns.tolist())
-        self.assertEqual(['a', 't'], self.data.metadata.index.tolist())
+        self.assertEqual(['aa', 'tt'], self.data.df.columns.tolist())
+        self.assertEqual(['aa', 'tt'], self.data.metadata.index.tolist())
