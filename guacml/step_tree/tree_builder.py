@@ -30,7 +30,8 @@ class TreeBuilder:
                                HistoricalMedians([1, 5, 20], self.config, self.logger))
             last_node = 'historical_medians'
 
-        step_tree.add_step('feature_whitelist', last_node, FeatureWhitelist(self.config, self.logger))
+        step_tree.add_step('feature_whitelist', last_node,
+                           FeatureWhitelist(self.config, self.logger))
         step_tree.add_step('fill_na', 'feature_whitelist', FillNa(self.config, self.logger))
 
         step_tree.add_model('xg_boost', 'feature_whitelist', XgBoost(self.config, self.logger))
