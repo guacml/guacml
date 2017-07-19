@@ -14,6 +14,10 @@ class ModelRunner():
         rt_conf = config['run_time']
         self.target = rt_conf['target']
         self.eval_metric = rt_conf['eval_metric']
+        if rt_conf['target_transform'] is not None:
+            self.target_trans = rt_conf['target_transform']
+            data.df['guac_transformed_target'] = self.target_trans.transform(data.df[self.target])
+
         self.prediction_range = rt_conf['prediction_range']
         if rt_conf['is_time_series']:
             self.ts_config = rt_conf['time_series']
@@ -63,7 +67,10 @@ class ModelRunner():
 
         for train_indices, cv_indices in self.train_and_cv_folds:
             x = self.train_and_cv[features].loc[train_indices]
-            y = self.train_and_cv[self.target].loc[train_indices]
+            if not hasattr(self, 'target_trans'):
+                y = self.train_and_cv[self.target].loc[train_indices]
+            else:
+                y = self.train_and_cv['guac_transformed_target'].loc[train_indices]
             self.logger.info('Training %s fold #%d on %d rows',
                              self.model.name(), fold_number, x.shape[0])
             self.model.train(x, y, **hyper_params)
@@ -71,7 +78,12 @@ class ModelRunner():
             prediction = self.model.predict(self.train_and_cv[features].loc[cv_indices])
             if prediction.isnull().any():
                 raise Exception('Some predictions where N/A')
-            self.train_and_cv.loc[cv_indices, 'cv_prediction'] = prediction
+
+            if not hasattr(self, 'target_trans'):
+                self.train_and_cv.loc[cv_indices, 'cv_prediction'] = prediction
+            else:
+                self.train_and_cv.loc[cv_indices, 'cv_transformed_prediction'] = prediction
+                self.train_and_cv.loc[cv_indices, 'cv_prediction'] = self.target_trans.transform_back(prediction)
 
             if with_feature_importances:
                 feat_importance = self.model.feature_importances(self.train_and_cv[features])
@@ -93,19 +105,24 @@ class ModelRunner():
         self.logger.info('Training holdout model %s on features %s using %s',
                          self.model.name(), features, hyper_params)
 
-        self.model.train(
-            self.train_and_cv[features],
-            self.train_and_cv[self.target],
-            **hyper_params
-        )
-        self.predict_with_holdout_model(self.holdout, features, 'prediction')
+        x = self.train_and_cv[features]
+        if not hasattr(self, 'target_trans'):
+            y = self.train_and_cv[self.target]
+        else:
+            y = self.train_and_cv['guac_transformed_target']
 
-    def predict_with_holdout_model(self, data, features, prediction_col):
-        prediction = self.model.predict(data[features])
+        self.model.train(x, y, **hyper_params)
+
+        prediction = self.model.predict(self.holdout[features])
         if prediction.isnull().any():
             raise Exception('Some predictions where N/A')
-        data[prediction_col] = prediction
-        self._truncate_predictions(data, prediction_col)
+
+        if not hasattr(self, 'target_trans'):
+            self.holdout['prediction'] = prediction
+        else:
+            self.holdout['transformed_prediction'] = prediction
+            self.holdout['prediction'] = self.target_trans.transform_back(prediction)
+        self._truncate_predictions(self.holdout, 'prediction')
 
     def train_and_predict_with_offset_models(self, features, hyper_params):
         self.holdout_features = features
@@ -117,7 +134,11 @@ class ModelRunner():
                                                                          self.metadata,
                                                                          features,
                                                                          offset=0)
-            self.model.train(train[features], train[self.target], **hyper_params)
+            if not hasattr(self, 'target_trans'):
+                y = self.train_and_cv[self.target]
+            else:
+                y = self.train_and_cv['guac_transformed_target']
+            self.model.train(train[features], y, **hyper_params)
 
             offset_labels = LaggedTargetHandler.holdout_offset_labels(self.ts_config,
                                                                       self.holdout,
@@ -126,7 +147,12 @@ class ModelRunner():
             prediction = self.model.predict(self.holdout.loc[offset_labels, features])
             if prediction.isnull().any():
                 raise Exception('Some predictions where N/A')
-            self.holdout.loc[offset_labels, 'prediction'] = prediction
+            if not hasattr(self, 'target_trans'):
+                self.holdout.loc[offset_labels, 'prediction'] = prediction
+            else:
+                self.holdout.loc[offset_labels, 'transformed_prediction'] = prediction
+                self.holdout.loc[offset_labels, 'prediction'] = \
+                    self.target_trans.transform_back(prediction)
 
         self._truncate_predictions(self.holdout, 'prediction')
 
