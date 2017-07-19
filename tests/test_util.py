@@ -5,7 +5,8 @@ from guacml import GuacMl
 from guacml.util import deep_update
 
 
-def load_dataset(fixture='titanic', target='Survived', eval_metric=None, config=None):
+def load_dataset(fixture='titanic', target='Survived', eval_metric=None,
+                 target_transform=None, config=None):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     df = pd.read_csv('{0}/fixtures/{1}.csv'.format(dir_path, fixture))
     default_config = load_config()
@@ -13,7 +14,8 @@ def load_dataset(fixture='titanic', target='Survived', eval_metric=None, config=
     if config is not None:
         deep_update(default_config, config)
 
-    return GuacMl(df, target, eval_metric=eval_metric, config=default_config)
+    return GuacMl(df, target, eval_metric=eval_metric,
+                  target_transform=target_transform, config=default_config)
 
 
 def load_config():

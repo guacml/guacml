@@ -52,6 +52,13 @@ class TestGuac(unittest.TestCase):
         result = guac.model_results
         self.assertEqual(3, len(result))
 
+    def test_timeseries_with_target_transform(self):
+        guac = load_dataset(fixture='timeseries', target_transform='log', target='Sales')
+        guac.make_time_series('Date', prediction_length=2, series_key_cols='Store')
+        guac.run(1)
+        result = guac.model_results
+        self.assertEqual(3, len(result))
+
     def test_dataset_with_non_canonical_index(self):
         df = pd.DataFrame({'a': range(100), 'b': [x + 0.5 for x in range(100)]},
                           index=range(100, 200))

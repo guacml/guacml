@@ -5,12 +5,9 @@ import logging
 
 from guacml.dataset import Dataset
 from guacml.enums import ProblemType, ColType
-from guacml.metrics.accuracy import Accuracy
-from guacml.metrics.log_loss import LogLoss
-from guacml.metrics.mean_absolute_error import MeanAbsoluteError
-from guacml.metrics.mean_squared_error import MeanSquaredError
-from guacml.metrics.root_mean_squared_log_error import RootMeanSquaredLogError
-from guacml.metrics.root_mean_squared_percentage_error import RootMeanSquaredPercentageError
+import guacml.metrics as eval_metrics
+import guacml.target_transforms as target_transforms
+
 from guacml.plots import Plots
 from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
@@ -19,8 +16,8 @@ from guacml.util.time_series_util import analyze_frequency
 
 
 class GuacMl:
-    def __init__(self, data, target, eval_metric=None, exclude_cols=None,
-                 problem_type=None, config=None, log_level=None):
+    def __init__(self, data, target, eval_metric=None, exclude_cols=None, config=None,
+                 problem_type=None, target_transform=None, log_level=None):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
             self.config = yaml.load(file)
@@ -40,20 +37,21 @@ class GuacMl:
 
         self.data = Dataset.from_df(data, self.config, target, exclude_cols, self.logger)
 
-        target_meta = self.data.metadata.loc[target]
+        metadata = self.data.metadata
+        target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
         if problem_type is None:
             if target_meta.type == ColType.BINARY:
                 problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = LogLoss()
+                rt_conf['eval_metric'] = eval_metrics.LogLoss()
                 self.logger.info('Binary classification problem detected.')
             elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
                 problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = LogLoss()
+                rt_conf['eval_metric'] = eval_metrics.LogLoss()
                 self.logger.info('Multi class classification problem detected.')
             elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
                 problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = MeanSquaredError()
+                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
                 self.logger.info('Regression problem detected.')
             else:
                 raise Exception('Can not automatically infer problem type.')
@@ -72,6 +70,7 @@ class GuacMl:
 
         if eval_metric is not None:
             metric_name = eval_metric.lower()
+            rt_conf['eval_metric'] = eval_metrics.eval_metric_from_name(metric_name)
 
             if metric_name == 'accuracy':
                 rt_conf['eval_metric'] = Accuracy()
@@ -83,6 +82,10 @@ class GuacMl:
                 rt_conf['eval_metric'] = RootMeanSquaredPercentageError()
             else:
                 raise NotImplementedError('Unknown eval metric: ' + eval_metric)
+
+        if target_transform is not None:
+            transform_name = target_transform.lower()
+            rt_conf['target_transform'] = target_transforms.target_transform_from_name(target_transform)
 
         rt_conf['problem_type'] = problem_type
         rt_conf['target'] = target
