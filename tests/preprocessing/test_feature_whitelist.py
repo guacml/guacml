@@ -13,8 +13,8 @@ class TestFeatureWhitelist(unittest.TestCase):
         self.config = load_config()
         self.config['run_time']['target'] = 'tt'
         self.logger = logging.getLogger(__name__)
-        self.data = Dataset.from_df(pd.DataFrame({'aa': [1, 2, 3], 'bb': [4, 5, 6], 'tt': [7, 8, 9]}),
-                                    self.config,
+        data = {'aa': [1, 2, 3], 'bb': [4, 5, 6], 'tt': [7, 8, 9]}
+        self.data = Dataset.from_df(pd.DataFrame(data), self.config,
                                     self.config['run_time']['target'], None, self.logger)
 
     def test_whitelisting_disabled(self):
