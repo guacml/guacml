@@ -24,3 +24,4 @@ cross_validation:
 
 pre_processing:
     max_uniques_for_one_hot: 100
+    feature_whitelist: null

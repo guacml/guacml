@@ -2,6 +2,7 @@ from guacml.models.linear_model import LinearModel
 from guacml.models.random_forest import RandomForest
 from guacml.models.xgboost import XgBoost
 from guacml.preprocessing.column_cleaner import ColumnCleaner
+from guacml.preprocessing.feature_whitelist import FeatureWhitelist
 from guacml.preprocessing.feature_generation.date_parts import DateParts
 from guacml.preprocessing.feature_generation.historical_medians import HistoricalMedians
 from guacml.preprocessing.feature_generation.label_encoder import LabelEncoder
@@ -29,9 +30,11 @@ class TreeBuilder:
                                HistoricalMedians([1, 5, 20], self.config, self.logger))
             last_node = 'historical_medians'
 
-        step_tree.add_model('xg_boost', last_node, XgBoost(self.config, self.logger))
+        step_tree.add_step('feature_whitelist', last_node, FeatureWhitelist(self.config, self.logger))
+        step_tree.add_step('fill_na', 'feature_whitelist', FillNa(self.config, self.logger))
 
-        step_tree.add_step('fill_na', last_node, FillNa(self.config, self.logger))
+        step_tree.add_model('xg_boost', 'feature_whitelist', XgBoost(self.config, self.logger))
+
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.config, self.logger))
 
         step_tree.add_step('one_hot_encode', 'fill_na', OneHotEncoder(self.config, self.logger))
