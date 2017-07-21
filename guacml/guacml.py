@@ -32,8 +32,7 @@ class GuacMl:
 
         self.data = Dataset.from_df(data, self.config, target, exclude_cols, self.logger)
 
-        metadata = self.data.metadata
-        target_meta = metadata.loc[target]
+        target_meta = self.data.metadata.loc[target]
         rt_conf = self.config['run_time']
         if target_meta.type == ColType.BINARY:
             problem_type = ProblemType.BINARY_CLAS

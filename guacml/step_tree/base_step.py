@@ -4,6 +4,7 @@ class BaseStep:
         self.config = config
         self.logger = logger
         self.runtime = None
+        self.state = None
 
     def execute(self, data):
         if self.config['run_time']['inplace'] is False:

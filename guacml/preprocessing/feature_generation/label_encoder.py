@@ -9,11 +9,15 @@ class LabelEncoder(BaseStep):
         df = data.df
         meta = data.metadata
 
-        enc = LE()
+        classes = {}
         cols_to_encode = meta[meta.type == ColType.CATEGORICAL].index
         for col in cols_to_encode:
+            enc = LE()
             df.loc[df[col].notnull(), col] = enc.fit_transform(df.loc[df[col].notnull(), col])
             df[col] = df[col].astype(float)
             meta.loc[col, 'type'] = ColType.INT_ENCODING
             meta.loc[col, 'derived_from'] = col
+            classes[col] = enc.classes_
             self.logger.info('LabelEncoder: encoded %s', col)
+
+        self.state = {'classes': classes}
