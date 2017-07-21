@@ -3,7 +3,6 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
-from guacml.enums import ProblemType
 from guacml.preprocessing.column_analyzer import ColType
 import guacml.utils as utils
 
@@ -127,12 +126,12 @@ class Plots:
     def predictions_vs_actual(self, model_name, n_bins=10, **kwargs):
         model_result = self.model_results[model_name]
         if not self.run_time_config['is_time_series']:
-            if self.problem_type == ProblemType.BINARY_CLAS:
+            if self.problem_type == 'binary_clas':
                 return predictions_vs_actual_classification(model_result,
                                                             model_name,
                                                             n_bins,
                                                             **kwargs)
-            elif self.problem_type == ProblemType.REGRESSION:
+            elif self.problem_type == 'regression':
                 return predictions_vs_actual_regression(model_result, model_name, **kwargs)
             else:
                 raise Exception('Not implemented for problem type ' + self.problem_type)

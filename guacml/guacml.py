@@ -4,7 +4,7 @@ import pandas as pd
 import logging
 
 from guacml.dataset import Dataset
-from guacml.enums import ProblemType, ColType
+from guacml.enums import ColType
 import guacml.metrics as eval_metrics
 import guacml.target_transforms as transforms
 
@@ -40,33 +40,28 @@ class GuacMl:
         metadata = self.data.metadata
         target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
+
         if problem_type is None:
             if target_meta.type == ColType.BINARY:
-                problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
+                problem_type = 'binary_clas'
                 self.logger.info('Binary classification problem detected.')
             elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
-                problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
+                problem_type = 'multi_clas'
                 self.logger.info('Multi class classification problem detected.')
             elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
-                problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
+                problem_type = 'regression'
                 self.logger.info('Regression problem detected.')
             else:
                 raise Exception('Can not automatically infer problem type.')
+
+        if problem_type == 'binary_clas':
+            rt_conf['eval_metric'] = eval_metrics.LogLoss()
+        elif problem_type == 'multi_clas':
+            rt_conf['eval_metric'] = eval_metrics.LogLoss()
+        elif problem_type == 'regression':
+            rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
         else:
-            if problem_type == 'binary_clas':
-                problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
-            elif problem_type == 'multi_clas':
-                problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
-            elif problem_type == 'regression':
-                problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
-            else:
-                raise Exception('Problem type {} not known.'.format(problem_type))
+            raise Exception('Problem type {} not known.'.format(problem_type))
 
         if eval_metric is not None:
             metric_name = eval_metric.lower()

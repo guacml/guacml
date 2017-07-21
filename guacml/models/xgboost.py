@@ -3,7 +3,6 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 
-from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
 from guacml.enums import ColType
 from hyperopt import hp
@@ -43,9 +42,9 @@ class XgBoost(BaseModel):
         params.update(self.model_config)
 
         if 'objective' not in params:
-            if self.problem_type == ProblemType.BINARY_CLAS:
+            if self.problem_type == 'binary_clas':
                 params['objective'] = 'reg:logistic'
-            elif self.problem_type == ProblemType.REGRESSION:
+            elif self.problem_type == 'regression':
                 params['objective'] = 'reg:linear'
             else:
                 raise NotImplementedError(

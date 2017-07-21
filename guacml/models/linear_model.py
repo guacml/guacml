@@ -2,7 +2,6 @@ from sklearn.linear_model import LogisticRegression
 from hyperopt import hp
 from sklearn.linear_model import Ridge
 
-from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
 from guacml.preprocessing.column_analyzer import ColType
 import pandas as pd
@@ -20,9 +19,9 @@ class LinearModel(BaseModel):
         }
 
     def train(self, x, y, alpha=1):
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             self.model = LogisticRegression(C=alpha)
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             self.model = Ridge(alpha=alpha)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
@@ -30,9 +29,9 @@ class LinearModel(BaseModel):
         self.model.fit(x, y)
 
     def predict(self, x):
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             prediction = self.model.predict_proba(x)[:, 1]
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             prediction = self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))

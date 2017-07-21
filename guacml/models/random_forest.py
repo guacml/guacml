@@ -1,6 +1,5 @@
 from sklearn.ensemble import RandomForestRegressor
 
-from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
 from guacml.preprocessing.column_analyzer import ColType
 from sklearn.ensemble import RandomForestClassifier
@@ -29,11 +28,11 @@ class RandomForest(BaseModel):
         max_depth = self.to_int(max_depth)
         min_samples_leaf = self.pos_int(min_samples_leaf)
 
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             self.model = RandomForestClassifier(n_estimators,
                                                 max_depth=max_depth,
                                                 min_samples_leaf=min_samples_leaf)
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             self.model = RandomForestRegressor(n_estimators,
                                                max_depth=max_depth,
                                                min_samples_leaf=min_samples_leaf)
@@ -43,9 +42,9 @@ class RandomForest(BaseModel):
         self.model.fit(x, y)
 
     def predict(self, x):
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             prediction = self.model.predict_proba(x)[:, 1]
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             prediction = self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
