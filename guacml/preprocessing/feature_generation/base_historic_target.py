@@ -61,6 +61,10 @@ class BaseHistoricTarget(BaseStep):
             for hist_param in self.hist_parameters:
                 col_name, _ = self.col_name(target, hist_param, i_offset)
                 hist_targets = self.calc_hist_target(grouped, group_keys, hist_param)
+                if not hist_targets.index.name == date_split_col:
+                    raise Exception('The index {} of the hist_targets DataFrame was not the'
+                                    ' expected {}. Check if the subclass implements '
+                                    'calc_hist_target() correctly.')
                 # shift by one step, because the current value must not be leaked
                 hist_targets[target] = hist_targets.groupby(group_keys)[target] \
                                                    .shift((i_offset + 1) * prediction_length)
@@ -112,6 +116,7 @@ class BaseHistoricTarget(BaseStep):
         :param grouped_series: The time series data, possibly grouped
         :param group_keys: Column name for an extra column to group by
         :param hist_param: Several calculations can be done in one go for a set of parameters
-        :return:
+        :return: DataFrame indexed by date_split_col that has the historic values
+        and group keys as columns
         """
         raise NotImplementedError()
