@@ -1,5 +1,6 @@
 demos/*/data/
 tests/data/
+demos/oura/
 
 # Mac-OSX file system
 .DS_Store
