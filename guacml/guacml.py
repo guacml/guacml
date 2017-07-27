@@ -19,7 +19,8 @@ from guacml.util.time_series_util import analyze_frequency
 
 
 class GuacMl:
-    def __init__(self, data, target, eval_metric=None, exclude_cols=None, config=None):
+    def __init__(self, data, target, eval_metric=None, exclude_cols=None,
+                 problem_type=None, config=None, log_level=None):
         conf_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         with open(conf_path, 'r') as file:
             self.config = yaml.load(file)
@@ -28,26 +29,46 @@ class GuacMl:
             deep_update(self.config, config)
 
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        if log_level is None or log_level == 'info':
+            self.logger.setLevel(logging.INFO)
+        elif log_level == 'warning':
+            self.logger.setLevel(logging.WARNING)
+        elif log_level == 'error':
+            self.logger.setLevel(logging.ERROR)
+        else:
+            raise Exception('Log level {} not knonw.'.format(log_level))
 
         self.data = Dataset.from_df(data, self.config, target, exclude_cols, self.logger)
 
         target_meta = self.data.metadata.loc[target]
         rt_conf = self.config['run_time']
-        if target_meta.type == ColType.BINARY:
-            problem_type = ProblemType.BINARY_CLAS
-            rt_conf['eval_metric'] = LogLoss()
-            self.logger.info('Binary classification problem detected.')
-        elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
-            problem_type = ProblemType.MULTI_CLAS
-            rt_conf['eval_metric'] = LogLoss()
-            self.logger.info('Multi class classification problem detected.')
-        elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
-            problem_type = ProblemType.REGRESSION
-            rt_conf['eval_metric'] = MeanSquaredError()
-            self.logger.info('Regression problem detected.')
+        if problem_type is None:
+            if target_meta.type == ColType.BINARY:
+                problem_type = ProblemType.BINARY_CLAS
+                rt_conf['eval_metric'] = LogLoss()
+                self.logger.info('Binary classification problem detected.')
+            elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
+                problem_type = ProblemType.MULTI_CLAS
+                rt_conf['eval_metric'] = LogLoss()
+                self.logger.info('Multi class classification problem detected.')
+            elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
+                problem_type = ProblemType.REGRESSION
+                rt_conf['eval_metric'] = MeanSquaredError()
+                self.logger.info('Regression problem detected.')
+            else:
+                raise Exception('Can not automatically infer problem type.')
         else:
-            raise Exception('Can not automatically infer problem type.')
+            if problem_type == 'binary_clas':
+                problem_type = ProblemType.BINARY_CLAS
+                rt_conf['eval_metric'] = LogLoss()
+            elif problem_type == 'multi_clas':
+                problem_type = ProblemType.MULTI_CLAS
+                rt_conf['eval_metric'] = LogLoss()
+            elif problem_type == 'regression':
+                problem_type = ProblemType.REGRESSION
+                rt_conf['eval_metric'] = MeanSquaredError()
+            else:
+                raise Exception('Problem type {} not known.'.format(problem_type))
 
         if eval_metric is not None:
             metric_name = eval_metric.lower()
