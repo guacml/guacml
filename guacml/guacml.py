@@ -6,7 +6,7 @@ import logging
 from guacml.dataset import Dataset
 from guacml.enums import ProblemType, ColType
 import guacml.metrics as eval_metrics
-import guacml.target_transforms as target_transforms
+import guacml.target_transforms as transforms
 
 from guacml.plots import Plots
 from guacml.step_tree.tree_builder import TreeBuilder
@@ -58,13 +58,13 @@ class GuacMl:
         else:
             if problem_type == 'binary_clas':
                 problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = LogLoss()
+                rt_conf['eval_metric'] = eval_metrics.LogLoss()
             elif problem_type == 'multi_clas':
                 problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = LogLoss()
+                rt_conf['eval_metric'] = eval_metrics.LogLoss()
             elif problem_type == 'regression':
                 problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = MeanSquaredError()
+                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
             else:
                 raise Exception('Problem type {} not known.'.format(problem_type))
 
@@ -72,20 +72,9 @@ class GuacMl:
             metric_name = eval_metric.lower()
             rt_conf['eval_metric'] = eval_metrics.eval_metric_from_name(metric_name)
 
-            if metric_name == 'accuracy':
-                rt_conf['eval_metric'] = Accuracy()
-            elif metric_name == 'rmsle' or metric_name == 'root_mean_squared_log_error':
-                rt_conf['eval_metric'] = RootMeanSquaredLogError()
-            elif metric_name == 'mae' or metric_name == 'mean_absolute_error':
-                rt_conf['eval_metric'] = MeanAbsoluteError()
-            elif metric_name == 'rmspe' or metric_name == 'root_mean_square_percentage_error':
-                rt_conf['eval_metric'] = RootMeanSquaredPercentageError()
-            else:
-                raise NotImplementedError('Unknown eval metric: ' + eval_metric)
-
         if target_transform is not None:
             transform_name = target_transform.lower()
-            rt_conf['target_transform'] = target_transforms.target_transform_from_name(target_transform)
+            rt_conf['target_transform'] = transforms.target_transform_from_name(transform_name)
 
         rt_conf['problem_type'] = problem_type
         rt_conf['target'] = target

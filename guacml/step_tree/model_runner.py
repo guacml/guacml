@@ -83,7 +83,8 @@ class ModelRunner():
                 self.train_and_cv.loc[cv_indices, 'cv_prediction'] = prediction
             else:
                 self.train_and_cv.loc[cv_indices, 'cv_transformed_prediction'] = prediction
-                self.train_and_cv.loc[cv_indices, 'cv_prediction'] = self.target_trans.transform_back(prediction)
+                transformed_back = self.target_trans.transform_back(prediction)
+                self.train_and_cv.loc[cv_indices, 'cv_prediction'] = transformed_back
 
             if with_feature_importances:
                 feat_importance = self.model.feature_importances(self.train_and_cv[features])

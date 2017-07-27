@@ -4,4 +4,3 @@ class BaseTargetTransform():
 
     def transform_back(self, transformed_target):
         raise NotImplementedError()
-
