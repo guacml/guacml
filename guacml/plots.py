@@ -75,19 +75,38 @@ class Plots:
 
     def error_overview(self, bins='auto', figsize=(8, 6)):
         n_models = len(self.model_results)
-        fig, axes = plt.subplots(n_models, sharex=True, sharey=True)
+        fig, axes = plt.subplots(n_models, sharex=True, sharey=True, figsize=figsize)
         fig.subplots_adjust(hspace=0.2)
         for idx, value in enumerate(self.model_results.items()):
             name, model = value
-            model.holdout_data['error'].hist(bins=bins, figsize=figsize, ax=axes[idx], label=name,
-                                             edgecolor='black')
+
+            self.plot_error_distribution(model.holdout_data, axes[idx], name)
+
             axes[idx].legend()
-            axes[idx].set_ylabel('n rows')
+            axes[idx].set_ylabel('error')
             x_max = axes[idx].get_xlim()[1]
             axes[idx].set_xlim(model.holdout_data['error'].min(), x_max)
-        plt.xlabel('error')
-        plt.suptitle('Model error histograms', fontsize=14)
+        plt.xlabel('Percentage of holdout rows')
+        plt.suptitle('Cumulative Holdout Error', fontsize=14)
         plt.show()
+
+    def plot_error_distribution(self, holdout_data, ax, name):
+        holdout_data = holdout_data.sort_values('error')
+        n_holdout = holdout_data.shape[0]
+        n_step = int(n_holdout / 100)
+        limits = []
+        errors_from_bottom = []
+        for limit in range(0, n_holdout, n_step):
+            from_bottom = holdout_data[:limit]
+            err_rom_bottom = self.run_time_config['eval_metric'].error(from_bottom[self.target],
+                                                                       from_bottom['prediction'])
+            limits.append(limit)
+            errors_from_bottom.append(err_rom_bottom)
+
+        limits = np.array(limits)
+        limits = limits / limits.max() * 100
+        ax.plot(limits, errors_from_bottom, label=name)
+        ax.set_xlim([0, 100])
 
     def model_error_by_feature(self, model_name):
         model_results = self.model_results[model_name]
