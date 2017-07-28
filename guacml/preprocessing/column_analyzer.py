@@ -92,16 +92,10 @@ class ColumnAnalyzer:
             col_info['type'] = ColType.INT_ENCODING
             return col_info
 
-            # all values from 0/1 until n_unique are present -> IDs or encoded categories
+        # all values from 0/1 until n_unique are present -> IDs or encoded categories
         if (col.min() == 0 or col.min() == 1) and (col.max() - col.min() == n_unique - 1):
-            if n_unique_pct == 100:
-                col_info['type'] = ColType.INT_ENCODING
-                return col_info
-            else:
-
-                col_info['type'] = ColType.CATEGORICAL
-                df[col_name] = col.astype('str')
-                return col_info
+            col_info['type'] = ColType.INT_ENCODING
+            return col_info
 
         col_info['type'] = ColType.ORDINAL
         return col_info
