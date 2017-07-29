@@ -4,7 +4,6 @@ import pandas as pd
 import logging
 
 from guacml.dataset import Dataset
-import guacml.metrics as eval_metrics
 import guacml.target_transforms as transforms
 
 from guacml.plots import Plots
@@ -53,18 +52,15 @@ class GuacMl:
             else:
                 raise Exception('Can not automatically infer problem type.')
 
-        if problem_type == 'binary_clas':
-            rt_conf['eval_metric'] = eval_metrics.LogLoss()
-        elif problem_type == 'multi_clas':
-            rt_conf['eval_metric'] = eval_metrics.LogLoss()
-        elif problem_type == 'regression':
-            rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
-        else:
-            raise Exception('Problem type {} not known.'.format(problem_type))
+        if eval_metric is None:
+            if problem_type in ['binary_clas', 'multi_clas']:
+                eval_metric = 'logloss'
+            elif problem_type == 'regression':
+                eval_metric = 'mse'
+            else:
+                raise Exception('Problem type {} not known.'.format(problem_type))
 
-        if eval_metric is not None:
-            metric_name = eval_metric.lower()
-            rt_conf['eval_metric'] = eval_metrics.eval_metric_from_name(metric_name)
+        rt_conf['eval_metric'] = eval_metric
 
         if target_transform is not None:
             transform_name = target_transform.lower()

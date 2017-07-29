@@ -1,6 +1,7 @@
 from guacml.metrics.base_eval_metric import BaseEvalMetric
 
 
+# TODO: is this used anywhere?
 class TransformedEvalMetric(BaseEvalMetric):
     def __init__(self, eval_metric, target_transform):
         self.inner_metric = eval_metric

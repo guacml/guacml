@@ -3,6 +3,7 @@ import numpy as np
 
 from hyperopt import STATUS_OK
 from guacml import splitters
+from guacml import metrics
 from guacml.step_tree.lagged_target_handler import LaggedTargetHandler
 
 
@@ -13,7 +14,7 @@ class ModelRunner():
         self.metadata = data.metadata
         rt_conf = config['run_time']
         self.target = rt_conf['target']
-        self.eval_metric = rt_conf['eval_metric']
+        self.eval_metric = metrics.create(rt_conf['eval_metric'])
         if rt_conf['target_transform'] is not None:
             self.target_trans = rt_conf['target_transform']
             data.df['guac_transformed_target'] = self.target_trans.transform(data.df[self.target])
