@@ -62,6 +62,9 @@ class ColumnAnalyzer:
             return self.analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info)
 
         if col.dtype.kind == 'f':
+            if not np.isfinite(not_null).all():
+                raise ValueError('Input column {} contains infinite values.'.format(col_name))
+
             if (np.mod(not_null, 1) != 0).any():
                 return self.analyze_float_col(col_info)
             else:
