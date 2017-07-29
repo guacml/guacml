@@ -4,7 +4,6 @@ import pandas as pd
 import logging
 
 from guacml.dataset import Dataset
-from guacml.enums import ColType
 import guacml.metrics as eval_metrics
 import guacml.target_transforms as transforms
 
@@ -42,13 +41,13 @@ class GuacMl:
         rt_conf = self.config['run_time']
 
         if problem_type is None:
-            if target_meta.type == ColType.BINARY:
+            if target_meta.type == 'binary':
                 problem_type = 'binary_clas'
                 self.logger.info('Binary classification problem detected.')
-            elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
+            elif target_meta.type in ['categorical', 'int_encoding']:
                 problem_type = 'multi_clas'
                 self.logger.info('Multi class classification problem detected.')
-            elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
+            elif target_meta.type in ['ordinal', 'numeric']:
                 problem_type = 'regression'
                 self.logger.info('Regression problem detected.')
             else:

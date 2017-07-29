@@ -1,6 +1,5 @@
 import pandas as pd
 
-from guacml.preprocessing.column_analyzer import ColType
 from sklearn.preprocessing import OneHotEncoder as OHE
 from guacml.step_tree.base_step import BaseStep
 
@@ -14,7 +13,7 @@ class OneHotEncoder(BaseStep):
 
         # ToDo: Rather check total number of OneHot columns and define cutoff
         cols_to_encode = meta[
-            (meta.type == ColType.INT_ENCODING) &
+            (meta.type == 'int_encoding') &
             (meta.n_unique > 2) &
             (meta.n_unique < self.config['pre_processing']['max_uniques_for_one_hot'])
         ].index
@@ -28,7 +27,7 @@ class OneHotEncoder(BaseStep):
 
             n_new = len(new_col_names)
             to_append = pd.DataFrame({
-                'type': [ColType.BINARY] * n_new,
+                'type': ['binary'] * n_new,
                 'derived_from': [col] * n_new,
                 'n_unique': [2] * n_new,
                 'n_na': [0] * n_new,

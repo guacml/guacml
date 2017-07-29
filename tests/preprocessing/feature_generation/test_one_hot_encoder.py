@@ -1,5 +1,4 @@
 from guacml.dataset import Dataset
-from guacml.preprocessing.column_analyzer import ColType
 from guacml.preprocessing.feature_generation.one_hot_encoder import OneHotEncoder
 import pandas as pd
 import unittest
@@ -18,7 +17,7 @@ class TestOneHotEncoder(unittest.TestCase):
         input = pd.DataFrame({'a': [3, 1, 2], 'b': [1.1, 1.2, 1.3]},
                              index=['row_1', 'row_2', 'row_3'])
         metadata = pd.DataFrame({
-            'type': [ColType.INT_ENCODING, ColType.NUMERIC],
+            'type': ['int_encoding', 'numeric'],
             'derived_from': [None, None],
             'n_unique': [input['a'].nunique(), input['b'].nunique()],
             'n_na': [0, 0],
@@ -36,7 +35,7 @@ class TestOneHotEncoder(unittest.TestCase):
 
         self.assertEqual(meta_out.shape[0], 5)
         self.assertEqual(meta_out.index[2], 'a_one_hot_1')
-        self.assertEqual(meta_out['type'].iloc[2], ColType.BINARY)
+        self.assertEqual(meta_out['type'].iloc[2], 'binary')
 
     def test_single_zero_column(self):
         """ This was causing an exception in the One-Hot-Encoder."""
@@ -45,7 +44,7 @@ class TestOneHotEncoder(unittest.TestCase):
         input = pd.DataFrame({'a': [0.0, 0.0, 0.0]})
         metadata = pd.DataFrame({
             'col_name': ['a'],
-            'type': [ColType.INT_ENCODING],
+            'type': ['int_encoding'],
             'derived_from': [None],
             'n_unique': [input['a'].nunique()],
             'n_na': [0],

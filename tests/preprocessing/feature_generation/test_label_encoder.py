@@ -1,5 +1,4 @@
 from guacml.dataset import Dataset
-from guacml.preprocessing.column_analyzer import ColType
 from guacml.preprocessing.feature_generation.label_encoder import LabelEncoder
 import pandas as pd
 import unittest
@@ -18,7 +17,7 @@ class TestLabelEncoder(unittest.TestCase):
         input = pd.DataFrame({'sex': ['male', 'female', None],
                              'nationality': ['Polish', 'German', 'Polish'], 'age': [21, 23, 25]})
         metadata = pd.DataFrame({
-            'type': [ColType.CATEGORICAL, ColType.CATEGORICAL, ColType.NUMERIC],
+            'type': ['categorical', 'categorical', 'numeric'],
             'derived_from': [None, None, None],
             'n_unique': [3, 3, 3],
             'n_na': [1, 0, 0],

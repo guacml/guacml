@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 from guacml.models.base_model import BaseModel
-from guacml.enums import ColType
 from hyperopt import hp
 
 
@@ -15,7 +14,7 @@ class XgBoost(BaseModel):
         self.model_config = config['models']['xgboost']
 
     def get_valid_types(self):
-        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
+        return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
     def hyper_parameter_info(self):
         if 'hyper_parameters' in self.model_config:

@@ -3,7 +3,6 @@ from hyperopt import hp
 from sklearn.linear_model import Ridge
 
 from guacml.models.base_model import BaseModel
-from guacml.preprocessing.column_analyzer import ColType
 import pandas as pd
 import numpy as np
 
@@ -11,7 +10,7 @@ import numpy as np
 class LinearModel(BaseModel):
 
     def get_valid_types(self):
-        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
+        return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
     def hyper_parameter_info(self):
         return {

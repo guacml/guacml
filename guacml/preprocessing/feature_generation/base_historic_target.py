@@ -1,4 +1,3 @@
-from guacml.enums import ColType
 from guacml.step_tree.base_step import BaseStep
 import pandas as pd
 
@@ -79,7 +78,7 @@ class BaseHistoricTarget(BaseStep):
                 col_name, shared_col_name = self.col_name(target, hist_param, i_offset)
                 to_append_index.append(col_name)
                 to_append.append({
-                    'type': ColType.ORDINAL,
+                    'type': 'ordinal',
                     'derived_from': target,
                     'n_unique': df[col_name].nunique(),
                     'n_na': df[col_name].notnull().sum(),

@@ -2,15 +2,13 @@ import pandas as pd
 import numpy as np
 import datetime
 
-from guacml.enums import ColType
-
 
 class ColumnAnalyzer:
     """
     Creates metadata for a DataFrame.
 
-    The `ColType` of the column has subtle differences to numpy types. Columns of
-    type `ColType.BINARY` or `ColType.ORDINAL` can contain nulls and will be stored
+    The `col_type` of the column has subtle differences to numpy types. Columns of
+    type `binary` or `'ordinal'` can contain nulls and will be stored
     as numpy float columns.
     """
     def __init__(self, config, logger, type_check_samples=None):
@@ -88,34 +86,34 @@ class ColumnAnalyzer:
     def analyze_int_col(df, col_name, n_unique, n_unique_pct, col_info):
         col = df[col_name]
         if col.min() == 0 and col.max() == 1:
-            col_info['type'] = ColType.BINARY
+            col_info['type'] = 'binary'
             return col_info
 
         if len(col.name) >= 2 and col.name[-2:].lower() == 'id':
-            col_info['type'] = ColType.INT_ENCODING
+            col_info['type'] = 'int_encoding'
             return col_info
 
         # all values from 0/1 until n_unique are present -> IDs or encoded categories
         if (col.min() == 0 or col.min() == 1) and (col.max() - col.min() == n_unique - 1):
-            col_info['type'] = ColType.INT_ENCODING
+            col_info['type'] = 'int_encoding'
             return col_info
 
-        col_info['type'] = ColType.ORDINAL
+        col_info['type'] = 'ordinal'
         return col_info
 
     @staticmethod
     def analyze_boolean_col(col_info):
-        col_info['type'] = ColType.BINARY
+        col_info['type'] = 'binary'
         return col_info
 
     @staticmethod
     def analyze_float_col(col_info):
-        col_info['type'] = ColType.NUMERIC
+        col_info['type'] = 'numeric'
         return col_info
 
     @staticmethod
     def analyze_date_col(col_info):
-        col_info['type'] = ColType.DATETIME
+        col_info['type'] = 'datetime'
         return col_info
 
     def analyze_object_col(self, df, col_name, not_null, n_null, n_unique, n_unique_pct, col_info):
@@ -154,7 +152,7 @@ class ColumnAnalyzer:
         if found_types.issubset({bool, int, float, str}.union(date_types)):
             return self.analyze_string_col(df, col_name, not_null, n_unique, n_unique_pct, col_info)
         else:
-            col_info['type'] = ColType.UNKNOWN
+            col_info['type'] = 'unknown'
             return col_info
 
     def analyze_string_col(self, df, col_name, not_null, n_unique, n_unique_pct, col_info):
@@ -192,18 +190,18 @@ class ColumnAnalyzer:
         word_counts = not_null.str.count('[ ,;]')
         mean_words = word_counts.mean()
         if mean_words >= 5:
-            col_info['type'] = ColType.TEXT
+            col_info['type'] = 'text'
             return col_info
         if mean_words > 1.2:
-            col_info['type'] = ColType.WORDS
+            col_info['type'] = 'words'
             return col_info
         if mean_words == 1 and n_unique_pct == 100:
-            col_info['type'] = ColType.ID
+            col_info['type'] = 'id'
             return col_info
         if mean_words == 1 and col.str.lower.isin('true', 'false', '0', '1'):
-            col_info['type'] = ColType.BINARY
+            col_info['type'] = 'binary'
             return col_info
         else:
-            col_info['type'] = ColType.CATEGORICAL
+            col_info['type'] = 'categorical'
             df[col_name] = col.astype('str')
             return col_info

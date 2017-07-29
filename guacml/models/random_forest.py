@@ -1,7 +1,6 @@
 from sklearn.ensemble import RandomForestRegressor
 
 from guacml.models.base_model import BaseModel
-from guacml.preprocessing.column_analyzer import ColType
 from sklearn.ensemble import RandomForestClassifier
 from hyperopt import hp
 import pandas as pd
@@ -10,7 +9,7 @@ import pandas as pd
 class RandomForest(BaseModel):
 
     def get_valid_types(self):
-        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
+        return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
     def hyper_parameter_info(self):
         return {
