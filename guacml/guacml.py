@@ -11,6 +11,7 @@ from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
 from guacml.util import deep_update
 from guacml.util.time_series_util import analyze_frequency
+from guacml.pipeline import Pipeline
 
 
 class GuacMl:
@@ -163,3 +164,6 @@ class GuacMl:
             return self.model_results[model_name].all_hyper_param_runs
         else:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
+
+    def get_pipeline(self, model):
+        return Pipeline(self, model)

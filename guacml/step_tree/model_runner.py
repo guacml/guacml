@@ -11,7 +11,7 @@ class ModelRunner():
     def __init__(self, model, data, config, logger):
         self.model = model
         self.logger = logger
-        self.metadata = data.metadata
+        self.metadata = data.metadata.copy()
         rt_conf = config['run_time']
         self.target = rt_conf['target']
         self.eval_metric = metrics.create(rt_conf['eval_metric'])

@@ -13,6 +13,12 @@ class XGBoost(BaseModel):
         super().__init__(config, logger)
         self.model_config = config['models']['xgboost']
 
+    def copy_model(self):
+        booster = xgb.Booster()
+        booster.load_model(self.model.save_raw())
+
+        return booster
+
     def get_valid_types(self):
         return ['binary', 'numeric', 'ordinal', 'int_encoding']
 

@@ -9,6 +9,9 @@ import numpy as np
 
 class LinearModel(BaseModel):
 
+    def copy_model(self):
+        return pickle.loads(pickle.dumps(self.model))
+
     def get_valid_types(self):
         return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
