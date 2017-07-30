@@ -10,4 +10,4 @@ sort requirements.txt | diff -q - requirements.txt
 
 echo
 echo --- running flake8
-flake8 --exclude=lib/,bin/,venv/,docs/conf.py --max-line-length=120 -j=2 .
+flake8 --exclude=vendor/,bin/,venv/,docs/conf.py --max-line-length=120 -j=2 .

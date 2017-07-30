@@ -21,13 +21,13 @@ function install_python_deps() {
 function build_xgboost() {
   echo ----- Building binary
 
-  cd lib/xgboost
+  cd vendor/xgboost
   ./build.sh
   cd -
 
   echo ----- Install XGBoost Python Package
 
-  cd lib/xgboost/python-package
+  cd vendor/xgboost/python-package
   python3 setup.py -q install
   cd -
 }
@@ -36,12 +36,12 @@ function install_xgboost() {
   echo
   echo --- Make XGBoost
 
-  if [ ! -e lib/xgboost ]; then
-    echo --- Cloning repo into lib/xgboost
-    git clone --recursive https://github.com/dmlc/xgboost lib/xgboost
+  if [ ! -e vendor/xgboost ]; then
+    echo --- Cloning repo into vendor/xgboost
+    git clone --recursive https://github.com/dmlc/xgboost vendor/xgboost
     build_xgboost
   else
-    cd lib/xgboost
+    cd vendor/xgboost
     if git checkout master &&
       git fetch origin master &&
       [ `git rev-list HEAD...origin/master --count` != 0 ] &&

@@ -15,7 +15,7 @@ jobs:
           key: deps-{{ checksum "requirements.txt" }}
           paths:
             - venv
-            - lib
+            - vendor
       - run:
           name: Linters
           command: scripts/lint
