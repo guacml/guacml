@@ -30,11 +30,11 @@ class TreeRunner:
         step = self.tree.get_step(step_name)
 
         if isinstance(step, ModelManager):
-            results[step_name] = self.execute_step_with_timing(step, data)
+            results[step_name] = self.execute_step_with_timing(step_name, step, data)
 
             self.prev_runs.add_model_result(step_name, results[step_name])
         else:
-            dataset = self.execute_step_with_timing(step, data)
+            dataset = self.execute_step_with_timing(step_name, step, data)
             for child in children:
                 self.run_step(child, dataset, results)
 
@@ -44,11 +44,12 @@ class TreeRunner:
     def clear_prev_runs(self):
         self.prev_runs.clear()
 
-    @staticmethod
-    def execute_step_with_timing(step, data):
+    def execute_step_with_timing(self, step_name, step, data):
         start = time.perf_counter()
         result = step.execute(data)
         end = time.perf_counter()
         step.runtime = end - start
+
+        self.logger.info('Step %s took %.3f seconds', step_name, step.runtime)
 
         return result
