@@ -7,12 +7,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: deps-{{ checksum "requirements.txt" }}
+          key: deps-v2-{{ checksum "requirements.txt" }}
       - run:
           name: Setup
           command: scripts/setup
       - save_cache:
-          key: deps-{{ checksum "requirements.txt" }}
+          key: deps-v2-{{ checksum "requirements.txt" }}
           paths:
             - venv
             - vendor
