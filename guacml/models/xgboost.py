@@ -7,7 +7,7 @@ from guacml.models.base_model import BaseModel
 from hyperopt import hp
 
 
-class XgBoost(BaseModel):
+class XGBoost(BaseModel):
 
     def __init__(self, config, logger):
         super().__init__(config, logger)
@@ -47,7 +47,7 @@ class XgBoost(BaseModel):
                 params['objective'] = 'reg:linear'
             else:
                 raise NotImplementedError(
-                    'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
+                    'Problem type {0} not implemented for XGBoost.'.format(self.problem_type)
                 )
 
         self.logger.info('About to train %d iterations of xgboost using %s', n_rounds, params)

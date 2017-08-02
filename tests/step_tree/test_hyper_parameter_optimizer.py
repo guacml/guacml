@@ -11,5 +11,5 @@ class TestHyperParameterOptimizer(unittest.TestCase):
         })
         guac.run(2)
 
-        self.assertEquals(1, guac.model_results['xg_boost'].display_hyper_param_runs.shape[0])
-        self.assertEquals(7, guac.model_results['xg_boost'].hyper_params['n_rounds'])
+        self.assertEquals(1, guac.model_results['xgboost'].display_hyper_param_runs.shape[0])
+        self.assertEquals(7, guac.model_results['xgboost'].hyper_params['n_rounds'])
