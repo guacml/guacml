@@ -35,6 +35,9 @@ class BaseModel:
     def feature_importances(self, x):
         raise NotImplementedError()
 
+    def get_state(self):
+        raise NotImplementedError()
+
     @staticmethod
     def to_int(value):
         if value is None:

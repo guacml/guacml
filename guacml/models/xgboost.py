@@ -67,3 +67,6 @@ class XGBoost(BaseModel):
     def feature_importances(self, x):
         feat_scores = self.model.get_fscore()
         return pd.Series(list(feat_scores.values()), index=list(feat_scores.keys()))
+
+    def get_state(self):
+        return self.model.save_raw()

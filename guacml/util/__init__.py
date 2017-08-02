@@ -11,3 +11,7 @@ def deep_update(left, right):
 
 def deep_copy(obj):
     return marshal.loads(marshal.dumps(obj))
+
+
+def get_fully_qualified_class_name(obj):
+    return obj.__module__ + '.' + obj.__class__.__name__

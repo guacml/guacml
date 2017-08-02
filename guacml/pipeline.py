@@ -1,5 +1,8 @@
+import base64
+
 from guacml.dataset import Dataset
 from guacml.preprocessing.column_analyzer import ColumnAnalyzer
+from guacml.util import deep_copy, get_fully_qualified_class_name
 
 
 class Pipeline:
@@ -31,3 +34,22 @@ class Pipeline:
         df = self.transform(test_set)
 
         return self.model.predict(df[self.features])
+
+    def serialize(self):
+        def get_step_state(step): return {'state': deep_copy(step.state), 'class': get_fully_qualified_class_name(step)}
+        tree = {
+            'steps': {step_name: get_step_state(step) for step_name, step in self.tree.steps.items()},
+            'children': dict(self.tree.children),
+        }
+        model = {
+            'class': get_fully_qualified_class_name(self.model),
+            'state': base64.b64encode(self.model.get_state()).decode(),
+        }
+
+        return {
+            'name': self.name,
+            'config': deep_copy(self.config),
+            'features': list(self.features),
+            'tree': tree,
+            'model': model,
+        }

@@ -1,10 +1,11 @@
-from sklearn.linear_model import LogisticRegression
+import pandas as pd
+import numpy as np
+import pickle
 from hyperopt import hp
+from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import Ridge
 
 from guacml.models.base_model import BaseModel
-import pandas as pd
-import numpy as np
 
 
 class LinearModel(BaseModel):
@@ -43,3 +44,6 @@ class LinearModel(BaseModel):
     def feature_importances(self, x):
         importance = np.abs(self.model.coef_) * x.std().values
         return pd.Series(importance.flatten(), index=x.columns)
+
+    def get_state(self):
+        return pickle.dumps(self.model)

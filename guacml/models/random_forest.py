@@ -1,9 +1,10 @@
+import pandas as pd
+import pickle
+from hyperopt import hp
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
 
 from guacml.models.base_model import BaseModel
-from sklearn.ensemble import RandomForestClassifier
-from hyperopt import hp
-import pandas as pd
 
 
 class RandomForest(BaseModel):
@@ -56,3 +57,6 @@ class RandomForest(BaseModel):
     def feature_importances(self, x):
         feat_scores = self.model.feature_importances_
         return pd.Series(list(feat_scores), index=list(x.columns))
+
+    def get_state(self):
+        return pickle.dumps(self.model)
