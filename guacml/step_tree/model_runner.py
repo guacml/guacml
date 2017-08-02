@@ -101,7 +101,7 @@ class ModelRunner():
 
     def train_and_predict_with_holdout_model(self, features, hyper_params):
         self.logger.info('Training holdout model %s on features %s using %s',
-                         self.model.name(), features, hyper_params)
+                         self.model.name(), list(features), hyper_params)
 
         x = self.train_and_cv[features]
         if not hasattr(self, 'target_trans'):

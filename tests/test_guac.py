@@ -1,7 +1,7 @@
-from guacml import GuacMl
 import pandas as pd
 import unittest
 
+from guacml import GuacMl
 from tests.test_util import load_dataset, load_config
 
 
