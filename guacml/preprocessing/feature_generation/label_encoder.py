@@ -16,7 +16,7 @@ class LabelEncoder(BaseStep):
             df[col] = df[col].astype(float)
             meta.loc[col, 'type'] = 'int_encoding'
             meta.loc[col, 'derived_from'] = col
-            classes[col] = enc.classes_
+            classes[col] = enc.classes_.tolist()
             self.logger.info('LabelEncoder: encoded %s', col)
 
         self.state = {'classes': classes}
