@@ -166,4 +166,4 @@ class GuacMl:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
 
     def get_pipeline(self, model):
-        return Pipeline(self, model)
+        return Pipeline.from_tree(self, model)

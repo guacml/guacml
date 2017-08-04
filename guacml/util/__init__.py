@@ -1,4 +1,5 @@
 import marshal
+import importlib
 
 
 def deep_update(left, right):
@@ -15,3 +16,10 @@ def deep_copy(obj):
 
 def get_fully_qualified_class_name(obj):
     return obj.__module__ + '.' + obj.__class__.__name__
+
+
+def get_class_from_string(string):
+    module_path, class_name = string.rsplit('.', 1)
+    module = importlib.import_module(module_path)
+
+    return getattr(module, class_name)

@@ -38,6 +38,9 @@ class BaseModel:
     def get_state(self):
         raise NotImplementedError()
 
+    def set_state(self, state):
+        raise NotImplementedError()
+
     @staticmethod
     def to_int(value):
         if value is None:

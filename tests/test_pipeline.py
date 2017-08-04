@@ -1,7 +1,9 @@
 import unittest
 import base64
+import json
 
 from guacml.pipeline import Pipeline
+from guacml.models.xgboost import XGBoost
 from tests.test_util import load_dataset, read_fixture
 
 
@@ -19,7 +21,7 @@ class TestPipeline(unittest.TestCase):
 
     def test_predict(self):
         guac = self.quick_run()
-        pipeline = Pipeline(guac, 'xgboost')
+        pipeline = guac.get_pipeline('xgboost')
         test_set = read_fixture().head()
         actual = pipeline.predict(test_set).tolist()
 
@@ -30,7 +32,7 @@ class TestPipeline(unittest.TestCase):
 
     def test_serialize(self):
         guac = self.quick_run()
-        pipeline = Pipeline(guac, 'xgboost')
+        pipeline = guac.get_pipeline('xgboost')
         state = pipeline.serialize()
 
         self.assertEqual('xgboost', state['name'])
@@ -53,3 +55,20 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual('guacml.preprocessing.feature_generation.label_encoder.LabelEncoder', step['class'])
         self.assertEqual(['female', 'male'], step['state']['classes']['Sex'])
         self.assertIsNot(pipeline.tree.get_step('encode_labels').state, step['state'])
+
+    def test_deserialize(self):
+        guac = self.quick_run()
+        pipeline = guac.get_pipeline('xgboost')
+        cloned_state = json.loads(json.dumps(pipeline.serialize()))
+        cloned_pipeline = Pipeline.deserialize(cloned_state, guac.logger)
+        test_set = read_fixture().head()
+
+        self.assertEqual(pipeline.name, cloned_pipeline.name)
+        self.assertEqual(pipeline.config, cloned_pipeline.config)
+        self.assertEqual(pipeline.features, cloned_pipeline.features)
+        self.assertIsInstance(cloned_pipeline.model, XGBoost)
+        self.assertEqual(pipeline.tree.children, cloned_pipeline.tree.children)
+        self.assertEqual(pipeline.tree.get_step('encode_labels').state,
+                         cloned_pipeline.tree.get_step('encode_labels').state)
+        self.assertEqual(pipeline.predict(test_set).tolist(),
+                         cloned_pipeline.predict(test_set).tolist())

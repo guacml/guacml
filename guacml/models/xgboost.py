@@ -70,3 +70,7 @@ class XGBoost(BaseModel):
 
     def get_state(self):
         return self.model.save_raw()
+
+    def set_state(self, state):
+        self.model = xgb.Booster()
+        self.model.load_model(bytearray(state))

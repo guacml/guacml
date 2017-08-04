@@ -60,3 +60,6 @@ class RandomForest(BaseModel):
 
     def get_state(self):
         return pickle.dumps(self.model)
+
+    def set_state(self, state):
+        self.model = pickle.loads(state)
