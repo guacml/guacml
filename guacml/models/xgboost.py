@@ -14,7 +14,7 @@ class XGBoost(BaseModel):
         self.model_config = config['models']['xgboost']
 
     def copy_model(self):
-        return xgb.Booster(model_file=self.model.save_raw())
+        return xgb.Booster(self.model_config, model_file=self.model.save_raw())
 
     def get_valid_types(self):
         return ['binary', 'numeric', 'ordinal', 'int_encoding']
