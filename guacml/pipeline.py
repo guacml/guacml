@@ -28,10 +28,10 @@ class Pipeline:
         self.model = model
         self.features = features
 
-    def transform(self, test_set):
+    def transform(self, x):
         step_name = self.tree.root_name
-        metadata = ColumnAnalyzer(self.config, self.logger).analyze(test_set)
-        data = Dataset(test_set, metadata)
+        metadata = ColumnAnalyzer(self.config, self.logger).analyze(x)
+        data = Dataset(x, metadata)
 
         while step_name is not None:
             step = self.tree.get_step(step_name)
@@ -41,8 +41,8 @@ class Pipeline:
 
         return data.df
 
-    def predict(self, test_set):
-        df = self.transform(test_set)
+    def predict(self, x):
+        df = self.transform(x)
 
         return self.model.predict(df[self.features])
 
