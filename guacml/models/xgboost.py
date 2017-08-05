@@ -69,5 +69,4 @@ class XGBoost(BaseModel):
         return self.model.save_raw()
 
     def set_state(self, state):
-        self.model = xgb.Booster()
-        self.model.load_model(bytearray(state))
+        self.model = xgb.Booster(model_file=bytearray(state))
