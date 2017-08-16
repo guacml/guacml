@@ -1,3 +1,5 @@
+import numpy as np
+
 from guacml.step_tree.base_step import BaseStep
 from sklearn.preprocessing import LabelEncoder as LE
 
@@ -13,15 +15,16 @@ class LabelEncoder(BaseStep):
 
         for col in cols_to_encode:
             encoder = LE()
-            input = df.loc[df[col].notnull(), col]
 
             if needs_fitting:
-                encoder.fit(input)
+                encoder.fit(df.loc[df[col].notnull(), col])
                 classes[col] = encoder.classes_.tolist()
             else:
                 encoder.classes_ = classes[col]
 
-            df.loc[df[col].notnull(), col] = encoder.transform(input)
+            nan_locs = ~df[col].isin(classes[col])
+            df.loc[df[col].isin(classes[col]), col] = encoder.transform(df.loc[df[col].isin(classes[col]), col])
+            df.loc[nan_locs, col] = np.nan
             df[col] = df[col].astype(float)
             meta.loc[col, 'type'] = 'int_encoding'
             meta.loc[col, 'derived_from'] = col
