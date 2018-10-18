@@ -33,12 +33,12 @@ class ModelManager():
             feature_reducer = FeatureReducer(model_runner, best_hps, self.logger)
             features = feature_reducer.reduce(features)
 
-        return self.build_result(model_runner, data.metadata, features, all_trials, best_hps)
+        return self.build_result(model_runner, features, all_trials, best_hps)
 
     def select_features(self, metadata):
         return metadata[metadata.type.isin(self.model.get_valid_types())].index.values
 
-    def build_result(self, model_runner, metadata, features, all_trials, best_hps):
+    def build_result(self, model_runner, features, all_trials, best_hps):
         df_trials = HyperParameterOptimizer.trials_to_data_frame(all_trials)
         df_trials = df_trials.sort_values('cv error')
         best = df_trials.iloc[0]
@@ -59,6 +59,7 @@ class ModelManager():
         holdout = model_runner.holdout.copy()
         holdout['prediction'] = holdout_predictions
         holdout['error'] = holdout_row_errors
+        metadata = model_runner.metadata
 
         return ModelResult(self.model,
                            features,

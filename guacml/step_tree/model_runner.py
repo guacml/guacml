@@ -3,6 +3,7 @@ import numpy as np
 
 from hyperopt import STATUS_OK
 from guacml import splitters
+from guacml import metrics
 from guacml.step_tree.lagged_target_handler import LaggedTargetHandler
 
 
@@ -10,10 +11,10 @@ class ModelRunner():
     def __init__(self, model, data, config, logger):
         self.model = model
         self.logger = logger
-        self.metadata = data.metadata
+        self.metadata = data.metadata.copy()
         rt_conf = config['run_time']
         self.target = rt_conf['target']
-        self.eval_metric = rt_conf['eval_metric']
+        self.eval_metric = metrics.create(rt_conf['eval_metric'])
         if rt_conf['target_transform'] is not None:
             self.target_trans = rt_conf['target_transform']
             data.df['guac_transformed_target'] = self.target_trans.transform(data.df[self.target])
@@ -30,8 +31,6 @@ class ModelRunner():
         self.holdout = holdout.copy()
         self.train_and_cv = holdout_train.copy()
         self.train_and_cv_folds = list(splitter.cv_splits(self.train_and_cv))
-        self.holdout_features = None
-        self.holdout_hyper_params = None
 
     def train_and_cv_error(self, features, hyper_params):
         self.train_for_cv(features, hyper_params)
@@ -101,10 +100,8 @@ class ModelRunner():
             self.cv_feature_importances = feature_importances.mean()
 
     def train_and_predict_with_holdout_model(self, features, hyper_params):
-        self.holdout_features = features
-        self.holdout_hyper_params = hyper_params
         self.logger.info('Training holdout model %s on features %s using %s',
-                         self.model.name(), features, hyper_params)
+                         self.model.name(), list(features), hyper_params)
 
         x = self.train_and_cv[features]
         if not hasattr(self, 'target_trans'):
@@ -126,9 +123,6 @@ class ModelRunner():
         self._truncate_predictions(self.holdout, 'prediction')
 
     def train_and_predict_with_offset_models(self, features, hyper_params):
-        self.holdout_features = features
-        self.holdout_hyper_params = hyper_params
-
         for i_offset in range(self.n_offset_models):
             train = self.train_and_cv
             train, features = LaggedTargetHandler.select_offset_features(train,

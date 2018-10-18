@@ -1,3 +1,6 @@
+from guacml.util import deep_copy
+
+
 class BaseStep:
 
     def __init__(self, config, logger):
@@ -5,6 +8,12 @@ class BaseStep:
         self.logger = logger
         self.runtime = None
         self.state = None
+
+    def copy(self, config):
+        copy = self.__class__(config, self.logger)
+        copy.state = deep_copy(self.state)
+
+        return copy
 
     def execute(self, data):
         if self.config['run_time']['inplace'] is False:

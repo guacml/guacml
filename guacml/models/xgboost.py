@@ -3,20 +3,21 @@ import xgboost as xgb
 import numpy as np
 import pandas as pd
 
-from guacml.enums import ProblemType
 from guacml.models.base_model import BaseModel
-from guacml.enums import ColType
 from hyperopt import hp
 
 
-class XgBoost(BaseModel):
+class XGBoost(BaseModel):
 
     def __init__(self, config, logger):
         super().__init__(config, logger)
         self.model_config = config['models']['xgboost']
 
+    def copy_model(self):
+        return xgb.Booster(self.model_config, model_file=self.model.save_raw())
+
     def get_valid_types(self):
-        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
+        return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
     def hyper_parameter_info(self):
         if 'hyper_parameters' in self.model_config:
@@ -43,13 +44,13 @@ class XgBoost(BaseModel):
         params.update(self.model_config)
 
         if 'objective' not in params:
-            if self.problem_type == ProblemType.BINARY_CLAS:
+            if self.problem_type == 'binary_clas':
                 params['objective'] = 'reg:logistic'
-            elif self.problem_type == ProblemType.REGRESSION:
+            elif self.problem_type == 'regression':
                 params['objective'] = 'reg:linear'
             else:
                 raise NotImplementedError(
-                    'Problem type {0} not implemented for XgBoost.'.format(self.problem_type)
+                    'Problem type {0} not implemented for XGBoost.'.format(self.problem_type)
                 )
 
         self.logger.info('About to train %d iterations of xgboost using %s', n_rounds, params)
@@ -63,3 +64,9 @@ class XgBoost(BaseModel):
     def feature_importances(self, x):
         feat_scores = self.model.get_fscore()
         return pd.Series(list(feat_scores.values()), index=list(feat_scores.keys()))
+
+    def get_state(self):
+        return self.model.save_raw()
+
+    def set_state(self, state):
+        self.model = xgb.Booster(model_file=bytearray(state))

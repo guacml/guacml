@@ -1,4 +1,3 @@
-from guacml.preprocessing.column_analyzer import ColType
 from guacml.step_tree.base_step import BaseStep
 import pandas as pd
 
@@ -9,7 +8,7 @@ class DateParts(BaseStep):
         df = data.df
         meta = data.metadata
 
-        date_cols = meta[meta.type == ColType.DATETIME].index
+        date_cols = meta[meta.type == 'datetime'].index
         for col in date_cols:
             df[col + '_hour'] = df[col].dt.hour
             df[col + '_day'] = df[col].dt.day
@@ -29,7 +28,7 @@ class DateParts(BaseStep):
             for new_col in new_cols:
                 to_append_index.append(new_col)
                 to_append.append({
-                    'type': ColType.ORDINAL,
+                    'type': 'ordinal',
                     'derived_from': col,
                     'n_unique': df[new_col].nunique(),
                     'n_na': df[new_col].notnull().sum(),

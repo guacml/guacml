@@ -1,8 +1,18 @@
 class BaseModel:
+
     def __init__(self, config, logger):
         self.config = config
         self.problem_type = config['run_time']['problem_type']
         self.logger = logger
+
+    def copy(self, config):
+        copy = self.__class__(config, self.logger)
+        copy.model = self.copy_model()
+
+        return copy
+
+    def copy_model(self):
+        raise NotImplementedError()
 
     def name(self):
         return self.__class__.__name__
@@ -23,6 +33,12 @@ class BaseModel:
         raise NotImplementedError()
 
     def feature_importances(self, x):
+        raise NotImplementedError()
+
+    def get_state(self):
+        raise NotImplementedError()
+
+    def set_state(self, state):
         raise NotImplementedError()
 
     @staticmethod

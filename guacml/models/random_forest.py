@@ -1,17 +1,19 @@
-from sklearn.ensemble import RandomForestRegressor
-
-from guacml.enums import ProblemType
-from guacml.models.base_model import BaseModel
-from guacml.preprocessing.column_analyzer import ColType
-from sklearn.ensemble import RandomForestClassifier
-from hyperopt import hp
 import pandas as pd
+import pickle
+from hyperopt import hp
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+
+from guacml.models.base_model import BaseModel
 
 
 class RandomForest(BaseModel):
 
+    def copy_model(self):
+        return pickle.loads(pickle.dumps(self.model))
+
     def get_valid_types(self):
-        return [ColType.BINARY, ColType.NUMERIC, ColType.ORDINAL, ColType.INT_ENCODING]
+        return ['binary', 'numeric', 'ordinal', 'int_encoding']
 
     def hyper_parameter_info(self):
         return {
@@ -29,11 +31,11 @@ class RandomForest(BaseModel):
         max_depth = self.to_int(max_depth)
         min_samples_leaf = self.pos_int(min_samples_leaf)
 
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             self.model = RandomForestClassifier(n_estimators,
                                                 max_depth=max_depth,
                                                 min_samples_leaf=min_samples_leaf)
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             self.model = RandomForestRegressor(n_estimators,
                                                max_depth=max_depth,
                                                min_samples_leaf=min_samples_leaf)
@@ -43,9 +45,9 @@ class RandomForest(BaseModel):
         self.model.fit(x, y)
 
     def predict(self, x):
-        if self.problem_type == ProblemType.BINARY_CLAS:
+        if self.problem_type == 'binary_clas':
             prediction = self.model.predict_proba(x)[:, 1]
-        elif self.problem_type == ProblemType.REGRESSION:
+        elif self.problem_type == 'regression':
             prediction = self.model.predict(x)
         else:
             raise NotImplementedError('Problem type {0} not implemented'.format(self.problem_type))
@@ -55,3 +57,9 @@ class RandomForest(BaseModel):
     def feature_importances(self, x):
         feat_scores = self.model.feature_importances_
         return pd.Series(list(feat_scores), index=list(x.columns))
+
+    def get_state(self):
+        return pickle.dumps(self.model)
+
+    def set_state(self, state):
+        self.model = pickle.loads(state)

@@ -1,6 +1,6 @@
 from guacml.models.linear_model import LinearModel
 from guacml.models.random_forest import RandomForest
-from guacml.models.xgboost import XgBoost
+from guacml.models.xgboost import XGBoost
 from guacml.preprocessing.column_cleaner import ColumnCleaner
 from guacml.preprocessing.feature_whitelist import FeatureWhitelist
 from guacml.preprocessing.feature_generation.date_parts import DateParts
@@ -34,7 +34,7 @@ class TreeBuilder:
                            FeatureWhitelist(self.config, self.logger))
         step_tree.add_step('fill_na', 'feature_whitelist', FillNa(self.config, self.logger))
 
-        step_tree.add_model('xg_boost', 'feature_whitelist', XgBoost(self.config, self.logger))
+        step_tree.add_model('xgboost', 'feature_whitelist', XGBoost(self.config, self.logger))
 
         step_tree.add_model('random_forest', 'fill_na', RandomForest(self.config, self.logger))
 

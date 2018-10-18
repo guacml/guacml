@@ -1,7 +1,8 @@
-from guacml import GuacMl
 import pandas as pd
 import unittest
 
+from guacml import GuacMl
+from guacml.models.xgboost import XGBoost
 from tests.test_util import load_dataset, load_config
 
 
@@ -63,7 +64,6 @@ class TestGuac(unittest.TestCase):
         df = pd.DataFrame({'a': range(100), 'b': [x + 0.5 for x in range(100)]},
                           index=range(100, 200))
         guac = GuacMl(df, 'b', config=load_config())
-        guac.clear_previous_runs()
         guac.run(1)
         self.assertAlmostEqual(guac.model_results['linear_model'].holdout_error, 0.0, delta=1e-4)
 
@@ -91,3 +91,35 @@ class TestGuac(unittest.TestCase):
     def test_nested_config(self):
         guac = load_dataset(config={'run_time': {'inplace': True}, 'foo': {'bar': True}})
         self.assertTrue('target' in guac.config['run_time'])
+
+    def test_get_pipeline(self):
+        guac = load_dataset()
+        guac.run(1)
+
+        pipeline = guac.get_pipeline('xgboost')
+
+        # Easier to assert on that separately
+        column_types = pipeline.config['column_types']
+        pipeline.config['column_types'] = {}
+
+        self.assertEqual('xgboost', pipeline.name)
+
+        self.assertEqual(4, len(pipeline.tree.steps))
+        self.assertIsNot(guac.tree, pipeline.tree)
+        self.assertIsNot(guac.tree.get_step('clean_columns'), pipeline.tree.get_step('clean_columns'))
+        self.assertEqual('clean_columns', pipeline.tree.root_name)
+        self.assertEqual({
+            'clean_columns': ['encode_labels'],
+            'encode_labels': ['date_parts'],
+            'date_parts': ['feature_whitelist'],
+        }, dict(pipeline.tree.children))
+        self.assertEqual(guac.config, pipeline.config)
+        self.assertIsNot(guac.config, pipeline.config)
+        self.assertEqual(guac.model_results['xgboost'].metadata.type.to_dict(), column_types)
+        self.assertIs(pipeline.config, pipeline.tree.get_step('clean_columns').config)
+
+        self.assertEqual(list(guac.model_results['xgboost'].features), pipeline.features)
+
+        self.assertIsInstance(pipeline.model, XGBoost)
+        self.assertIsNot(pipeline.model, guac.model_results['xgboost'].model)
+        self.assertIs(pipeline.config, pipeline.model.config)

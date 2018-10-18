@@ -6,7 +6,7 @@ from guacml.metrics.log_loss import LogLoss
 from guacml.metrics.mean_squared_error import MeanSquaredError
 
 
-def eval_metric_from_name(metric_name):
+def create(metric_name):
     if metric_name == 'accuracy':
         return Accuracy()
     elif metric_name == 'logloss':

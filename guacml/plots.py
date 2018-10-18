@@ -3,8 +3,6 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
-from guacml.enums import ProblemType
-from guacml.preprocessing.column_analyzer import ColType
 import guacml.utils as utils
 
 
@@ -25,12 +23,12 @@ class Plots:
         target_data = self.input_data.df[self.target]
         sns.set(style="white", color_codes=True)
         if not self.run_time_config['is_time_series']:
-            if target_type == ColType.BINARY:
+            if target_type == 'binary':
                 plt.figure(figsize=(6, 1))
                 sns.barplot(target_data.sum() / target_data.shape[0])
                 plt.xlim([0, 1])
                 plt.title(target_data.name + ' rate')
-            elif target_type == ColType.NUMERIC or target_type == ColType.ORDINAL:
+            elif target_type == 'numeric' or target_type == 'ordinal':
                 plt.figure(figsize=(6, 2))
                 ax = sns.distplot(target_data, hist_kws=dict(edgecolor='black'))
                 ax.set_xlim(target_data.min(), target_data.max())
@@ -112,7 +110,7 @@ class Plots:
         model_results = self.model_results[model_name]
         metadata = model_results.metadata
         holdout = model_results.holdout_data
-        low_card_cols = [ColType.CATEGORICAL, ColType.ORDINAL]
+        low_card_cols = ['categorical', 'ordinal']
         for col in metadata[metadata.type.isin(low_card_cols)].col_name:
             sns.barplot(x=col, y='error', data=holdout)
             plt.show()
@@ -127,12 +125,12 @@ class Plots:
     def predictions_vs_actual(self, model_name, n_bins=10, **kwargs):
         model_result = self.model_results[model_name]
         if not self.run_time_config['is_time_series']:
-            if self.problem_type == ProblemType.BINARY_CLAS:
+            if self.problem_type == 'binary_clas':
                 return predictions_vs_actual_classification(model_result,
                                                             model_name,
                                                             n_bins,
                                                             **kwargs)
-            elif self.problem_type == ProblemType.REGRESSION:
+            elif self.problem_type == 'regression':
                 return predictions_vs_actual_regression(model_result, model_name, **kwargs)
             else:
                 raise Exception('Not implemented for problem type ' + self.problem_type)

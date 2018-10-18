@@ -4,8 +4,6 @@ import pandas as pd
 import logging
 
 from guacml.dataset import Dataset
-from guacml.enums import ProblemType, ColType
-import guacml.metrics as eval_metrics
 import guacml.target_transforms as transforms
 
 from guacml.plots import Plots
@@ -13,6 +11,7 @@ from guacml.step_tree.tree_builder import TreeBuilder
 from guacml.step_tree.tree_runner import TreeRunner
 from guacml.util import deep_update
 from guacml.util.time_series_util import analyze_frequency
+from guacml.pipeline import Pipeline
 
 
 class GuacMl:
@@ -40,37 +39,29 @@ class GuacMl:
         metadata = self.data.metadata
         target_meta = metadata.loc[target]
         rt_conf = self.config['run_time']
+
         if problem_type is None:
-            if target_meta.type == ColType.BINARY:
-                problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
+            if target_meta.type == 'binary':
+                problem_type = 'binary_clas'
                 self.logger.info('Binary classification problem detected.')
-            elif target_meta.type in [ColType.CATEGORICAL, ColType.INT_ENCODING]:
-                problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
+            elif target_meta.type in ['categorical', 'int_encoding']:
+                problem_type = 'multi_clas'
                 self.logger.info('Multi class classification problem detected.')
-            elif target_meta.type in [ColType.ORDINAL, ColType.NUMERIC]:
-                problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
+            elif target_meta.type in ['ordinal', 'numeric']:
+                problem_type = 'regression'
                 self.logger.info('Regression problem detected.')
             else:
                 raise Exception('Can not automatically infer problem type.')
-        else:
-            if problem_type == 'binary_clas':
-                problem_type = ProblemType.BINARY_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
-            elif problem_type == 'multi_clas':
-                problem_type = ProblemType.MULTI_CLAS
-                rt_conf['eval_metric'] = eval_metrics.LogLoss()
+
+        if eval_metric is None:
+            if problem_type in ['binary_clas', 'multi_clas']:
+                eval_metric = 'logloss'
             elif problem_type == 'regression':
-                problem_type = ProblemType.REGRESSION
-                rt_conf['eval_metric'] = eval_metrics.MeanSquaredError()
+                eval_metric = 'mse'
             else:
                 raise Exception('Problem type {} not known.'.format(problem_type))
 
-        if eval_metric is not None:
-            metric_name = eval_metric.lower()
-            rt_conf['eval_metric'] = eval_metrics.eval_metric_from_name(metric_name)
+        rt_conf['eval_metric'] = eval_metric
 
         if target_transform is not None:
             transform_name = target_transform.lower()
@@ -173,3 +164,6 @@ class GuacMl:
             return self.model_results[model_name].all_hyper_param_runs
         else:
             raise ValueError('Model name has to be in {0}'.format(self.model_results.keys()))
+
+    def get_pipeline(self, model):
+        return Pipeline.from_tree(self, model)

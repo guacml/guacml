@@ -4,12 +4,12 @@ from guacml.models.base_model import BaseModel
 from guacml.step_tree.base_step import BaseStep
 from collections import defaultdict
 from guacml.step_tree.model_manager import ModelManager
+from guacml.util import deep_copy
 
 
 class StepTree:
     def __init__(self, config, logger):
         self.steps = {}
-        self.parents = {}
         self.children = defaultdict(list)
         self.config = config
         self.root_name = None
@@ -32,8 +32,7 @@ class StepTree:
             self.add_parent_child_relation(parent_name, step_name)
 
     def add_parent_child_relation(self, parent, child):
-        self.children[parent].append(child)
-        self.parents[child] = parent
+        self.get_children(parent).append(child)
 
     def add_model(self, step_name, parent_name, model):
         if not isinstance(model, BaseModel):
@@ -52,7 +51,7 @@ class StepTree:
         if insert_point == self.root_name:
             self.root_name = step_name
         else:
-            parent = self.parents[insert_point]
+            parent = self.get_parent(insert_point)
             self.delete_parent_child(parent, insert_point)
             self.add_parent_child_relation(parent, step_name)
 
@@ -68,7 +67,7 @@ class StepTree:
             raise ValueError('Argument step of type {} needs to be derived from BaseStep.'
                              .format(type(step)))
 
-        children = self.children[insert_point].copy()
+        children = self.get_children(insert_point).copy()
         for child in children:
             self.delete_parent_child(insert_point, child)
             self.add_parent_child_relation(step_name, child)
@@ -77,20 +76,53 @@ class StepTree:
         self.steps[step_name] = step
 
     def delete_parent_child(self, parent, child):
-        children = self.children[parent]
-        if len(children) > 1:
-            self.children[parent].remove(child)
-        elif len(children) == 1:
-            del self.children[parent]
-        else:
-            raise Exception('There should never be a children entry without items.')
-        del self.parents[child]
+        self.get_children(parent).remove(child)
 
     def get_step(self, name):
         return self.steps[name]
 
     def get_children(self, step_name):
         return self.children[step_name]
+
+    def get_parent(self, step_name):
+        for parent, children in self.children.items():
+            if step_name in children:
+                return parent
+
+    def delete_step(self, step_name):
+        parent = self.get_parent(step_name)
+        children = self.get_children(step_name)
+
+        if parent is None:
+            if len(children) > 1:
+                raise Exception('Cannot delete root step because it has more than one child step')
+
+            self.root_name = children[0] if len(children) > 0 else None
+        else:
+            self.delete_parent_child(parent, step_name)
+            self.get_children(parent).extend(children)
+
+        del self.children[step_name]
+        del self.steps[step_name]
+
+    def get_subtree_upto(self, leaf):
+        config = deep_copy(self.config)
+        subtree = StepTree(config, self.logger)
+        ancestry = []
+        current_step = leaf
+
+        while current_step is not None:
+            current_step = self.get_parent(current_step)
+            ancestry.insert(0, current_step)
+
+        for i in range(1, len(ancestry)):
+            child = ancestry[i]
+            parent = ancestry[i - 1]
+            step = self.get_step(child)
+
+            subtree.add_step(child, parent, step.copy(config))
+
+        return subtree
 
     def get_leaf_names(self):
         leaf_names = []
