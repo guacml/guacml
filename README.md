@@ -1,3 +1,9 @@
+
+>  # ⚠️⛔️⚠️ Currently Unmaintained ⚠️⛔️⚠️
+>
+> We lost interest in the topic a while ago and are no longer maintainting guacml. Feel free to reach out if you still want to contribute or take over.
+
+
 # Guacamole - ML without the boilerplate
 
 Automate typical DS/ML workflow, get rid of the boilerplate, use sensible defaults, but expose ways to customize them ("convention over configuration").
